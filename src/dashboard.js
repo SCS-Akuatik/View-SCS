@@ -84,34 +84,167 @@ async function loadEvents() {
 }
 
 // 4. EKSEKUSI TOMBOL BUAT EVENT
-document.getElementById('btnBuatEvent')?.addEventListener('click', async () => {
-    let eventName = prompt("Masukkan NAMA LOMBA Anda:\n(Contoh: Fun Swimming Jago Renang 2026)");
-    if (!eventName) return;
+// --- ELEMEN MODAL BUAT EVENT ---
+const modalBuatEvent = document.getElementById('modalBuatEvent');
+const modalContent = document.getElementById('modalContent');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const btnBuatEvent = document.getElementById('btnBuatEvent');
 
-    let subDomain = prompt("Masukkan NAMA LINK (Subdomain) yang diinginkan:\n(Contoh: jagorenang-lomba)\n*Gunakan huruf kecil tanpa spasi");
-    if (!subDomain) return;
-    subDomain = subDomain.toLowerCase().replace(/\s+/g, '-');
+const inputNamaEvent = document.getElementById('inputNamaEvent');
+const inputSubdomain = document.getElementById('inputSubdomain');
+const btnCekDomain = document.getElementById('btnCekDomain');
+const subdomainStatus = document.getElementById('subdomainStatus');
+const btnSubmitEvent = document.getElementById('btnSubmitEvent');
 
-    let price = prompt("Masukkan harga pendaftaran per atlet (Rupiah):\n(Contoh: 50000)");
-    if (!price) price = 0;
+let isSubdomainValid = false;
+
+// Buka Modal
+btnBuatEvent?.addEventListener('click', () => {
+    modalBuatEvent.classList.remove('hidden');
+    setTimeout(() => modalContent.classList.remove('scale-95'), 10);
+    // Reset Form
+    inputNamaEvent.value = '';
+    inputSubdomain.value = '';
+    isSubdomainValid = false;
+    btnSubmitEvent.disabled = true;
+    updateStatus('Belum dicek', 'gray');
+});
+
+// Tutup Modal
+closeModalBtn?.addEventListener('click', () => {
+    modalContent.classList.add('scale-95');
+    setTimeout(() => modalBuatEvent.classList.add('hidden'), 200);
+});
+
+// Validasi ketikan subdomain (huruf kecil, angka, tanpa spasi)
+inputSubdomain?.addEventListener('input', function() {
+    this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+    isSubdomainValid = false;
+    btnSubmitEvent.disabled = true;
+    updateStatus('Belum dicek', 'gray');
+});
+
+// Fungsi Update Status UI
+function updateStatus(text, color) {
+    const colorMap = {
+        'gray': 'bg-gray-400 text-gray-500',
+        'green': 'bg-green-500 text-green-600',
+        'red': 'bg-red-500 text-red-600',
+        'yellow': 'bg-yellow-500 text-yellow-600'
+    };
+    
+    // Ambil base class warna
+    const dotColor = colorMap[color].split(' ')[0];
+    const textColor = colorMap[color].split(' ')[1];
+
+    subdomainStatus.innerHTML = `<span class="w-2 h-2 rounded-full ${dotColor}"></span> <span class="${textColor}">${text}</span>`;
+}
+
+// LOGIKA CEK KETERSEDIAAN SUBDOMAIN KE SUPABASE
+btnCekDomain?.addEventListener('click', async () => {
+    const sub = inputSubdomain.value.trim();
+    if (sub.length < 4) {
+        return updateStatus('Minimal 4 karakter bro', 'red');
+    }
+
+    updateStatus('Mengecek server...', 'yellow');
+    btnCekDomain.disabled = true;
 
     try {
+        // Cek ke tabel events apakah subdomain sudah ada
+        const { data, error } = await supabaseClient
+            .from('events')
+            .select('subdomain')
+            .eq('subdomain', sub);
+
+        if (error) throw error;
+
+        if (data.length > 0) {
+            updateStatus('Sudah digunakan ❌', 'red');
+            isSubdomainValid = false;
+            btnSubmitEvent.disabled = true;
+        } else {
+            updateStatus('Tersedia ✅', 'green');
+            isSubdomainValid = true;
+            if (inputNamaEvent.value.trim().length > 0) {
+                btnSubmitEvent.disabled = false;
+            }
+        }
+    } catch (err) {
+        updateStatus('Gagal koneksi', 'red');
+    } finally {
+        btnCekDomain.disabled = false;
+    }
+});
+
+// Buka kunci tombol Submit kalau Nama Event diisi setelah Cek Domain
+inputNamaEvent?.addEventListener('input', () => {
+    if (isSubdomainValid && inputNamaEvent.value.trim().length > 0) {
+        btnSubmitEvent.disabled = false;
+    } else {
+        btnSubmitEvent.disabled = true;
+    }
+});
+
+// ==========================================
+// EKSEKUSI BUAT EVENT & SIMULASI LOADING SAAS
+// ==========================================
+btnSubmitEvent?.addEventListener('click', async () => {
+    const eventName = inputNamaEvent.value.trim();
+    const subdomain = inputSubdomain.value.trim();
+    
+    // 1. Tutup modal, tampilkan Loading Layar Penuh
+    modalBuatEvent.classList.add('hidden');
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+
+    const steps = [
+        document.getElementById('loadStep1'),
+        document.getElementById('loadStep2'),
+        document.getElementById('loadStep3'),
+        document.getElementById('loadStep4')
+    ];
+
+    // Fungsi Animasi Loading (UX Delight)
+    const runSim = async () => {
+        for (let i = 0; i < steps.length; i++) {
+            await new Promise(r => setTimeout(r, 800)); // Jeda 0.8 detik tiap baris
+            steps[i].classList.remove('opacity-50');
+            steps[i].innerHTML = steps[i].innerHTML.replace('⏳', '✅');
+        }
+    };
+
+    try {
+        // Mulai animasi loading di background
+        const simPromise = runSim();
+
+        // 2. Eksekusi asli ke Database Supabase
         const { data, error } = await supabaseClient
             .from('events')
             .insert([
                 { 
                     event_name: eventName, 
-                    subdomain: subDomain, 
-                    ticket_price: parseInt(price)
+                    subdomain: subdomain, 
+                    owner_id: currentUser.id // Jangan lupa pastikan var currentUser ada di filemu
                 }
-            ]);
+            ])
+            .select();
 
         if (error) throw error;
+        
+        // Tunggu animasi loading selesai biar user puas ngeliatnya
+        await simPromise;
+        await new Promise(r => setTimeout(r, 500));
 
-        alert("BOOM! 🚀 Kompetisi lu sukses terdaftar di server!");
-        await loadEvents();
+        // 3. Arahkan ke Dashboard Event Khusus
+        // Data[0].id adalah UUID event yang baru terbuat
+        window.location.replace(`/event-dashboard.html?id=${data[0].id}`);
+
     } catch (err) {
-        alert("Gagal membuat event: " + err.message);
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+        alert("Gagal membangun event: " + err.message);
     }
 });
 

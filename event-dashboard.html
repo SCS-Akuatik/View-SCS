@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruang Kendali Event | SCS</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+    <!-- Top Navigation -->
+    <nav class="bg-blue-900 text-white shadow-md p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <a href="/dashboard.html" class="hover:bg-blue-800 p-2 rounded-lg transition">
+                <span class="text-xl">⬅️</span> Kembali
+            </a>
+            <div>
+                <h1 id="headerEventName" class="text-xl font-extrabold">Memuat Event...</h1>
+                <p id="headerSubdomain" class="text-blue-200 text-sm font-mono">...funswimming.id</p>
+            </div>
+        </div>
+        <button class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg font-bold shadow-sm transition">
+            Publish Event
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="p-6 max-w-6xl mx-auto space-y-6">
+        
+        <!-- Link Publik Banner -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h3 class="font-bold text-gray-700">Link Pendaftaran Publik</h3>
+                <p class="text-sm text-gray-500">Bagikan link ini ke peserta atau klub lain</p>
+            </div>
+            <div class="flex w-full md:w-auto">
+                <input type="text" id="publicLinkInput" class="w-full md:w-80 px-4 py-2 bg-gray-100 border border-gray-300 rounded-l-lg font-mono text-sm text-blue-900 focus:outline-none" readonly>
+                <button id="btnCopyLink" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg font-bold transition">
+                    Copy Link
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid Menu Event (Sesuai rancanganmu) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
+                <h3 class="font-bold text-gray-800">Overview</h3>
+                <p class="text-xs text-gray-500 mt-1">Statistik pendaftar</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🎨</span>
+                <h3 class="font-bold text-gray-800">Landing Page</h3>
+                <p class="text-xs text-gray-500 mt-1">Edit tampilan web</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">👥</span>
+                <h3 class="font-bold text-gray-800">Data Peserta</h3>
+                <p class="text-xs text-gray-500 mt-1">Manajemen atlet</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🎫</span>
+                <h3 class="font-bold text-gray-800">Nomor Start</h3>
+                <p class="text-xs text-gray-500 mt-1">Generate otomatis</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">⏱️</span>
+                <h3 class="font-bold text-gray-800">Entry Time</h3>
+                <p class="text-xs text-gray-500 mt-1">Seeding waktu</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🏆</span>
+                <h3 class="font-bold text-gray-800">Live Result</h3>
+                <p class="text-xs text-gray-500 mt-1">Hasil pertandingan</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🤝</span>
+                <h3 class="font-bold text-gray-800">Sponsor</h3>
+                <p class="text-xs text-gray-500 mt-1">Kelola logo sponsor</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">⚙️</span>
+                <h3 class="font-bold text-gray-800">Pengaturan</h3>
+                <p class="text-xs text-gray-500 mt-1">Harga, tanggal, dll</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Panggil Logika JS -->
+    <script type="module" src="/src/event-dashboard.js"></script>
+</body>
+</html>

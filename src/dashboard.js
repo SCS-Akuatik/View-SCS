@@ -226,10 +226,11 @@ btnSubmitEvent?.addEventListener('click', async () => {
                 { 
                     event_name: eventName, 
                     subdomain: subdomain, 
-                    client_id: currentProfile.id // <-- UBAH DI SINI: pakai client_id
+                    owner_id: currentProfile.id // <--- PASTIKAN INI OWNER_ID
                 }
             ])
             .select();
+
 
 
         if (error) throw error;

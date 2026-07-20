@@ -226,10 +226,11 @@ btnSubmitEvent?.addEventListener('click', async () => {
                 { 
                     event_name: eventName, 
                     subdomain: subdomain, 
-                    owner_id: currentUser.id // Jangan lupa pastikan var currentUser ada di filemu
+                    client_id: currentProfile.id // <-- UBAH DI SINI: pakai client_id
                 }
             ])
             .select();
+
 
         if (error) throw error;
         

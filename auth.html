@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS - Login Terpadu</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 transition-all duration-300">
+        <div class="flex justify-center mb-6">
+            <img src="/images/logo.png" alt="SCS Logo" class="h-28 md:h-32 w-auto object-contain">
+        </div>
+
+        <div class="text-center mb-8">
+            <h2 id="formTitle" class="text-2xl font-extrabold text-scsBlue">Masuk ke Portal</h2>
+            <p id="formSubtitle" class="text-sm text-gray-500 mt-2">Sistem Manajemen Kompetisi Akuatik</p>
+        </div>
+        
+        <div class="space-y-5">
+            <div id="clubInputGroup" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Klub / Penyelenggara</label>
+                <input id="clubName" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50" placeholder="Contoh: F1 SwimmingClub">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                <input id="email" type="email" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50" placeholder="coach@klub.com">
+            </div>
+            
+            <!-- Kata Sandi 1 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Kata Sandi</label>
+                <div class="relative">
+                    <input id="password" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 pr-12" placeholder="••••••••">
+                    <button id="togglePassword" type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-scsBlue transition">
+                        <!-- SVG diinjeksi via JS -->
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kata Sandi 2 (Konfirmasi) -->
+            <div id="confirmPasswordGroup" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Konfirmasi Kata Sandi</label>
+                <div class="relative">
+                    <input id="confirmPassword" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 pr-12" placeholder="••••••••">
+                    <button id="toggleConfirmPassword" type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-scsBlue transition">
+                        <!-- SVG diinjeksi via JS -->
+                    </button>
+                </div>
+            </div>
+
+            <div id="messageBox" class="hidden text-sm font-bold text-center rounded-lg p-3"></div>
+
+            <button id="mainBtn" class="w-full bg-scsBlue text-white py-3.5 rounded-xl font-bold text-lg hover:bg-blue-900 shadow-lg transition-all flex justify-center items-center">
+                Masuk ke Dashboard
+            </button>
+        </div>
+
+        <div class="mt-8 border-t border-gray-100 pt-6 text-center">
+            <p class="text-sm text-gray-600">
+                <span id="toggleText">Belum bermitra dengan kami?</span> 
+                <button id="toggleBtn" class="text-scsGold font-bold hover:underline ml-1">Daftar sekarang</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- PANGGIL LOGIC JAVASCRIPT DISINI -->
+    <script type="module" src="/src/auth.js"></script>
+</body>
+</html>

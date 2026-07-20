@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS - Swimming Competition System</title>
+    <!-- Menghubungkan CSS hasil build Vite & Tailwind -->
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <nav class="bg-white shadow-md fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <div class="flex-shrink-0 flex items-center h-full py-2">
+                    <img class="max-h-12 md:max-h-16 w-auto object-contain" src="/images/logo.png" alt="SCS Logo">
+                </div>
+                
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#fitur" class="text-gray-600 hover:text-scsBlue font-medium">Fitur Utama</a>
+                    <a href="#ekosistem" class="text-gray-600 hover:text-scsBlue font-medium">Ekosistem</a>
+                    <!-- Absolute Path ditambahkan di sini -->
+                    <a href="/auth.html" class="text-gray-600 hover:text-scsBlue font-medium">Masuk</a>
+                    <a href="/auth.html" class="bg-scsBlue text-white px-6 py-2 rounded-full font-bold hover:bg-blue-900 transition shadow-lg">Daftar</a>
+                </div>
+
+                <div class="md:hidden flex items-center">
+                    <!-- Absolute Path ditambahkan di sini (Tombol Mobile) -->
+                    <a href="/auth.html" class="bg-scsBlue text-white px-5 py-1.5 text-sm rounded-full font-bold shadow-md hover:bg-blue-900 transition">Masuk</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-24 pb-20 lg:pt-32 lg:pb-32 bg-scsBlue text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight flex flex-col items-center justify-center gap-4">
+                <span>Selamat Tinggal</span>
+                <span class="inline-flex items-center bg-white px-4 py-2 rounded-2xl shadow-2xl transform -rotate-2">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/Google_Forms_2020_Logo.svg" alt="Google Forms Logo" class="h-10 md:h-14 mr-3">
+                    <span class="text-gray-800 text-3xl md:text-5xl font-bold line-through decoration-red-500 decoration-4">Google Forms</span>
+                </span>
+            </h1>
+            <p class="mt-6 text-lg md:text-2xl font-light text-gray-200 max-w-3xl mx-auto mb-10">
+                Revolusi manajemen lomba renang Indonesia. Dari pendaftaran otomatis, filter atlet pro, hingga transparansi cashflow dalam satu dashboard.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <!-- Absolute Path ditambahkan di sini -->
+                <a href="/auth.html" class="bg-scsGold text-scsBlue px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-500 transition shadow-xl inline-block">
+                    Buat Event Pertama (Gratis Trial)
+                </a>
+                <a href="#fitur" class="bg-transparent border-2 border-scsGold text-scsGold px-8 py-4 rounded-full font-bold text-lg hover:bg-scsGold hover:text-scsBlue transition inline-block">
+                    Pelajari Sistem
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="fitur" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-extrabold text-scsBlue">Didesain Khusus untuk Panitia Fun Swimming</h2>
+                <p class="mt-4 text-lg text-gray-500">Berhenti stres ngurusin Excel dan chat WhatsApp. Biarkan sistem kami yang bekerja.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-scsBlue hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl">🗂️</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Auto-Lock Kelompok Umur</h3>
+                    <p class="text-gray-600">Peserta input tanggal lahir, sistem otomatis mengunci kategori KU. Bebas drama salah input, rawan kecolongan, atau repot nyortir data.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-scsGold hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mb-6 text-3xl">🥷</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Filter Sparing Partner</h3>
+                    <p class="text-gray-600">Pendaftar atlet pro (NISDA/NISNAS) tetap diterima tanpa merusak medali pemula. Tersembunyi di start list, otomatis jadi "Exhibition" di hasil akhir.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-scsBlue hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl">💰</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Cashflow Management</h3>
+                    <p class="text-gray-600">Pantau modal, revenue, dan margin profit secara real-time. Dilengkapi sistem bagi hasil transparan antara Owner, Admin, dan Operator.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ekosistem" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2">
+                <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Swimming Pool" class="rounded-2xl shadow-2xl">
+            </div>
+            <div class="md:w-1/2">
+                <h2 class="text-3xl font-extrabold text-scsBlue mb-6">Lebih Dari Sekadar Web Pendaftaran</h2>
+                <p class="text-lg text-gray-600 mb-6">SCS membawa Anda ke dalam ekosistem akuatik Nusantara yang terintegrasi. Semua kebutuhan event Anda ada di satu "selimut".</p>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 h-6 w-6 text-scsGold font-bold text-xl mr-3">✓</span>
+                        <span class="text-gray-700"><strong>Subdomain Eksklusif:</strong> (nama-event).scs-akuatik.my.id</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 h-6 w-6 text-scsGold font-bold text-xl mr-3">✓</span>
+                        <span class="text-gray-700"><strong>Ajukan Sponsor:</strong> Terhubung langsung dengan brand lokal untuk support event Anda.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="flex-shrink-0 h-6 w-6 text-scsGold font-bold text-xl mr-3">✓</span>
+                        <span class="text-gray-700"><strong>Call Juri Pro:</strong> Akses direktori dan booking tim juri bersertifikat di kota Anda.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <img src="/images/logo.png" alt="SCS Logo" class="h-16 mx-auto mb-6 opacity-80 grayscale">
+            <p>&copy; 2026 Swimming Competition System (SCS) Akuatik Nusantara.</p>
+            <p class="mt-2 text-sm">Didesain oleh orang lapangan, untuk orang lapangan.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

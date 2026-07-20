@@ -24,31 +24,57 @@
     <div class="p-6 max-w-5xl mx-auto mt-4">
         <!-- Stats -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-xs font-bold uppercase mb-1">Total Pendaftar</p>
-                <p class="text-3xl font-extrabold text-gray-800" id="totalAthletes">0 <span class="text-sm font-normal text-gray-400">Atlet</span></p>
+            <div class="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition duration-300 border border-gray-100 flex flex-col justify-between">
+                <div>
+                    <p class="text-gray-500 text-xs font-bold uppercase mb-1">Total Pendaftar</p>
+                    <p class="text-3xl font-extrabold text-gray-800" id="totalAthletes">0 <span class="text-sm font-normal text-gray-400">Atlet</span></p>
+                </div>
+                <!-- Empty State Polish -->
+                <p class="text-xs text-gray-400 mt-3 italic leading-tight">Belum ada atlet terdaftar. Yuk buat event pertama!</p>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                <p class="text-gray-500 text-xs font-bold uppercase mb-1">Total Kebutuhan Dana</p>
-                <p class="text-3xl font-extrabold text-green-600" id="totalRevenue">Rp 0</p>
+            <div class="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition duration-300 border border-gray-100 flex flex-col justify-between">
+                <div>
+                    <p class="text-gray-500 text-xs font-bold uppercase mb-1">Total Kebutuhan Dana</p>
+                    <p class="text-3xl font-extrabold text-green-600" id="totalRevenue">Rp 0</p>
+                </div>
             </div>
         </div>
 
         <!-- Menu Utama -->
         <h2 class="text-xl font-extrabold text-blue-900 mb-4">Aksi Cepat</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-            <button id="btnBuatEvent" class="bg-blue-900 text-white p-6 rounded-2xl text-left shadow-lg hover:bg-blue-800 transition transform hover:-translate-y-1 relative overflow-hidden">
-                <span class="text-4xl block mb-3">🚀</span>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+            
+            <!-- Card 1: Buat Event (Primary Action) -->
+            <button id="btnBuatEvent" class="bg-blue-900 text-white p-6 rounded-2xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+                <!-- Badge FREE -->
+                <span class="absolute top-4 right-4 bg-gradient-to-r from-emerald-400 to-emerald-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-full tracking-wider shadow-sm border border-emerald-300">FREE TEMPLATE</span>
+                
+                <span class="text-4xl block mb-3 group-hover:scale-110 transition-transform origin-left">🚀</span>
                 <h3 class="font-bold text-lg">Buat Event Baru</h3>
-                <p class="text-blue-200 text-sm mt-1">Generate sistem pendaftaran instan</p>
+                <p class="text-blue-200 text-sm mt-1">Buat halaman pendaftaran event dalam 1 klik</p>
             </button>
-            <button id="btnSponsor" class="bg-yellow-500 text-white p-6 rounded-2xl text-left shadow-lg hover:bg-yellow-600 transition transform hover:-translate-y-1">
-                <span class="text-4xl block mb-3">🤝</span>
-                <h3 class="font-bold text-lg">Ajukan Sponsor</h3>
-                <p class="text-yellow-100 text-sm mt-1">Koneksi ke brand lokal</p>
+            
+            <!-- Card 2: Sponsor (Secondary Action) -->
+            <button id="btnSponsor" class="bg-yellow-500 text-white p-6 rounded-2xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+                <div class="flex justify-between items-start">
+                    <div class="pr-2">
+                        <span class="text-4xl block mb-3 group-hover:scale-110 transition-transform origin-left">🤝</span>
+                        <h3 class="font-bold text-lg">Ajukan Sponsor</h3>
+                        <p class="text-yellow-100 text-sm mt-1">Kelola daftar sponsor & slot iklan event</p>
+                    </div>
+                    <!-- Grid Logo Placeholder -->
+                    <div class="grid grid-cols-2 gap-1.5 opacity-30 mt-1">
+                        <div class="w-6 h-6 bg-yellow-900 rounded-md"></div>
+                        <div class="w-6 h-6 bg-yellow-900 rounded-md"></div>
+                        <div class="w-6 h-6 bg-yellow-900 rounded-md"></div>
+                        <div class="w-6 h-6 bg-yellow-900 rounded-md"></div>
+                    </div>
+                </div>
             </button>
-            <button id="btnJuri" class="bg-emerald-600 text-white p-6 rounded-2xl text-left shadow-lg hover:bg-emerald-700 transition transform hover:-translate-y-1">
-                <span class="text-4xl block mb-3">⚖️</span>
+
+            <!-- Card 3: Juri -->
+            <button id="btnJuri" class="bg-emerald-600 text-white p-6 rounded-2xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
+                <span class="text-4xl block mb-3 group-hover:scale-110 transition-transform origin-left">⚖️</span>
                 <h3 class="font-bold text-lg">Call Juri Pro</h3>
                 <p class="text-emerald-100 text-sm mt-1">Sewa tim wasit berlisensi</p>
             </button>

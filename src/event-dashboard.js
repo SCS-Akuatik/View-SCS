@@ -1,7 +1,7 @@
 import { supabaseClient } from './supabase.js';
 
 async function loadEventDashboard() {
-    // 1. Ambil ID Lomba dari URL (contoh: ?id=uuid-panjang-sekali)
+    // 1. Ambil ID Lomba dari URL
     const urlParams = new URLSearchParams(window.location.search);
     const eventId = urlParams.get('id');
 
@@ -21,33 +21,35 @@ async function loadEventDashboard() {
 
         if (error || !eventData) throw error;
 
-        // 3. Update UI dengan data asli
+        // 3. Update UI dengan data asli (FIXED: Tambah .my.id)
         document.getElementById('headerEventName').innerText = eventData.event_name;
-        document.getElementById('headerSubdomain').innerText = `${eventData.subdomain}.funswimming.id`;
+        document.getElementById('headerSubdomain').innerText = `${eventData.subdomain}.funswimming.my.id`;
 
-        // 4. Buat Link Simulasi Publik
-        // Karena kita simulasi di vercel, linknya mengarah ke register.html?sub=namasubdomain
-        const domainURL = window.location.origin; // Mengambil otomatis https://view-scs.vercel.app atau localhost
-        const publicLink = `${domainURL}/register.html?sub=${eventData.subdomain}`;
+        // 4. Buat Link Publik yang Benar (FIXED: Langsung nembak ke Subdomain Vercel)
+        const publicLink = `https://${eventData.subdomain}.funswimming.my.id`;
         
         const linkInput = document.getElementById('publicLinkInput');
-        linkInput.value = publicLink;
+        if (linkInput) {
+            linkInput.value = publicLink;
+        }
 
         // 5. Fitur Copy Link
-        document.getElementById('btnCopyLink').addEventListener('click', () => {
-            linkInput.select();
-            document.execCommand('copy'); // Jalur aman untuk semua browser
-            
-            const btn = document.getElementById('btnCopyLink');
-            const originalText = btn.innerText;
-            btn.innerText = "Tersalin! ✅";
-            btn.classList.replace('bg-blue-600', 'bg-green-500');
-            
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.classList.replace('bg-green-500', 'bg-blue-600');
-            }, 2000);
-        });
+        const btnCopyLink = document.getElementById('btnCopyLink');
+        if (btnCopyLink) {
+            btnCopyLink.addEventListener('click', () => {
+                linkInput.select();
+                document.execCommand('copy'); 
+                
+                const originalText = btnCopyLink.innerText;
+                btnCopyLink.innerText = "Tersalin! ✅";
+                btnCopyLink.classList.replace('bg-blue-600', 'bg-green-500');
+                
+                setTimeout(() => {
+                    btnCopyLink.innerText = originalText;
+                    btnCopyLink.classList.replace('bg-green-500', 'bg-blue-600');
+                }, 2000);
+            });
+        }
 
     } catch (err) {
         console.error("Gagal memuat dashboard event:", err);

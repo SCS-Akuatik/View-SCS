@@ -1,9 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./auth.html",
-    "./dashboard.html",
+    "./*.html", /* 👈 Pakai bintang aja, biar SEMUA file HTML otomatis kebaca! */
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {

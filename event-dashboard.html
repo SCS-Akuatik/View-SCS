@@ -3,93 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruang Kendali Event | SCS</title>
+    <title>Command Center Event | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
+<body class="bg-gray-100 min-h-screen font-sans">
 
     <!-- Top Navigation -->
-    <nav class="bg-blue-900 text-white shadow-md p-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-4">
-            <a href="/dashboard.html" class="hover:bg-blue-800 p-2 rounded-lg transition">
-                <span class="text-xl">⬅️</span> Kembali
-            </a>
-            <div>
-                <h1 id="headerEventName" class="text-xl font-extrabold">Memuat Event...</h1>
-                <p id="headerSubdomain" class="text-blue-200 text-sm font-mono">...funswimming.id</p>
-            </div>
-        </div>
-        <button class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg font-bold shadow-sm transition">
-            Publish Event
-        </button>
+    <nav class="bg-slate-900 text-white shadow-md px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+        <a href="/dashboard.html" class="flex items-center gap-2 hover:text-blue-300 transition text-sm font-medium">
+            <span>⬅️</span> Kembali ke Dashboard
+        </a>
+        <div class="text-sm font-bold tracking-widest text-slate-400">SCS COMMAND CENTER</div>
     </nav>
 
     <!-- Main Content -->
-    <div class="p-6 max-w-6xl mx-auto space-y-6">
+    <div class="max-w-6xl mx-auto pb-12">
         
-        <!-- Link Publik Banner -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h3 class="font-bold text-gray-700">Link Pendaftaran Publik</h3>
-                <p class="text-sm text-gray-500">Bagikan link ini ke peserta atau klub lain</p>
-            </div>
-            <div class="flex w-full md:w-auto">
-                <input type="text" id="publicLinkInput" class="w-full md:w-80 px-4 py-2 bg-gray-100 border border-gray-300 rounded-l-lg font-mono text-sm text-blue-900 focus:outline-none" readonly>
-                <button id="btnCopyLink" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg font-bold transition">
-                    Copy Link
+        <!-- HEADER & STATUS EVENT -->
+        <div class="bg-white border-b border-gray-200 px-6 py-6 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <h1 id="headerEventName" class="text-3xl font-extrabold text-gray-900 tracking-tight">Memuat Event...</h1>
+                        <!-- Status Badge -->
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 flex items-center gap-2 border border-green-200 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            LIVE
+                        </span>
+                    </div>
+                    <p id="headerSubdomain" class="text-gray-500 text-sm font-mono flex items-center gap-1">
+                        <span>🌐</span> ...funswimming.my.id
+                    </p>
+                </div>
+                
+                <!-- Action Button -->
+                <button id="btnEditEvent" class="px-5 py-2.5 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-2 shadow-sm">
+                    <span>✏️</span> Edit Event
                 </button>
+            </div>
+            
+            <!-- PROMINENT SHARE LINK -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex flex-col md:flex-row items-center gap-4 shadow-inner">
+                <div class="flex items-center gap-2 text-blue-800 font-bold whitespace-nowrap">
+                    <span class="text-xl">🔗</span> Link Pendaftaran:
+                </div>
+                <div class="flex-1 w-full flex">
+                    <!-- URL Otomatis akan diisi oleh JS -->
+                    <input type="text" id="publicLinkInput" class="w-full px-4 py-2.5 bg-white border border-blue-200 rounded-l-lg font-mono text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500" value="https://...funswimming.my.id" readonly>
+                    <button id="btnCopyLink" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-r-lg font-bold transition shadow-md whitespace-nowrap">
+                        Copy Link
+                    </button>
+                </div>
+            </div>
+            
+            <!-- PROGRESS BAR -->
+            <div class="mt-6">
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-slate-500 uppercase tracking-wider">Setup Progress</span>
+                    <span class="text-blue-600">80% Ready</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full" style="width: 80%"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Grid Menu Event (Sesuai rancanganmu) -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- QUICK STATS ROW -->
+        <div class="grid grid-cols-3 gap-4 px-6 py-6 bg-slate-50 border-b border-gray-200">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Peserta</p>
+                <p class="text-3xl font-black text-slate-800" id="statPeserta">142 <span class="text-sm font-normal text-slate-400">Atlet</span></p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Heat</p>
+                <p class="text-3xl font-black text-blue-600" id="statHeat">12</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Kategori Lomba</p>
+                <p class="text-3xl font-black text-emerald-600" id="statKategori">8</p>
+            </div>
+        </div>
+
+        <!-- MENU SECTIONS -->
+        <div class="p-6 space-y-10">
             
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
-                <h3 class="font-bold text-gray-800">Overview</h3>
-                <p class="text-xs text-gray-500 mt-1">Statistik pendaftar</p>
+            <!-- SECTION: SETUP -->
+            <div>
+                <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span> Fase 1: Setup Event
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-300 transition cursor-pointer group flex flex-col justify-between h-full">
+                        <div>
+                            <span class="text-3xl block mb-3 group-hover:scale-110 transition-transform origin-left">🎨</span>
+                            <h3 class="font-bold text-slate-800">Landing Page</h3>
+                            <p class="text-xs text-slate-500 mt-1 leading-tight">Desain tampilan web & info lomba.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-300 transition cursor-pointer group flex flex-col justify-between h-full">
+                        <div>
+                            <span class="text-3xl block mb-3 group-hover:scale-110 transition-transform origin-left">⏱️</span>
+                            <h3 class="font-bold text-slate-800">Entry Time</h3>
+                            <p class="text-xs text-slate-500 mt-1 leading-tight">Pengaturan limit & seeding waktu.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-300 transition cursor-pointer group flex flex-col justify-between h-full">
+                        <div>
+                            <span class="text-3xl block mb-3 group-hover:scale-110 transition-transform origin-left">⚙️</span>
+                            <h3 class="font-bold text-slate-800">Pengaturan</h3>
+                            <p class="text-xs text-slate-500 mt-1 leading-tight">Harga tiket, tanggal, kuota.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-300 transition cursor-pointer group flex flex-col justify-between h-full">
+                        <div>
+                            <span class="text-3xl block mb-3 group-hover:scale-110 transition-transform origin-left">🤝</span>
+                            <h3 class="font-bold text-slate-800">Sponsor</h3>
+                            <p class="text-xs text-slate-500 mt-1 leading-tight">Kelola logo sponsor tampil di web.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🎨</span>
-                <h3 class="font-bold text-gray-800">Landing Page</h3>
-                <p class="text-xs text-gray-500 mt-1">Edit tampilan web</p>
+            <!-- SECTION: MANAGEMENT -->
+            <div>
+                <h2 class="text-sm font-black text-blue-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span> Fase 2: Manajemen Data
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-100 hover:shadow-md hover:border-blue-300 transition cursor-pointer group flex items-start gap-4">
+                        <span class="text-4xl group-hover:scale-110 transition-transform bg-blue-50 p-3 rounded-lg">👥</span>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Data Peserta</h3>
+                            <p class="text-xs text-slate-500 mt-1 mb-2">Verifikasi & manajemen atlet terdaftar.</p>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-1 rounded">142 TERDAFTAR</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-100 hover:shadow-md hover:border-blue-300 transition cursor-pointer group flex items-start gap-4">
+                        <span class="text-4xl group-hover:scale-110 transition-transform bg-blue-50 p-3 rounded-lg">📈</span>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Overview</h3>
+                            <p class="text-xs text-slate-500 mt-1 mb-2">Statistik pendapatan & pendaftar harian.</p>
+                            <span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded">Rp 7.100.000</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">👥</span>
-                <h3 class="font-bold text-gray-800">Data Peserta</h3>
-                <p class="text-xs text-gray-500 mt-1">Manajemen atlet</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🎫</span>
-                <h3 class="font-bold text-gray-800">Nomor Start</h3>
-                <p class="text-xs text-gray-500 mt-1">Generate otomatis</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">⏱️</span>
-                <h3 class="font-bold text-gray-800">Entry Time</h3>
-                <p class="text-xs text-gray-500 mt-1">Seeding waktu</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🏆</span>
-                <h3 class="font-bold text-gray-800">Live Result</h3>
-                <p class="text-xs text-gray-500 mt-1">Hasil pertandingan</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🤝</span>
-                <h3 class="font-bold text-gray-800">Sponsor</h3>
-                <p class="text-xs text-gray-500 mt-1">Kelola logo sponsor</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer group">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">⚙️</span>
-                <h3 class="font-bold text-gray-800">Pengaturan</h3>
-                <p class="text-xs text-gray-500 mt-1">Harga, tanggal, dll</p>
+            <!-- SECTION: EXECUTION -->
+            <div>
+                <h2 class="text-sm font-black text-emerald-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Fase 3: Eksekusi Lomba
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-emerald-50 p-5 rounded-xl shadow-sm border border-emerald-200 hover:shadow-md hover:border-emerald-400 transition cursor-pointer group flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-4xl group-hover:scale-110 transition-transform bg-white p-3 rounded-lg shadow-sm">🎫</span>
+                            <div>
+                                <h3 class="font-bold text-emerald-900 text-lg">Nomor Start</h3>
+                                <p class="text-xs text-emerald-700 mt-1">Generate otomatis by seeded time</p>
+                            </div>
+                        </div>
+                        <span class="text-emerald-500 font-bold">➔</span>
+                    </div>
+                    
+                    <div class="bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-700 hover:shadow-lg hover:border-red-500 transition cursor-pointer group flex items-center justify-between relative overflow-hidden">
+                        <!-- Red Glow Effect -->
+                        <div class="absolute -right-4 -top-4 w-20 h-20 bg-red-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition"></div>
+                        
+                        <div class="flex items-center gap-4 relative z-10">
+                            <span class="text-4xl group-hover:scale-110 transition-transform bg-slate-800 p-3 rounded-lg shadow-sm">🏆</span>
+                            <div>
+                                <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                                    Live Result
+                                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-1">Input hasil pertandingan realtime</p>
+                            </div>
+                        </div>
+                        <span class="text-white font-bold relative z-10">➔</span>
+                    </div>
+                </div>
             </div>
 
         </div>

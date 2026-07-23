@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+      <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Command Center Event | SCS</title>
@@ -240,5 +245,20 @@
 
     <!-- Panggil Logika JS -->
     <script type="module" src="/src/event-dashboard.js"></script>
+        <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SCS App berhasil diinstall!', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('Service Worker gagal mendarat:', err);
+                    });
+            });
+        }
+    </script>
+
 </body>
 </html>

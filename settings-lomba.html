@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="/src/style.css">
     <style>
         svg { max-width: 100%; height: auto; display: block; }
+        /* Animasi mulus buat modal */
+        .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-24">
@@ -37,63 +43,19 @@
                     </div>
                     <div>
                         <h2 class="font-bold text-slate-800 text-lg">Kelompok Umur (KU)</h2>
-                        <p class="text-xs text-slate-500">Aktifkan KU yang dibuka untuk pendaftaran.</p>
+                        <p class="text-xs text-slate-500">Master Data KU. Toggle untuk tampilkan di form registrasi.</p>
                     </div>
                 </div>
                 <!-- Tombol [+] Tambah KU -->
-                <button class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-xs transition-colors shrink-0">
+                <button onclick="openModalKU()" class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-xs transition-colors shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span class="hidden sm:inline">Tambah KU</span>
                 </button>
             </div>
 
+            <!-- Container Dinamis List KU -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="kuContainer">
-                <!-- Toggle Item dengan Hover Edit/Delete -->
-                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
-                    <div class="flex flex-col">
-                        <span class="font-bold text-slate-700 text-sm">KU Senior (19+ Tahun)</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <!-- Action Buttons (Muncul saat di-hover) -->
-                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors" title="Edit KU"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                            <button class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors" title="Hapus KU"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                            <input type="checkbox" value="ku_senior" class="sr-only peer config-checkbox">
-                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
-                    <span class="font-bold text-slate-700 text-sm">KU 1 (16 - 18 Tahun)</span>
-                    <div class="flex items-center gap-3">
-                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                            <button class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                            <input type="checkbox" value="ku_1" class="sr-only peer config-checkbox" checked>
-                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Format yang sama untuk KU 2 dan Fun Swimming... -->
-                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
-                    <span class="font-bold text-slate-700 text-sm">KU Fun Swimming (< 9 Tahun)</span>
-                    <div class="flex items-center gap-3">
-                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                            <button class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                            <input type="checkbox" value="ku_fun" class="sr-only peer config-checkbox" checked>
-                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                    </div>
-                </div>
+                <!-- Akan dirender JS -->
             </div>
         </div>
 
@@ -106,102 +68,371 @@
                     </div>
                     <div>
                         <h2 class="font-bold text-slate-800 text-lg">Nomor Lomba (Gaya & Jarak)</h2>
-                        <p class="text-xs text-slate-500">Nomor yang off tidak muncul di pendaftaran.</p>
+                        <p class="text-xs text-slate-500">Master Data Nomor Lomba. Toggle untuk tampilkan di form.</p>
                     </div>
                 </div>
                 <!-- Tombol [+] Tambah Gaya Master -->
-                <button class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-bold text-xs transition-colors shrink-0">
+                <button onclick="openModalGaya()" class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-bold text-xs transition-colors shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span>Kategori Gaya Baru</span>
                 </button>
             </div>
 
-            <!-- Kategori Gaya Bebas -->
-            <div class="mb-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 group/cat">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <h3 class="font-bold text-slate-700 text-sm">🏊‍♂️ Gaya Bebas (Freestyle)</h3>
-                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover/cat:opacity-100 transition-opacity ml-2">
-                            <button class="p-1 text-slate-400 hover:text-blue-600 rounded" title="Edit Nama Gaya"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                            <button class="p-1 text-slate-400 hover:text-red-600 rounded" title="Hapus Gaya"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                    </div>
-                    <!-- Tombol [+] Tambah Variasi Jarak KECIL -->
-                    <button class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md hover:bg-blue-200 flex items-center gap-1 transition-colors">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Jarak
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div class="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-slate-600 text-xs flex items-center gap-1">
-                                25 Meter
-                                <button class="text-slate-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                            </span>
-                        </div>
-                        <label class="cursor-pointer shrink-0">
-                            <input type="checkbox" value="bebas_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
-                        </label>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-slate-600 text-xs flex items-center gap-1">
-                                50 Meter
-                                <button class="text-slate-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                            </span>
-                        </div>
-                        <label class="cursor-pointer shrink-0">
-                            <input type="checkbox" value="bebas_50" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Kategori Gaya Dada -->
-            <div class="mb-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 group/cat">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <h3 class="font-bold text-slate-700 text-sm">🐸 Gaya Dada (Breaststroke)</h3>
-                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover/cat:opacity-100 transition-opacity ml-2">
-                            <button class="p-1 text-slate-400 hover:text-blue-600 rounded"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                            <button class="p-1 text-slate-400 hover:text-red-600 rounded"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                    </div>
-                    <button class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md hover:bg-blue-200 flex items-center gap-1 transition-colors">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Jarak
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div class="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-slate-600 text-xs flex items-center gap-1">
-                                25 Meter
-                                <button class="text-slate-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                            </span>
-                        </div>
-                        <label class="cursor-pointer shrink-0">
-                            <input type="checkbox" value="dada_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
-                        </label>
-                    </div>
-                </div>
+            <!-- Container Dinamis List Gaya -->
+            <div id="gayaContainer">
+                <!-- Akan dirender JS -->
             </div>
 
         </div>
-        
     </div>
 
     <!-- Floating Save Button -->
-    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
         <div class="max-w-4xl mx-auto flex justify-end gap-3">
             <button class="px-5 py-2.5 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-100 transition-colors">Batal</button>
-            <button id="btnSimpanConfig" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center gap-2">
+            <button onclick="simpanKeDatabase()" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                 Simpan Pengaturan
             </button>
         </div>
     </div>
+
+    <!-- ================= MODAL AREA ================= -->
+    <!-- Modal Tambah/Edit KU -->
+    <div id="modalKU" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800" id="modalKUTitle">Buat KU Baru</h3>
+                <button onclick="closeModal('modalKU')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="kuId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kelompok Umur</label>
+                    <input type="text" id="kuNama" placeholder="misal: Junior A, Kelas 3 SD..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Usia Minimal</label>
+                        <input type="number" id="kuMin" placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Usia Maksimal</label>
+                        <input type="number" id="kuMax" placeholder="99" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                    </div>
+                </div>
+                <button onclick="saveKU()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan KU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah/Edit Gaya -->
+    <div id="modalGaya" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800" id="modalGayaTitle">Kategori Gaya Baru</h3>
+                <button onclick="closeModal('modalGaya')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="gayaId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Gaya</label>
+                    <input type="text" id="gayaNama" placeholder="misal: Gaya Kupu-kupu..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Ikon (Emoji / Teks)</label>
+                    <input type="text" id="gayaIcon" placeholder="misal: 🦋" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                </div>
+                <button onclick="saveGaya()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan Kategori</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah/Edit Jarak -->
+    <div id="modalJarak" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-xs shadow-xl overflow-hidden modal-enter">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800" id="modalJarakTitle">Tambah Jarak</h3>
+                <button onclick="closeModal('modalJarak')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="jarakParentId">
+                <input type="hidden" id="jarakId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Variasi Jarak</label>
+                    <input type="text" id="jarakNama" placeholder="misal: 100 Meter" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors">
+                </div>
+                <button onclick="saveJarak()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan Jarak</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LOGIKA JAVASCRIPT ================= -->
+    <script>
+        // 1. STATE MANAGEMENT (Data Dinamis Default)
+        let dataKU = [
+            { id: 1, nama: 'KU Senior', min: 19, max: 99, aktif: false },
+            { id: 2, nama: 'KU 1', min: 16, max: 18, aktif: true },
+            { id: 3, nama: 'KU 2', min: 14, max: 15, aktif: true },
+            { id: 4, nama: 'KU Fun Swimming', min: 0, max: 9, aktif: true }
+        ];
+
+        let dataGaya = [
+            {
+                id: 1, nama: 'Gaya Bebas (Freestyle)', icon: '🏊‍♂️',
+                jarak: [
+                    { id: 101, nama: '25 Meter', aktif: true },
+                    { id: 102, nama: '50 Meter', aktif: true }
+                ]
+            },
+            {
+                id: 2, nama: 'Gaya Dada (Breaststroke)', icon: '🐸',
+                jarak: [
+                    { id: 201, nama: '25 Meter', aktif: true }
+                ]
+            }
+        ];
+
+        // 2. RENDER FUNCTIONS (Inject HTML ke Container)
+        function renderKU() {
+            const container = document.getElementById('kuContainer');
+            container.innerHTML = ''; // Bersihkan kontainer
+            
+            dataKU.forEach(ku => {
+                const checked = ku.aktif ? 'checked' : '';
+                // Desain UI persis sama, hanya dirender lewat JS
+                container.innerHTML += `
+                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-slate-700 text-sm">${ku.nama}</span>
+                        <span class="text-[10px] text-slate-400">Usia: ${ku.min} - ${ku.max} thn</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editKU(${ku.id})" class="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors" title="Edit KU"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button onclick="deleteKU(${ku.id})" class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors" title="Hapus KU"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" class="sr-only peer" ${checked} onchange="toggleKU(${ku.id})">
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function renderGaya() {
+            const container = document.getElementById('gayaContainer');
+            container.innerHTML = '';
+            
+            dataGaya.forEach(gaya => {
+                let jarakHTML = '';
+                // Render List Jarak per Kategori
+                gaya.jarak.forEach(jrk => {
+                    const checked = jrk.aktif ? 'checked' : '';
+                    jarakHTML += `
+                    <div class="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 text-xs flex items-center gap-1">
+                                ${jrk.nama}
+                                <button onclick="editJarak(${gaya.id}, ${jrk.id})" class="text-slate-300 hover:text-blue-500 opacity-0 group-hover/item:opacity-100 transition-opacity ml-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                <button onclick="deleteJarak(${gaya.id}, ${jrk.id})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            </span>
+                        </div>
+                        <label class="cursor-pointer shrink-0">
+                            <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" ${checked} onchange="toggleJarak(${gaya.id}, ${jrk.id})">
+                        </label>
+                    </div>`;
+                });
+
+                // Render Kategori Pembungkus
+                container.innerHTML += `
+                <div class="mb-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 group/cat">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-slate-700 text-sm">${gaya.icon} ${gaya.nama}</h3>
+                            <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover/cat:opacity-100 transition-opacity ml-2">
+                                <button onclick="editGaya(${gaya.id})" class="p-1 text-slate-400 hover:text-blue-600 rounded" title="Edit Kategori"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                <button onclick="deleteGaya(${gaya.id})" class="p-1 text-slate-400 hover:text-red-600 rounded" title="Hapus Kategori"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            </div>
+                        </div>
+                        <button onclick="openModalJarak(${gaya.id})" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md hover:bg-blue-200 flex items-center gap-1 transition-colors">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Jarak
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        ${jarakHTML}
+                    </div>
+                </div>`;
+            });
+        }
+
+        // 3. FUNGSI MODAL (Buka Tutup & Set Nilai Form)
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- KU LOGIC ---
+        function openModalKU() {
+            document.getElementById('modalKUTitle').innerText = 'Buat KU Baru';
+            document.getElementById('kuId').value = '';
+            document.getElementById('kuNama').value = '';
+            document.getElementById('kuMin').value = '';
+            document.getElementById('kuMax').value = '';
+            openModal('modalKU');
+        }
+        function editKU(id) {
+            const ku = dataKU.find(k => k.id === id);
+            document.getElementById('modalKUTitle').innerText = 'Edit Kelompok Umur';
+            document.getElementById('kuId').value = ku.id;
+            document.getElementById('kuNama').value = ku.nama;
+            document.getElementById('kuMin').value = ku.min;
+            document.getElementById('kuMax').value = ku.max;
+            openModal('modalKU');
+        }
+        function saveKU() {
+            const id = document.getElementById('kuId').value;
+            const nama = document.getElementById('kuNama').value;
+            const min = document.getElementById('kuMin').value;
+            const max = document.getElementById('kuMax').value;
+            
+            if(!nama) return alert('Nama KU harus diisi!');
+
+            if(id) {
+                // Mode Edit
+                const index = dataKU.findIndex(k => k.id == id);
+                dataKU[index] = { ...dataKU[index], nama, min, max };
+            } else {
+                // Mode Create
+                dataKU.push({ id: Date.now(), nama, min, max, aktif: true });
+            }
+            renderKU();
+            closeModal('modalKU');
+        }
+        function deleteKU(id) {
+            if(confirm('Yakin ingin menghapus Kelompok Umur ini?')) {
+                dataKU = dataKU.filter(k => k.id !== id);
+                renderKU();
+            }
+        }
+        function toggleKU(id) {
+            const index = dataKU.findIndex(k => k.id == id);
+            dataKU[index].aktif = !dataKU[index].aktif;
+        }
+
+        // --- GAYA LOGIC ---
+        function openModalGaya() {
+            document.getElementById('modalGayaTitle').innerText = 'Kategori Gaya Baru';
+            document.getElementById('gayaId').value = '';
+            document.getElementById('gayaNama').value = '';
+            document.getElementById('gayaIcon').value = '';
+            openModal('modalGaya');
+        }
+        function editGaya(id) {
+            const gaya = dataGaya.find(g => g.id === id);
+            document.getElementById('modalGayaTitle').innerText = 'Edit Kategori Gaya';
+            document.getElementById('gayaId').value = gaya.id;
+            document.getElementById('gayaNama').value = gaya.nama;
+            document.getElementById('gayaIcon').value = gaya.icon;
+            openModal('modalGaya');
+        }
+        function saveGaya() {
+            const id = document.getElementById('gayaId').value;
+            const nama = document.getElementById('gayaNama').value;
+            const icon = document.getElementById('gayaIcon').value || '🏊';
+            
+            if(!nama) return alert('Nama Kategori harus diisi!');
+
+            if(id) {
+                const index = dataGaya.findIndex(g => g.id == id);
+                dataGaya[index].nama = nama;
+                dataGaya[index].icon = icon;
+            } else {
+                dataGaya.push({ id: Date.now(), nama, icon, jarak: [] });
+            }
+            renderGaya();
+            closeModal('modalGaya');
+        }
+        function deleteGaya(id) {
+            if(confirm('Yakin hapus kategori gaya ini beserta semua jarak di dalamnya?')) {
+                dataGaya = dataGaya.filter(g => g.id !== id);
+                renderGaya();
+            }
+        }
+
+        // --- JARAK LOGIC ---
+        function openModalJarak(gayaId) {
+            document.getElementById('modalJarakTitle').innerText = 'Tambah Variasi Jarak';
+            document.getElementById('jarakParentId').value = gayaId;
+            document.getElementById('jarakId').value = '';
+            document.getElementById('jarakNama').value = '';
+            openModal('modalJarak');
+        }
+        function editJarak(gayaId, jarakId) {
+            const gaya = dataGaya.find(g => g.id === gayaId);
+            const jarak = gaya.jarak.find(j => j.id === jarakId);
+            
+            document.getElementById('modalJarakTitle').innerText = 'Edit Jarak';
+            document.getElementById('jarakParentId').value = gayaId;
+            document.getElementById('jarakId').value = jarak.id;
+            document.getElementById('jarakNama').value = jarak.nama;
+            openModal('modalJarak');
+        }
+        function saveJarak() {
+            const gayaId = document.getElementById('jarakParentId').value;
+            const jarakId = document.getElementById('jarakId').value;
+            const nama = document.getElementById('jarakNama').value;
+            
+            if(!nama) return alert('Variasi jarak harus diisi!');
+
+            const gayaIndex = dataGaya.findIndex(g => g.id == gayaId);
+
+            if(jarakId) {
+                // Edit
+                const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId);
+                dataGaya[gayaIndex].jarak[jarakIndex].nama = nama;
+            } else {
+                // Create
+                dataGaya[gayaIndex].jarak.push({ id: Date.now(), nama, aktif: true });
+            }
+            renderGaya();
+            closeModal('modalJarak');
+        }
+        function deleteJarak(gayaId, jarakId) {
+            if(confirm('Hapus variasi jarak ini?')) {
+                const gayaIndex = dataGaya.findIndex(g => g.id == gayaId);
+                dataGaya[gayaIndex].jarak = dataGaya[gayaIndex].jarak.filter(j => j.id !== jarakId);
+                renderGaya();
+            }
+        }
+        function toggleJarak(gayaId, jarakId) {
+            const gayaIndex = dataGaya.findIndex(g => g.id == gayaId);
+            const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId);
+            dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif;
+        }
+
+        // 4. KUMPULKAN DATA UNTUK DATABASE
+        function simpanKeDatabase() {
+            const payload = {
+                kelompok_umur: dataKU,
+                nomor_lomba: dataGaya
+            };
+            console.log("JSON Siap Kirim ke Supabase:", JSON.stringify(payload, null, 2));
+            alert("Data berhasil dibungkus! Cek Console Browser (F12) buat lihat hasil JSON Master Data-nya.");
+        }
+
+        // Initialize Render saat Halaman Dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            renderKU();
+            renderGaya();
+        });
+    </script>
 </body>
 </html>

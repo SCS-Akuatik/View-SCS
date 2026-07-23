@@ -9,7 +9,8 @@ export default defineConfig({
         auth: resolve(__dirname, 'auth.html'),
         dashboard: resolve(__dirname, 'dashboard.html'),
         register: resolve(__dirname, 'register.html'),
-        eventDashboard: resolve(__dirname, 'event-dashboard.html')
+        eventDashboard: resolve(__dirname, 'event-dashboard.html'),
+        settingsLomba: resolve(__dirname, 'settings-lomba.html') /* 👈 INI JAHITANNYA */
       }
     }
   }

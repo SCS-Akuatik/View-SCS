@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harga Paket | SCS</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        /* Styling khusus buat slider kalkulator */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 24px; height: 24px;
+            background: #f59e0b; cursor: pointer; border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- NAVBAR -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <div class="flex-shrink-0 flex items-center h-full py-2">
+                    <a href="/"><img class="max-h-12 md:max-h-16 w-auto object-contain" src="/images/logo.png" alt="SCS Logo"></a>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center mr-24">
+                    <a href="/#fitur" class="text-gray-600 hover:text-scsBlue font-medium">Fitur</a>
+                    <a href="/#ekosistem" class="text-gray-600 hover:text-scsBlue font-medium">Ekosistem</a>
+                    <a href="/pricing.html" class="text-scsBlue font-extrabold border-b-2 border-scsBlue pb-1">Harga</a> 
+                </div>
+                <a href="/auth.html" class="absolute right-6 md:right-10 bg-scsBlue text-white px-5 py-2 text-sm rounded-full font-bold shadow-md hover:bg-blue-900 transition">
+                    Masuk
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO PRICING -->
+    <section class="pt-32 pb-16 bg-slate-900 text-white text-center px-4">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Pilih Paket Sesuai Skala Eventmu</h1>
+            <p class="text-lg text-slate-400 mb-8">Dari fun swimming komunitas hingga kejuaraan nasional. Semua fitur esensial ada di sini.</p>
+        </div>
+    </section>
+
+    <!-- PRICING CARDS -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10 mb-20">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- FREE TIER -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col">
+                <h3 class="text-xl font-bold text-slate-800 uppercase tracking-wide">Free Tier</h3>
+                <p class="text-sm text-slate-500 mb-4">(Starter)</p>
+                <div class="mb-6 pb-6 border-b border-slate-100">
+                    <span class="text-3xl font-extrabold text-slate-900">Rp 0</span>
+                    <span class="text-slate-500">/selamanya</span>
+                </div>
+                <ul class="space-y-4 mb-8 flex-1 text-sm text-slate-600">
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Subdomain Eksklusif</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Landing Page Pendaftaran</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Form Registrasi Custom</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Dashboard Dasar</li>
+                    <li class="flex items-start gap-2 opacity-50"><span class="text-red-500 font-bold">✕</span> Cetak PDF/Buku Acara</li>
+                    <li class="flex items-start gap-2 opacity-50"><span class="text-red-500 font-bold">✕</span> Filter Sparing Partner</li>
+                </ul>
+                <a href="/auth.html" class="block w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-center font-bold rounded-xl transition-colors">Daftar Gratis</a>
+            </div>
+
+            <!-- GROWTH TIER -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Populer</div>
+                <h3 class="text-xl font-bold text-slate-800 uppercase tracking-wide">Growth Tier</h3>
+                <div class="mb-6 pb-6 border-b border-slate-100 mt-9">
+                    <div class="text-2xl font-extrabold text-slate-900">Rp 200rb<span class="text-sm font-normal text-slate-500"> /event</span></div>
+                    <div class="text-sm text-slate-500 font-medium mt-1">+ Rp 3.000 x Nama/Nomor</div>
+                </div>
+                <ul class="space-y-4 mb-8 flex-1 text-sm text-slate-600">
+                    <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Free Tier</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Cetak PDF & Buku Acara</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Export Data Peserta (Excel)</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Auto-Lock KU</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Notifikasi WhatsApp</li>
+                    <li class="flex items-start gap-2 opacity-50"><span class="text-red-500 font-bold">✕</span> Sponsorship Broker</li>
+                </ul>
+                <button class="block w-full py-3 px-4 border-2 border-scsBlue text-scsBlue hover:bg-blue-50 text-center font-bold rounded-xl transition-colors">Pilih Growth</button>
+            </div>
+
+            <!-- PRO TIER (BEST VALUE) -->
+            <div class="bg-scsBlue rounded-2xl shadow-2xl border-2 border-scsGold p-6 flex flex-col relative transform md:-translate-y-4">
+                <div class="absolute top-0 right-0 bg-scsGold text-scsBlue text-[10px] font-extrabold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Best Value</div>
+                <h3 class="text-xl font-bold text-white uppercase tracking-wide">Pro Tier</h3>
+                <div class="mb-6 pb-6 border-b border-blue-800 mt-9 text-white">
+                    <div class="text-2xl font-extrabold">Rp 500rb<span class="text-sm font-normal text-blue-200"> /bulan</span></div>
+                    <div class="text-sm text-blue-200 font-medium mt-1">+ Rp 3.000 x Nama/Nomor</div>
+                </div>
+                <!-- REVISI FITUR PRO TIER SESUAI MODEL BISNIS BARU -->
+                <ul class="space-y-4 mb-8 flex-1 text-sm text-blue-50">
+                    <li class="flex items-start gap-2 font-bold"><span class="text-scsGold">✓</span> Semua Growth Tier</li>
+                    <li class="flex items-start gap-2 font-bold text-scsGold bg-blue-900/50 p-2 rounded-lg -mx-2"><span class="text-scsGold">⭐</span> SPONSORSHIP BROKER</li>
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Tim SCS bantu carikan Sponsor</li>
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Bebas Repot Lobi & Proposal</li>
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Tombol "Cairkan Dana" di Dashboard</li>
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Multi-Event Management</li>
+                </ul>
+                <button class="block w-full py-3 px-4 bg-scsGold hover:bg-yellow-500 text-scsBlue text-center font-extrabold rounded-xl transition-colors shadow-lg">Pilih Pro</button>
+            </div>
+
+            <!-- ELITE TIER -->
+            <div class="bg-gray-900 rounded-2xl shadow-md border border-gray-800 p-6 flex flex-col text-white">
+                <h3 class="text-xl font-bold uppercase tracking-wide">Elite Tier</h3>
+                <p class="text-sm text-gray-400 mb-4">(All-In)</p>
+                <div class="mb-6 pb-6 border-b border-gray-800">
+                    <div class="text-2xl font-extrabold">Rp 2.5 Jt<span class="text-sm font-normal text-gray-400"> /event</span></div>
+                    <div class="text-sm text-gray-400 font-medium mt-1">(+ Surcharge Engineer)</div>
+                </div>
+                <ul class="space-y-4 mb-8 flex-1 text-sm text-gray-300">
+                    <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Pro Tier</li>
+                    <li class="flex items-start gap-2 font-bold text-white bg-gray-800 p-2 rounded-lg -mx-2"><span class="text-emerald-500">👨‍💻</span> ENGINEER STANDBY <br><span class="text-[10px] font-normal text-gray-400">(1 Hari Race = +Rp 500K)</span></li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Server Dedicated During Race</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Live Result Display</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Custom Branding Full</li>
+                </ul>
+                <button class="block w-full py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white text-center font-bold rounded-xl transition-colors">Hubungi Kami</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- KALKULATOR INTERAKTIF -->
+    <section class="py-16 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-extrabold text-slate-800 mb-3">Estimasi Biaya Event Kamu</h2>
+                <p class="text-slate-500">Transparan tanpa biaya tersembunyi. Hitung sendiri kebutuhan budgetmu.</p>
+            </div>
+
+            <div class="bg-slate-50 rounded-3xl p-6 md:p-10 border border-slate-200 shadow-sm">
+                <!-- Input Area -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 pb-10 border-b border-slate-200">
+                    <!-- Slider Peserta -->
+                    <div>
+                        <div class="flex justify-between items-end mb-2">
+                            <label class="font-bold text-slate-700">Jumlah Peserta</label>
+                            <span class="text-2xl font-black text-scsBlue" id="valPeserta">300</span>
+                        </div>
+                        <input type="range" id="inpPeserta" min="50" max="2000" step="10" value="300" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 mt-2">
+                            <span>50 org</span><span>2000 org</span>
+                        </div>
+                    </div>
+                    <!-- Slider Rata-rata Nomor -->
+                    <div>
+                        <div class="flex justify-between items-end mb-2">
+                            <label class="font-bold text-slate-700">Rata-rata Nomor/Orang</label>
+                            <span class="text-2xl font-black text-scsBlue" id="valNomor">2.5</span>
+                        </div>
+                        <input type="range" id="inpNomor" min="1" max="10" step="0.5" value="2.5" class="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 mt-2">
+                            <span>1 nmr</span><span>10 nmr</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Area -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col justify-center items-center text-center">
+                        <span class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Total Biaya (Growth)</span>
+                        <div class="text-3xl font-black text-slate-800" id="outGrowth">Rp 0</div>
+                        <p class="text-xs text-slate-400 mt-2">Rp 200.000 + Biaya Nama/Nomor</p>
+                    </div>
+                    <div class="bg-blue-50 p-5 rounded-2xl border border-blue-200 flex flex-col justify-center items-center text-center shadow-inner">
+                        <span class="text-sm font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-1">⭐ Total Biaya (Pro)</span>
+                        <div class="text-3xl font-black text-scsBlue" id="outPro">Rp 0</div>
+                        <p class="text-xs text-blue-400 mt-2">Rp 500.000 + Biaya Nama/Nomor</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-extrabold text-slate-800 mb-8 text-center">Pertanyaan yang Sering Diajukan (FAQ)</h2>
+            
+            <div class="space-y-4">
+                <!-- REVISI FAQ SPONSOR -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-lg mb-2">Bagaimana cara kerja fitur Sponsorship Broker di Pro Tier?</h4>
+                    <p class="text-slate-600 text-sm">Tim SCS bertindak sebagai agensi eksklusif yang mencarikan sponsor untuk event Anda. Jika event Anda memenuhi kriteria brand, Anda akan mendapat notifikasi di Dashboard dan tinggal klik "Cairkan Dana". Anda bebas repot bikin proposal dan bisa fokus ngurus teknis lomba!</p>
+                </div>
+                
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-lg mb-2">Engineer standby ngapain aja (Paket Elite)?</h4>
+                    <p class="text-slate-600 text-sm">Monitoring server real-time, handle troubleshooting teknis di lokasi, backup data live, dan memastikan *zero downtime* saat race berlangsung. Panitia fokus ngurus acara, urusan IT kami yang jaga.</p>
+                </div>
+                
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-lg mb-2">Bisa upgrade/downgrade tengah event?</h4>
+                    <p class="text-slate-600 text-sm">Bisa kapan saja. Sistem akan menghitung selisih harga secara *prorated* (otomatis potong/refund) menyesuaikan sisa waktu event Anda.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <img src="/images/logo.png" alt="SCS Logo" class="h-16 mx-auto mb-6 opacity-80 grayscale">
+            <p>&copy; 2026 Swimming Competition System (SCS) Akuatik Nusantara.</p>
+        </div>
+    </footer>
+
+    <!-- SCRIPT KALKULATOR -->
+    <script>
+        const inpPeserta = document.getElementById('inpPeserta');
+        const inpNomor = document.getElementById('inpNomor');
+        const valPeserta = document.getElementById('valPeserta');
+        const valNomor = document.getElementById('valNomor');
+        const outGrowth = document.getElementById('outGrowth');
+        const outPro = document.getElementById('outPro');
+
+        const baseGrowth = 200000;
+        const basePro = 500000;
+        const hargaPerNomor = 3000;
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+
+        function hitungTotal() {
+            let p = parseInt(inpPeserta.value);
+            let n = parseFloat(inpNomor.value);
+            
+            // Update Label
+            valPeserta.innerText = p;
+            valNomor.innerText = n;
+
+            // Hitung Variabel Cost (Peserta * Rata2 Nomor * Rp 3000)
+            let varCost = Math.round(p * n * hargaPerNomor);
+
+            // Tampilkan Output
+            outGrowth.innerText = formatRupiah(baseGrowth + varCost);
+            outPro.innerText = formatRupiah(basePro + varCost);
+        }
+
+        // Event Listener untuk pergerakan slider
+        inpPeserta.addEventListener('input', hitungTotal);
+        inpNomor.addEventListener('input', hitungTotal);
+
+        // Hitung pertama kali saat halaman dimuat
+        hitungTotal();
+    </script>
+</body>
+</html>

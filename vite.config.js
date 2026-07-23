@@ -10,7 +10,8 @@ export default defineConfig({
         dashboard: resolve(__dirname, 'dashboard.html'),
         register: resolve(__dirname, 'register.html'),
         eventDashboard: resolve(__dirname, 'event-dashboard.html'),
-        settingsLomba: resolve(__dirname, 'settings-lomba.html') /* 👈 INI JAHITANNYA */
+        settingsLomba: resolve(__dirname, 'settings-lomba.html'),
+        pricing: resolve(__dirname, 'pricing.html') /* 👈 INI JAHITAN BARUNYA */
       }
     }
   }

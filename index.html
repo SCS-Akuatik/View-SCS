@@ -23,12 +23,15 @@
     <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-14 md:h-16">
-                <!-- Logo Nav dibikin kecil aja biar gak saingan sama logo tengah -->
+                
+                <!-- LOGO DIBUNGKUS LINK KE HOMEPAGE (TAMBAH EFEK HOVER) -->
                 <div class="flex-shrink-0 flex items-center h-full py-2">
-                    <img class="max-h-8 md:max-h-10 w-auto object-contain" src="/images/logo.png" alt="SCS Logo">
+                    <a href="/" class="block">
+                        <img class="max-h-8 md:max-h-10 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo">
+                    </a>
                 </div>
                 
-                <!-- Margin kanan ditambah (mr-28) biar gak ketabrak tombol Masuk -->
+                <!-- Menu Navigasi -->
                 <div class="hidden md:flex space-x-6 lg:space-x-8 items-center mr-24 md:mr-28">
                     <a href="/#fitur" class="text-gray-600 hover:text-scsBlue font-medium text-sm">Fitur</a>
                     <a href="/#ekosistem" class="text-gray-600 hover:text-scsBlue font-medium text-sm">Ekosistem</a>

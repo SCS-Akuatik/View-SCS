@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Lomba | SCS</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        svg { max-width: 100%; height: auto; display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-24">
+
+    <!-- Top Navigation -->
+    <nav class="bg-slate-900 text-white shadow-md px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
+        <a href="/event-dashboard.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition text-sm font-medium">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Kembali ke Command Center
+        </a>
+        <div class="text-[10px] md:text-xs font-bold tracking-widest text-slate-400 uppercase">Settings Lomba</div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
+        
+        <div class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Konfigurasi Event</h1>
+            <p class="text-slate-500 text-sm mt-1">Atur Kelompok Umur (KU) dan Nomor Lomba yang dipertandingkan.</p>
+        </div>
+
+        <!-- SECTION 1: KELOMPOK UMUR -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6">
+            <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-4">
+                <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="font-bold text-slate-800 text-lg">Kelompok Umur (KU)</h2>
+                    <p class="text-xs text-slate-500">Aktifkan KU yang dibuka untuk pendaftaran.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="kuContainer">
+                <!-- Toggle Item -->
+                <label class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span class="font-bold text-slate-700 text-sm">KU Senior (19+ Tahun)</span>
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="ku_senior" class="sr-only peer config-checkbox">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </div>
+                </label>
+                <!-- Toggle Item -->
+                <label class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span class="font-bold text-slate-700 text-sm">KU 1 (16 - 18 Tahun)</span>
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="ku_1" class="sr-only peer config-checkbox" checked>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </div>
+                </label>
+                <!-- Toggle Item -->
+                <label class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span class="font-bold text-slate-700 text-sm">KU 2 (14 - 15 Tahun)</span>
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="ku_2" class="sr-only peer config-checkbox" checked>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </div>
+                </label>
+                <!-- Toggle Item -->
+                <label class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
+                    <span class="font-bold text-slate-700 text-sm">KU Fun Swimming (Di Bawah 9 Tahun)</span>
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="ku_fun" class="sr-only peer config-checkbox" checked>
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- SECTION 2: NOMOR LOMBA (GAYA) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6">
+            <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-4">
+                <div class="p-2 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="font-bold text-slate-800 text-lg">Nomor Lomba (Gaya & Jarak)</h2>
+                    <p class="text-xs text-slate-500">Nomor yang mati (abu-abu) tidak akan muncul di form registrasi atlet.</p>
+                </div>
+            </div>
+
+            <!-- Kategori Gaya Bebas -->
+            <div class="mb-5">
+                <h3 class="font-bold text-slate-700 text-sm mb-3">🏊‍♂️ Gaya Bebas (Freestyle)</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label class="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50 cursor-pointer">
+                        <span class="font-bold text-slate-600 text-xs">25 Meter</span>
+                        <input type="checkbox" value="bebas_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                    </label>
+                    <label class="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50 cursor-pointer">
+                        <span class="font-bold text-slate-600 text-xs">50 Meter</span>
+                        <input type="checkbox" value="bebas_50" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                    </label>
+                    <label class="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50 cursor-pointer">
+                        <span class="font-bold text-slate-600 text-xs">100 Meter</span>
+                        <input type="checkbox" value="bebas_100" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Kategori Gaya Dada -->
+            <div class="mb-5">
+                <h3 class="font-bold text-slate-700 text-sm mb-3">🐸 Gaya Dada (Breaststroke)</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label class="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50 cursor-pointer">
+                        <span class="font-bold text-slate-600 text-xs">25 Meter</span>
+                        <input type="checkbox" value="dada_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                    </label>
+                    <label class="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50 cursor-pointer">
+                        <span class="font-bold text-slate-600 text-xs">50 Meter</span>
+                        <input type="checkbox" value="dada_50" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Kategori Fun Swimming Papan -->
+            <div>
+                <h3 class="font-bold text-slate-700 text-sm mb-3">🛹 Kick Board (Fun Swimming)</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label class="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50 cursor-pointer">
+                        <span class="font-bold text-slate-600 text-xs">Kick Bebas 25m</span>
+                        <input type="checkbox" value="kick_bebas_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                    </label>
+                    <label class="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50 cursor-pointer">
+                        <span class="font-bold text-slate-600 text-xs">Kick Dada 25m</span>
+                        <input type="checkbox" value="kick_dada_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Floating Save Button -->
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+        <div class="max-w-4xl mx-auto flex justify-end gap-3">
+            <button class="px-5 py-2.5 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-100 transition-colors">Batal</button>
+            <button id="btnSimpanConfig" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                Simpan Pengaturan Lomba
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Simulasi JS buat panen data centangan jadi JSON
+        document.getElementById('btnSimpanConfig').addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.config-checkbox');
+            let configData = {
+                ku_aktif: [],
+                nomor_aktif: []
+            };
+
+            checkboxes.forEach(box => {
+                if(box.checked) {
+                    if(box.value.startsWith('ku_')) {
+                        configData.ku_aktif.push(box.value);
+                    } else {
+                        configData.nomor_aktif.push(box.value);
+                    }
+                }
+            });
+
+            console.log("JSON Siap Kirim ke Supabase:", JSON.stringify(configData, null, 2));
+            alert("Berhasil disimpan! Cek Console Browser (F12) buat lihat hasil JSON-nya.");
+        });
+    </script>
+</body>
+</html>

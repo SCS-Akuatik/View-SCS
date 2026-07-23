@@ -98,7 +98,7 @@
     </div>
 
     <!-- ================= MODAL AREA ================= -->
-    <!-- Modal Tambah/Edit KU -->
+    <!-- Modal Tambah/Edit KU (FIXED: Usia -> Tahun Lahir) -->
     <div id="modalKU" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -113,12 +113,12 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Usia Minimal</label>
-                        <input type="number" id="kuMin" placeholder="0" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Tahun Lahir Mulai</label>
+                        <input type="number" id="kuTahunMulai" placeholder="2017" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Usia Maksimal</label>
-                        <input type="number" id="kuMax" placeholder="99" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Tahun Lahir Akhir</label>
+                        <input type="number" id="kuTahunAkhir" placeholder="2018" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
                     </div>
                 </div>
                 <button onclick="saveKU()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan KU</button>
@@ -148,7 +148,7 @@
         </div>
     </div>
 
-    <!-- Modal Tambah/Edit Jarak -->
+    <!-- Modal Tambah/Edit Jarak (FIXED: Ada Note 'm' otomatis) -->
     <div id="modalJarak" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-xs shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -160,7 +160,8 @@
                 <input type="hidden" id="jarakId">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Variasi Jarak</label>
-                    <input type="text" id="jarakNama" placeholder="misal: 100 Meter" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors">
+                    <input type="text" id="jarakNama" placeholder="misal: 25, 50, 4x50" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors">
+                    <p class="text-[9px] text-slate-400 mt-1.5">*Sistem otomatis menambahkan 'm' (contoh: 25m)</p>
                 </div>
                 <button onclick="saveJarak()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan Jarak</button>
             </div>
@@ -169,26 +170,26 @@
 
     <!-- ================= LOGIKA JAVASCRIPT ================= -->
     <script>
-        // 1. STATE MANAGEMENT (Data Dinamis Default)
+        // 1. STATE MANAGEMENT (Data Dinamis Default pakai TAHUN LAHIR)
         let dataKU = [
-            { id: 1, nama: 'KU Senior', min: 19, max: 99, aktif: false },
-            { id: 2, nama: 'KU 1', min: 16, max: 18, aktif: true },
-            { id: 3, nama: 'KU 2', min: 14, max: 15, aktif: true },
-            { id: 4, nama: 'KU Fun Swimming', min: 0, max: 9, aktif: true }
+            { id: 1, nama: 'KU Senior', tahunMulai: 1900, tahunAkhir: 2007, aktif: false },
+            { id: 2, nama: 'KU 1', tahunMulai: 2008, tahunAkhir: 2010, aktif: true },
+            { id: 3, nama: 'KU 2', tahunMulai: 2011, tahunAkhir: 2012, aktif: true },
+            { id: 4, nama: 'KU Fun Swimming', tahunMulai: 2017, tahunAkhir: 2018, aktif: true }
         ];
 
         let dataGaya = [
             {
                 id: 1, nama: 'Gaya Bebas (Freestyle)', icon: '🏊‍♂️',
                 jarak: [
-                    { id: 101, nama: '25 Meter', aktif: true },
-                    { id: 102, nama: '50 Meter', aktif: true }
+                    { id: 101, nama: '25m', aktif: true },
+                    { id: 102, nama: '50m', aktif: true }
                 ]
             },
             {
                 id: 2, nama: 'Gaya Dada (Breaststroke)', icon: '🐸',
                 jarak: [
-                    { id: 201, nama: '25 Meter', aktif: true }
+                    { id: 201, nama: '25m', aktif: true }
                 ]
             }
         ];
@@ -196,16 +197,15 @@
         // 2. RENDER FUNCTIONS (Inject HTML ke Container)
         function renderKU() {
             const container = document.getElementById('kuContainer');
-            container.innerHTML = ''; // Bersihkan kontainer
+            container.innerHTML = ''; 
             
             dataKU.forEach(ku => {
                 const checked = ku.aktif ? 'checked' : '';
-                // Desain UI persis sama, hanya dirender lewat JS
                 container.innerHTML += `
                 <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
                     <div class="flex flex-col">
                         <span class="font-bold text-slate-700 text-sm">${ku.nama}</span>
-                        <span class="text-[10px] text-slate-400">Usia: ${ku.min} - ${ku.max} thn</span>
+                        <span class="text-[10px] text-slate-400">Lahir: ${ku.tahunMulai} - ${ku.tahunAkhir}</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -227,7 +227,6 @@
             
             dataGaya.forEach(gaya => {
                 let jarakHTML = '';
-                // Render List Jarak per Kategori
                 gaya.jarak.forEach(jrk => {
                     const checked = jrk.aktif ? 'checked' : '';
                     jarakHTML += `
@@ -245,7 +244,6 @@
                     </div>`;
                 });
 
-                // Render Kategori Pembungkus
                 container.innerHTML += `
                 <div class="mb-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 group/cat">
                     <div class="flex items-center justify-between mb-3">
@@ -284,8 +282,8 @@
             document.getElementById('modalKUTitle').innerText = 'Buat KU Baru';
             document.getElementById('kuId').value = '';
             document.getElementById('kuNama').value = '';
-            document.getElementById('kuMin').value = '';
-            document.getElementById('kuMax').value = '';
+            document.getElementById('kuTahunMulai').value = '';
+            document.getElementById('kuTahunAkhir').value = '';
             openModal('modalKU');
         }
         function editKU(id) {
@@ -293,25 +291,25 @@
             document.getElementById('modalKUTitle').innerText = 'Edit Kelompok Umur';
             document.getElementById('kuId').value = ku.id;
             document.getElementById('kuNama').value = ku.nama;
-            document.getElementById('kuMin').value = ku.min;
-            document.getElementById('kuMax').value = ku.max;
+            document.getElementById('kuTahunMulai').value = ku.tahunMulai;
+            document.getElementById('kuTahunAkhir').value = ku.tahunAkhir;
             openModal('modalKU');
         }
         function saveKU() {
             const id = document.getElementById('kuId').value;
             const nama = document.getElementById('kuNama').value;
-            const min = document.getElementById('kuMin').value;
-            const max = document.getElementById('kuMax').value;
+            const tahunMulai = document.getElementById('kuTahunMulai').value;
+            const tahunAkhir = document.getElementById('kuTahunAkhir').value;
             
             if(!nama) return alert('Nama KU harus diisi!');
 
             if(id) {
                 // Mode Edit
                 const index = dataKU.findIndex(k => k.id == id);
-                dataKU[index] = { ...dataKU[index], nama, min, max };
+                dataKU[index] = { ...dataKU[index], nama, tahunMulai, tahunAkhir };
             } else {
                 // Mode Create
-                dataKU.push({ id: Date.now(), nama, min, max, aktif: true });
+                dataKU.push({ id: Date.now(), nama, tahunMulai, tahunAkhir, aktif: true });
             }
             renderKU();
             closeModal('modalKU');
@@ -382,24 +380,32 @@
             document.getElementById('modalJarakTitle').innerText = 'Edit Jarak';
             document.getElementById('jarakParentId').value = gayaId;
             document.getElementById('jarakId').value = jarak.id;
-            document.getElementById('jarakNama').value = jarak.nama;
+            
+            // Buang huruf 'm' saat diedit biar gak bingung
+            let namaEdit = jarak.nama.replace(/m$/i, '');
+            document.getElementById('jarakNama').value = namaEdit;
             openModal('modalJarak');
         }
         function saveJarak() {
             const gayaId = document.getElementById('jarakParentId').value;
             const jarakId = document.getElementById('jarakId').value;
-            const nama = document.getElementById('jarakNama').value;
+            let nama = document.getElementById('jarakNama').value;
             
             if(!nama) return alert('Variasi jarak harus diisi!');
+
+            // FORMATTING 'm' OTOMATIS
+            nama = nama.trim().toLowerCase();
+            nama = nama.replace(/\s*meter\s*$/i, ''); // Hapus kata "meter" kalau ada yg ngetik
+            if (!nama.endsWith('m')) {
+                nama += 'm'; // Tambah suffix 'm' kalau belum ada
+            }
 
             const gayaIndex = dataGaya.findIndex(g => g.id == gayaId);
 
             if(jarakId) {
-                // Edit
                 const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId);
                 dataGaya[gayaIndex].jarak[jarakIndex].nama = nama;
             } else {
-                // Create
                 dataGaya[gayaIndex].jarak.push({ id: Date.now(), nama, aktif: true });
             }
             renderGaya();

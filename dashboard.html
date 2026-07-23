@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-      <!-- PWA Settings -->
+    <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3a8a">
     <link rel="apple-touch-icon" href="/images/logo.png">
@@ -21,6 +21,8 @@
                 <img src="/images/logo.png" alt="SCS Logo" class="h-10">
             </a>
             <h1 class="text-xl font-bold text-blue-900 hidden sm:block">SCS Dashboard</h1>
+        </div> <!-- INI DIA YANG KETINGGALAN WKWK -->
+        
         <div class="flex items-center gap-4">
             <span class="text-sm font-semibold text-gray-800" id="clubNameDisplay">Memuat data...</span>
             <button id="logoutBtn" class="text-red-500 text-sm font-bold hover:underline ml-2 border border-red-200 px-3 py-1 rounded-lg bg-red-50">Keluar</button>
@@ -161,7 +163,8 @@
 
     <!-- PANGGIL LOGIC JAVASCRIPT DISINI -->
     <script type="module" src="/src/dashboard.js"></script>
-        <!-- PWA Service Worker Registration -->
+    
+    <!-- PWA Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

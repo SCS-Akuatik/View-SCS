@@ -3,255 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Center Event | SCS</title>
+    <title>Settings Lomba | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
-    <!-- Paku Bumi Anti Megalodon -->
     <style>
         svg { max-width: 100%; height: auto; display: block; }
     </style>
 </head>
-<!-- BACKGROUND ABU-ABU MUDA (slate-50) BIKIN CARD MELAYANG -->
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800">
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-24">
 
     <!-- Top Navigation -->
     <nav class="bg-slate-900 text-white shadow-md px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-50">
-        <a href="/dashboard.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition text-sm font-medium">
+        <a href="/event-dashboard.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition text-sm font-medium">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            <span class="hidden md:inline">Kembali ke Dashboard</span>
-            <span class="md:hidden">Kembali</span>
+            Kembali ke Command Center
         </a>
-        <div class="text-[10px] md:text-xs font-bold tracking-widest text-slate-400 uppercase">SCS Command Center</div>
+        <div class="text-[10px] md:text-xs font-bold tracking-widest text-slate-400 uppercase">Settings Lomba</div>
     </nav>
 
     <!-- Main Content Container -->
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 pb-20 pt-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
         
-        <!-- 1. HEADER CARD (Main Focus) -->
+        <div class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Konfigurasi Event</h1>
+            <p class="text-slate-500 text-sm mt-1">Atur Kelompok Umur (KU) dan Nomor Lomba yang dipertandingkan.</p>
+        </div>
+
+        <!-- SECTION 1: KELOMPOK UMUR -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6">
-            <div class="flex flex-col md:flex-row md:items-start justify-between gap-5">
-                <div>
-                    <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
-                        <h1 id="headerEventName" class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Memuat Event...</h1>
-                        <!-- Status Badge -->
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1.5 border border-emerald-200 shrink-0">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-                            LIVE
-                        </span>
+            <div class="flex items-center justify-between mb-5 border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     </div>
-                    <p id="headerSubdomain" class="text-slate-500 text-sm font-mono flex items-center gap-1.5">
-                        <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-                        ...funswimming.my.id
-                    </p>
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-lg">Kelompok Umur (KU)</h2>
+                        <p class="text-xs text-slate-500">Aktifkan KU yang dibuka untuk pendaftaran.</p>
+                    </div>
+                </div>
+                <!-- Tombol [+] Tambah KU -->
+                <button class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-xs transition-colors shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span class="hidden sm:inline">Tambah KU</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="kuContainer">
+                <!-- Toggle Item dengan Hover Edit/Delete -->
+                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-slate-700 text-sm">KU Senior (19+ Tahun)</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <!-- Action Buttons (Muncul saat di-hover) -->
+                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors" title="Edit KU"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors" title="Hapus KU"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" value="ku_senior" class="sr-only peer config-checkbox">
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
+                    <span class="font-bold text-slate-700 text-sm">KU 1 (16 - 18 Tahun)</span>
+                    <div class="flex items-center gap-3">
+                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" value="ku_1" class="sr-only peer config-checkbox" checked>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
                 </div>
                 
-                <a href="/settings-lomba.html" id="btnEditEvent" class="w-full md:w-auto px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 shadow-sm cursor-pointer">
-    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-    Settings Lomba
-</a>
-
-            </div>
-        </div>
-
-        <!-- 2. STATS GRID (Separated Cards for Depth) -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5 flex flex-col justify-center transition-shadow hover:shadow-md">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    </div>
-                    <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider">Peserta</p>
-                </div>
-                <p class="text-2xl md:text-3xl font-black text-slate-800">142</p>
-            </div>
-            
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5 flex flex-col justify-center transition-shadow hover:shadow-md">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    </div>
-                    <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider">Heat</p>
-                </div>
-                <p class="text-2xl md:text-3xl font-black text-slate-800">12</p>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5 flex flex-col justify-center transition-shadow hover:shadow-md">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                    </div>
-                    <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider">Kategori</p>
-                </div>
-                <p class="text-2xl md:text-3xl font-black text-slate-800">8</p>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5 flex flex-col justify-center transition-shadow hover:shadow-md">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider">Setup</p>
-                </div>
-                <div class="w-full">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[10px] md:text-xs font-bold text-emerald-600">90% Selesai</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-1.5">
-                        <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 90%"></div>
+                <!-- Format yang sama untuk KU 2 dan Fun Swimming... -->
+                <div class="flex items-center justify-between p-3 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors group">
+                    <span class="font-bold text-slate-700 text-sm">KU Fun Swimming (< 9 Tahun)</span>
+                    <div class="flex items-center gap-3">
+                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button class="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" value="ku_fun" class="sr-only peer config-checkbox" checked>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. SECTION: QUICK ACTIONS -->
-        <div class="mb-10">
-            <!-- Section Header Divider -->
-            <div class="flex items-center gap-3 mb-5">
-                <div class="p-1.5 bg-blue-100 rounded-md text-blue-600 shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <!-- SECTION 2: NOMOR LOMBA (GAYA) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-lg">Nomor Lomba (Gaya & Jarak)</h2>
+                        <p class="text-xs text-slate-500">Nomor yang off tidak muncul di pendaftaran.</p>
+                    </div>
                 </div>
-                <h2 class="text-xs md:text-sm font-bold text-slate-600 uppercase tracking-widest shrink-0">Quick Actions (Lomba Berjalan)</h2>
-                <div class="flex-1 h-px bg-slate-300"></div>
+                <!-- Tombol [+] Tambah Gaya Master -->
+                <button class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-bold text-xs transition-colors shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Kategori Gaya Baru</span>
+                </button>
             </div>
 
-            <!-- Prominent Link Card (Dikasih margin-bottom lega mb-6) -->
-            <div class="bg-white border border-blue-200 rounded-2xl p-3 md:p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <div class="flex items-center gap-2 text-blue-600 font-bold whitespace-nowrap pl-2 shrink-0">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                    <span class="text-sm">Link Pendaftaran</span>
-                </div>
-                <div class="flex-1 w-full flex shadow-sm rounded-xl">
-                    <input type="text" id="publicLinkInput" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 border-r-0 rounded-l-xl font-mono text-xs md:text-sm text-slate-700 focus:outline-none focus:bg-white focus:border-blue-400 transition-colors" value="https://..." readonly>
-                    <button id="btnCopyLink" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-xl font-bold text-xs md:text-sm transition-colors whitespace-nowrap">
-                        Copy
+            <!-- Kategori Gaya Bebas -->
+            <div class="mb-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 group/cat">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-slate-700 text-sm">🏊‍♂️ Gaya Bebas (Freestyle)</h3>
+                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover/cat:opacity-100 transition-opacity ml-2">
+                            <button class="p-1 text-slate-400 hover:text-blue-600 rounded" title="Edit Nama Gaya"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button class="p-1 text-slate-400 hover:text-red-600 rounded" title="Hapus Gaya"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                    </div>
+                    <!-- Tombol [+] Tambah Variasi Jarak KECIL -->
+                    <button class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md hover:bg-blue-200 flex items-center gap-1 transition-colors">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Jarak
                     </button>
                 </div>
-            </div>
-
-            <!-- Action Buttons Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Action Card: Live Result -->
-                <button class="group relative bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:shadow-md hover:border-red-200 transition-all duration-200 text-left flex items-start gap-4">
-                    <div class="w-12 h-12 shrink-0 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
-                        <svg class="w-6 h-6 text-red-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm md:text-base mb-1 flex items-center gap-2 flex-wrap">
-                            Live Result
-                            <span class="px-1.5 py-0.5 bg-red-100 text-red-700 text-[9px] font-bold rounded flex items-center gap-1 border border-red-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> ON AIR
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 text-xs flex items-center gap-1">
+                                25 Meter
+                                <button class="text-slate-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                             </span>
-                        </h3>
-                        <p class="text-xs text-slate-500 leading-snug">Input hasil heat secara realtime.</p>
+                        </div>
+                        <label class="cursor-pointer shrink-0">
+                            <input type="checkbox" value="bebas_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                        </label>
                     </div>
-                </button>
-
-                <!-- Action Card: Nomor Start -->
-                <button class="group relative bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:shadow-md hover:border-indigo-200 transition-all duration-200 text-left flex items-start gap-4">
-                    <div class="w-12 h-12 shrink-0 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                        <svg class="w-6 h-6 text-indigo-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>
+                    
+                    <div class="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 text-xs flex items-center gap-1">
+                                50 Meter
+                                <button class="text-slate-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            </span>
+                        </div>
+                        <label class="cursor-pointer shrink-0">
+                            <input type="checkbox" value="bebas_50" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                        </label>
                     </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm md:text-base mb-1">Nomor Start</h3>
-                        <p class="text-xs text-slate-500 leading-snug">Generate ID & PDF lintasan otomatis.</p>
-                    </div>
-                </button>
-
-                <!-- Action Card: Data Peserta -->
-                <button class="group relative bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:shadow-md hover:border-blue-200 transition-all duration-200 text-left flex items-start gap-4">
-                    <div class="w-12 h-12 shrink-0 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                        <svg class="w-6 h-6 text-blue-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm md:text-base mb-1">Data Peserta</h3>
-                        <p class="text-xs text-slate-500 leading-snug">Verifikasi 142 atlet terdaftar.</p>
-                    </div>
-                </button>
-            </div>
-        </div>
-
-        <!-- 4. SECTION: EVENT CONFIGURATION -->
-        <div>
-            <!-- Section Header Divider -->
-            <div class="flex items-center gap-3 mb-5">
-                <div class="p-1.5 bg-orange-100 rounded-md text-orange-600 shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
                 </div>
-                <h2 class="text-xs md:text-sm font-bold text-slate-600 uppercase tracking-widest shrink-0">Event Configuration (Pra-Lomba)</h2>
-                <div class="flex-1 h-px bg-slate-300"></div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <!-- Config Card: Landing Page (Blue Icon) -->
-                <button class="group relative bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:shadow-md hover:border-blue-300 transition-all duration-200 text-left flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                            <svg class="w-5 h-5 md:w-6 md:h-6 text-blue-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+            <!-- Kategori Gaya Dada -->
+            <div class="mb-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 group/cat">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-slate-700 text-sm">🐸 Gaya Dada (Breaststroke)</h3>
+                        <div class="hidden sm:flex items-center gap-1 opacity-0 group-hover/cat:opacity-100 transition-opacity ml-2">
+                            <button class="p-1 text-slate-400 hover:text-blue-600 rounded"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button class="p-1 text-slate-400 hover:text-red-600 rounded"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                         </div>
-                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] md:text-[10px] font-bold rounded flex items-center gap-1 border border-emerald-200">
-                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 
-                            Selesai
-                        </span>
                     </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 mb-1 text-sm md:text-base leading-tight">Landing Page</h3>
-                        <p class="text-[11px] md:text-xs text-slate-500 leading-tight">Desain visual web promosi.</p>
-                    </div>
-                </button>
-
-                <!-- Config Card: Entry Time (Indigo Icon) -->
-                <button class="group relative bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:shadow-md hover:border-indigo-300 transition-all duration-200 text-left flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                            <svg class="w-5 h-5 md:w-6 md:h-6 text-indigo-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <button class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md hover:bg-blue-200 flex items-center gap-1 transition-colors">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Jarak
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="flex items-center justify-between p-2.5 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-600 text-xs flex items-center gap-1">
+                                25 Meter
+                                <button class="text-slate-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                            </span>
                         </div>
-                        <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] md:text-[10px] font-bold rounded flex items-center gap-1 border border-slate-200">
-                            Belum
-                        </span>
+                        <label class="cursor-pointer shrink-0">
+                            <input type="checkbox" value="dada_25" class="config-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" checked>
+                        </label>
                     </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 mb-1 text-sm md:text-base leading-tight">Entry Time</h3>
-                        <p class="text-[11px] md:text-xs text-slate-500 leading-tight">Limit waktu & kriteria seeding.</p>
-                    </div>
-                </button>
-
-                <!-- Config Card: Pengaturan Harga (Emerald Icon) -->
-                <button class="group relative bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:shadow-md hover:border-emerald-300 transition-all duration-200 text-left flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                            <svg class="w-5 h-5 md:w-6 md:h-6 text-emerald-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                        </div>
-                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] md:text-[10px] font-bold rounded flex items-center gap-1 border border-emerald-200">
-                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 
-                            Selesai
-                        </span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 mb-1 text-sm md:text-base leading-tight">Tiket & Info</h3>
-                        <p class="text-[11px] md:text-xs text-slate-500 leading-tight">Harga, kuota, & tanggal.</p>
-                    </div>
-                </button>
-
-                <!-- Config Card: Sponsor (Amber/Yellow Icon) -->
-                <button class="group relative bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:shadow-md hover:border-amber-300 transition-all duration-200 text-left flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
-                            <svg class="w-5 h-5 md:w-6 md:h-6 text-amber-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                        </div>
-                        <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] md:text-[10px] font-bold rounded flex items-center gap-1 border border-slate-200">
-                            Belum
-                        </span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800 mb-1 text-sm md:text-base leading-tight">Sponsor</h3>
-                        <p class="text-[11px] md:text-xs text-slate-500 leading-tight">Logo & slot iklan event.</p>
-                    </div>
-                </button>
+                </div>
             </div>
+
         </div>
         
     </div>
 
-    <!-- Panggil Logika JS -->
-    <script type="module" src="/src/event-dashboard.js"></script>
+    <!-- Floating Save Button -->
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+        <div class="max-w-4xl mx-auto flex justify-end gap-3">
+            <button class="px-5 py-2.5 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-100 transition-colors">Batal</button>
+            <button id="btnSimpanConfig" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                Simpan Pengaturan
+            </button>
+        </div>
+    </div>
 </body>
 </html>

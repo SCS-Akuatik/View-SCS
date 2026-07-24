@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Harga Paket | SCS</title>
@@ -46,7 +51,7 @@
         </div>
     </section>
 
-    <!-- PRICING CARDS (Nama Tier Dirampingkan & Punchy) -->
+    <!-- PRICING CARDS -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10 mb-20">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
@@ -56,7 +61,7 @@
                 <p class="text-xs text-slate-400 mb-4 font-semibold uppercase tracking-wider">Free Access</p>
                 <div class="mb-6 pb-6 border-b border-slate-100">
                     <span class="text-3xl font-extrabold text-slate-900">Rp 0</span>
-                    <span class="text-slate-500">/selamanya</span>
+                    <span class="text-slate-500 font-medium">/forever</span>
                 </div>
                 <ul class="space-y-4 mb-8 flex-1 text-sm text-slate-600">
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Subdomain Eksklusif</li>
@@ -74,11 +79,11 @@
                 <div class="absolute top-0 right-0 bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Populer</div>
                 <h3 class="text-xl font-bold text-slate-800 uppercase tracking-wide">Growth</h3>
                 <div class="mb-6 pb-6 border-b border-slate-100 mt-9">
-                    <div class="text-2xl font-extrabold text-slate-900">Rp 200rb<span class="text-sm font-normal text-slate-500"> /event</span></div>
+                    <div class="text-2xl font-extrabold text-slate-900">Rp 200rb<span class="text-sm font-normal text-slate-500"> /event (3 months)</span></div>
                     <div class="text-sm text-slate-500 font-medium mt-1">+ Rp 3.000 x Nama/Nomor</div>
                 </div>
                 <ul class="space-y-4 mb-8 flex-1 text-sm text-slate-600">
-                    <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Starter</li>
+                    <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Fitur Starter</li>
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Cetak PDF & Buku Acara</li>
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Export Data Peserta (Excel)</li>
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Auto-Lock KU</li>
@@ -88,20 +93,20 @@
                 <button class="block w-full py-3 px-4 border-2 border-scsBlue text-scsBlue hover:bg-blue-50 text-center font-bold rounded-xl transition-colors">Pilih Growth</button>
             </div>
 
-            <!-- PRO TIER (Badge diganti RECOMMENDED / Panitia Favorit) -->
+            <!-- PRO TIER (Badge diganti RECOMMENDED / 0 Risk Guarantee) -->
             <div class="bg-scsBlue rounded-2xl shadow-2xl border-2 border-scsGold p-6 flex flex-col relative transform md:-translate-y-4">
-                <div class="absolute top-0 right-0 bg-scsGold text-scsBlue text-[10px] font-extrabold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Recommended</div>
+                <div class="absolute top-0 right-0 bg-scsGold text-scsBlue text-[10px] font-extrabold px-3 py-1 rounded-bl-lg uppercase tracking-wider">0 Risk Guarantee</div>
                 <h3 class="text-xl font-bold text-white uppercase tracking-wide">Pro</h3>
                 <div class="mb-6 pb-6 border-b border-blue-800 mt-9 text-white">
-                    <div class="text-2xl font-extrabold">Rp 500rb<span class="text-sm font-normal text-blue-200"> /bulan</span></div>
+                    <div class="text-2xl font-extrabold">Rp 500rb<span class="text-sm font-normal text-blue-200"> /event (3 months)</span></div>
                     <div class="text-sm text-blue-200 font-medium mt-1">+ Rp 3.000 x Nama/Nomor</div>
                 </div>
                 <ul class="space-y-4 mb-8 flex-1 text-sm text-blue-50">
-                    <li class="flex items-start gap-2 font-bold"><span class="text-scsGold">✓</span> Semua Growth</li>
-                    <li class="flex items-start gap-2 font-bold text-scsGold bg-blue-900/50 p-2 rounded-lg -mx-2"><span class="text-scsGold">⭐</span> SPONSORSHIP BROKER</li>
-                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Tim SCS bantu carikan Sponsor</li>
-                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Bebas Repot Lobi & Proposal</li>
-                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Tombol "Cairkan Dana" di Dashboard</li>
+                    <li class="flex items-start gap-2 font-bold"><span class="text-scsGold">✓</span> Semua Fitur Growth</li>
+                    <li class="flex items-start gap-2 font-bold text-scsBlue bg-gradient-to-r from-scsGold to-yellow-400 p-2 rounded-lg -mx-2 shadow-lg"><span class="text-scsBlue">🤝</span> 100% SPONSOR GUARANTEE</li>
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Jaminan Dana Sponsor Cair</li>
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Biaya 500K Pasti Kembali (Cashback)</li>
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Bebas Repot Cari Sponsor Sendiri</li>
                     <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Multi-Event Management</li>
                 </ul>
                 <button class="block w-full py-3 px-4 bg-scsGold hover:bg-yellow-500 text-scsBlue text-center font-extrabold rounded-xl transition-colors shadow-lg">Pilih Pro</button>
@@ -112,11 +117,11 @@
                 <div class="absolute top-0 right-0 bg-gray-700 text-gray-200 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">All-In</div>
                 <h3 class="text-xl font-bold uppercase tracking-wide mt-2">Elite</h3>
                 <div class="mb-6 pb-6 border-b border-gray-800 mt-6">
-                    <div class="text-2xl font-extrabold">Rp 2.5 Jt<span class="text-sm font-normal text-gray-400"> /event</span></div>
+                    <div class="text-2xl font-extrabold">Rp 2.5 Jt<span class="text-sm font-normal text-gray-400"> /event (3 months)</span></div>
                     <div class="text-sm text-gray-400 font-medium mt-1">(+ Surcharge Engineer)</div>
                 </div>
                 <ul class="space-y-4 mb-8 flex-1 text-sm text-gray-300">
-                    <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Pro</li>
+                    <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Fitur Pro</li>
                     <li class="flex items-start gap-2 font-bold text-white bg-gray-800 p-2 rounded-lg -mx-2"><span class="text-emerald-500">👨‍💻</span> ENGINEER STANDBY <br><span class="text-[10px] font-normal text-gray-400">(1 Hari Race = +Rp 500K)</span></li>
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Server Dedicated During Race</li>
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Live Result Display</li>
@@ -183,18 +188,18 @@
             
             <div class="space-y-4">
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h4 class="font-bold text-slate-800 text-lg mb-2">Bagaimana cara kerja fitur Sponsorship Broker di Pro Tier?</h4>
+                    <h4 class="font-bold text-slate-800 text-lg mb-2">Apakah biaya 500rb di paket Pro dijamin kembali?</h4>
+                    <p class="text-slate-600 text-sm">Betul 100%! Dengan mengambil paket Pro, event Anda masuk dalam prioritas utama ekosistem sponsor kami. Jika dalam waktu yang ditentukan sponsor belum turun, kami akan memberikan <strong>Cashback penuh senilai biaya upgrade Anda</strong>.</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-lg mb-2">Bagaimana cara kerja fitur Sponsorship Broker?</h4>
                     <p class="text-slate-600 text-sm">Tim SCS bertindak sebagai agensi eksklusif yang mencarikan sponsor untuk event Anda. Jika event Anda memenuhi kriteria brand, Anda akan mendapat notifikasi di Dashboard dan tinggal klik "Cairkan Dana". Anda bebas repot bikin proposal dan bisa fokus ngurus teknis lomba!</p>
                 </div>
                 
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-lg mb-2">Engineer standby ngapain aja (Paket Elite)?</h4>
                     <p class="text-slate-600 text-sm">Monitoring server real-time, handle troubleshooting teknis di lokasi, backup data live, dan memastikan *zero downtime* saat race berlangsung. Panitia fokus ngurus acara, urusan IT kami yang jaga.</p>
-                </div>
-                
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h4 class="font-bold text-slate-800 text-lg mb-2">Bisa upgrade/downgrade tengah event?</h4>
-                    <p class="text-slate-600 text-sm">Bisa kapan saja. Sistem akan menghitung selisih harga secara *prorated* (otomatis potong/refund) menyesuaikan sisa waktu event Anda.</p>
                 </div>
             </div>
         </div>

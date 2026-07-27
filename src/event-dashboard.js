@@ -52,7 +52,7 @@ async function loadEventDashboard() {
         // --- MENGHIDUPKAN NAVIGASI HALAMAN LAIN ---
         // 1. Settings Lomba
         document.getElementById('btnSettingsLomba').onclick = () => {
-            window.location.href = `/settings_lomba.html?id=${currentEventId}`;
+            window.location.href = `/settings-lomba.html?id=${currentEventId}`;
         };
         // 2. Live Result
         document.getElementById('btnLiveResult').onclick = () => {

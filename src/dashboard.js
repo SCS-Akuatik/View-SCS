@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
-// ==========================================
 // 1. FUNGSI TARIK DATA DASHBOARD
 // ==========================================
 async function fetchDashboardData() {
@@ -30,7 +29,7 @@ async function fetchDashboardData() {
             .single();
 
         if (clubError) throw clubError;
-        
+
         const clubNameEl = document.getElementById('clubNameDisplay');
         if (clubNameEl) clubNameEl.innerText = clubData.club_name;
 
@@ -51,7 +50,7 @@ async function fetchDashboardData() {
         if (logoEl && tooltipEl) {
             if (clubData.logo_url) {
                 logoEl.src = clubData.logo_url;
-                tooltipEl.innerText = "Ganti Logo Klub"; 
+                tooltipEl.innerText = "Ganti Logo Klub";
             } else {
                 const encodedName = encodeURIComponent(clubData.club_name);
                 logoEl.src = `https://ui-avatars.com/api/?name=${encodedName}&background=1e3a8a&color=fff&bold=true`;
@@ -74,62 +73,30 @@ async function fetchDashboardData() {
         const { count: eventCount } = await supabaseClient
             .from('events')
             .select('*', { count: 'exact', head: true });
-        
+
         const totalEventEl = document.getElementById('valEventAktif');
         if (totalEventEl) totalEventEl.innerText = eventCount || 0;
 
         // --- INJEKSI DROPDOWN VERIFIKASI ---
         const selectVerify = document.getElementById('inputVerifyAthlete');
         if (selectVerify) {
-            // Kosongkan dulu lalu beri opsi default
             selectVerify.innerHTML = '<option value="">-- Pilih Atlet (Hanya yang belum lengkap) --</option>';
-            
-            // Looping data atlet, filter yang belum punya foto ATAU akta
+
             let pendingCount = 0;
             athletesData.forEach(atlet => {
+                // Tampilkan hanya jika foto atau akta belum ada
                 if (!atlet.foto_url || !atlet.akta_url) {
                     selectVerify.innerHTML += `<option value="${atlet.f1_id}">${atlet.full_name} (${atlet.f1_id})</option>`;
                     pendingCount++;
                 }
             });
 
-            // Update angka "F1 ID Pending" di statistik atas (bonus UX!)
+            // Update statistik F1 ID Pending di atas layar
             const pendingEl = document.getElementById('valF1Pending');
             if (pendingEl) pendingEl.innerText = pendingCount;
         }
 
-        // RENDER TABEL (Di-reverse agar data yang baru masuk tampil di atas)
-        renderAthleteTable(athletesData.reverse());
-
-    } catch (error) {
-        console.error('Gagal menarik data dari Supabase:', error.message);
-        document.getElementById('athleteTableBody').innerHTML = `
-            <tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Gagal memuat data: ${error.message}</td></tr>
-        `;
-    }
-}
-
-
-        // HITUNG & TARIK DATA ATLET
-        const { data: athletesData, error: athletesError } = await supabaseClient
-            .from('athletes')
-            .select('*')
-            .eq('club_id', dummyClubId);
-
-        if (athletesError) throw athletesError;
-
-        const totalAtletEl = document.getElementById('valTotalAtlet');
-        if (totalAtletEl) totalAtletEl.innerText = athletesData.length;
-
-        // TARIK JUMLAH EVENT
-        const { count: eventCount } = await supabaseClient
-            .from('events')
-            .select('*', { count: 'exact', head: true });
-        
-        const totalEventEl = document.getElementById('valEventAktif');
-        if (totalEventEl) totalEventEl.innerText = eventCount || 0;
-
-        // RENDER TABEL (Di-reverse agar data yang baru masuk tampil di atas)
+        // RENDER TABEL (Di-reverse agar yang paling baru di atas)
         renderAthleteTable(athletesData.reverse());
 
     } catch (error) {
@@ -144,8 +111,8 @@ async function fetchDashboardData() {
 function renderAthleteTable(athletes) {
     const tbody = document.getElementById('athleteTableBody');
     if (!tbody) return;
-    
-    tbody.innerHTML = ''; 
+
+    tbody.innerHTML = '';
 
     if (athletes.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Belum ada atlet yang terdaftar di klub ini.</td></tr>`;
@@ -230,26 +197,28 @@ if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
     const sectionExcel = document.getElementById('sectionExcel');
     const statusMsg = document.getElementById('statusMsg');
 
-    tabManualBtn.addEventListener('click', () => {
-        tabManualBtn.className = "flex-1 py-1.5 bg-white shadow-sm rounded-md text-sm font-bold text-blue-900 transition-all";
-        tabExcelBtn.className = "flex-1 py-1.5 text-gray-500 text-sm font-bold hover:text-blue-900 transition-all";
-        sectionManual.classList.remove('hidden');
-        sectionExcel.classList.add('hidden');
-        btnSaveAthlete.classList.remove('hidden');
-        btnProsesExcel.classList.add('hidden');
-        statusMsg.classList.add('hidden');
-    });
+    if(tabManualBtn && tabExcelBtn) {
+        tabManualBtn.addEventListener('click', () => {
+            tabManualBtn.className = "flex-1 py-1.5 bg-white shadow-sm rounded-md text-sm font-bold text-blue-900 transition-all";
+            tabExcelBtn.className = "flex-1 py-1.5 text-gray-500 text-sm font-bold hover:text-blue-900 transition-all";
+            sectionManual.classList.remove('hidden');
+            sectionExcel.classList.add('hidden');
+            btnSaveAthlete.classList.remove('hidden');
+            btnProsesExcel.classList.add('hidden');
+            statusMsg.classList.add('hidden');
+        });
 
-    tabExcelBtn.addEventListener('click', () => {
-        tabExcelBtn.className = "flex-1 py-1.5 bg-white shadow-sm rounded-md text-sm font-bold text-blue-900 transition-all";
-        tabManualBtn.className = "flex-1 py-1.5 text-gray-500 text-sm font-bold hover:text-blue-900 transition-all";
-        sectionExcel.classList.remove('hidden');
-        sectionManual.classList.add('hidden');
-        btnProsesExcel.classList.remove('hidden');
-        btnProsesExcel.style.display = 'flex'; // Paksa tampil sebagai flex
-        btnSaveAthlete.classList.add('hidden');
-        statusMsg.classList.add('hidden');
-    });
+        tabExcelBtn.addEventListener('click', () => {
+            tabExcelBtn.className = "flex-1 py-1.5 bg-white shadow-sm rounded-md text-sm font-bold text-blue-900 transition-all";
+            tabManualBtn.className = "flex-1 py-1.5 text-gray-500 text-sm font-bold hover:text-blue-900 transition-all";
+            sectionExcel.classList.remove('hidden');
+            sectionManual.classList.add('hidden');
+            btnProsesExcel.classList.remove('hidden');
+            btnProsesExcel.style.display = 'flex';
+            btnSaveAthlete.classList.add('hidden');
+            statusMsg.classList.add('hidden');
+        });
+    }
 }
 
 // 1. Simpan Manual
@@ -276,7 +245,7 @@ if (btnSaveAthlete) {
             const random3 = Math.floor(Math.random() * 900) + 100;
             const generatedF1Id = `F1-${yy}${mm}${random3}`;
 
-            const dummyClubId = 1; 
+            const dummyClubId = 1;
 
             const { error } = await supabaseClient
                 .from('athletes')
@@ -292,7 +261,7 @@ if (btnSaveAthlete) {
 
             statusMsg.innerText = `Berhasil! F1 ID: ${generatedF1Id}`;
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block";
-            
+
             document.getElementById('inputNama').value = '';
             document.getElementById('inputDOB').value = '';
 
@@ -301,7 +270,7 @@ if (btnSaveAthlete) {
                 btnSaveAthlete.innerText = "Simpan & Generate F1 ID";
                 btnSaveAthlete.disabled = false;
                 statusMsg.classList.add('hidden');
-                fetchDashboardData(); 
+                fetchDashboardData();
             }, 1500);
 
         } catch (err) {
@@ -335,30 +304,25 @@ if (btnProsesExcel) {
         reader.onload = async function(e) {
             try {
                 const data = new Uint8Array(e.target.result);
-                // Baca file pakai SheetJS
                 const workbook = XLSX.read(data, {type: 'array'});
                 const firstSheet = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheet];
-                // Convert ke JSON (Array)
                 const excelData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
 
-                // Hapus baris pertama (Header kolom)
-                excelData.shift();
+                excelData.shift(); // Hapus Header
 
                 const dummyClubId = 1;
                 const athletesToInsert = [];
 
                 excelData.forEach(row => {
-                    // Pastikan baris nggak kosong (minimal ada Nama & TglLahir)
                     if (row.length >= 2) {
                         const nama = row[0];
                         let dob = row[1];
-                        let gender = row[2] || 'Putra'; // Default ke Putra kalau kosong
+                        let gender = row[2] || 'Putra';
 
-                        // Trik mengatasi Format Tanggal aneh dari Excel Serial Date
                         if (typeof dob === 'number') {
                             const dateObj = new Date(Math.round((dob - 25569) * 86400 * 1000));
-                            dob = dateObj.toISOString().split('T')[0]; // Format ke YYYY-MM-DD
+                            dob = dateObj.toISOString().split('T')[0];
                         }
 
                         if (nama && dob) {
@@ -383,17 +347,15 @@ if (btnProsesExcel) {
 
                 btnProsesExcel.innerHTML = `Menyuntik ${athletesToInsert.length} atlet ke Database...`;
 
-                // Tembak massal ke Supabase
                 const { error } = await supabaseClient
                     .from('athletes')
                     .insert(athletesToInsert);
 
                 if (error) throw error;
 
-                // Sukses!
                 statusMsg.innerText = `BOOM! Berhasil import ${athletesToInsert.length} atlet baru!`;
                 statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block mt-3";
-                
+
                 document.getElementById('inputExcel').value = '';
 
                 setTimeout(() => {
@@ -402,7 +364,7 @@ if (btnProsesExcel) {
                     btnProsesExcel.disabled = false;
                     btnProsesExcel.classList.remove('opacity-70');
                     statusMsg.classList.add('hidden');
-                    fetchDashboardData(); 
+                    fetchDashboardData();
                 }, 2000);
 
             } catch (err) {
@@ -452,14 +414,14 @@ if (btnSubmitVerify) {
 
         try {
             const timeStamp = Date.now();
-            
+
             // 1. Upload Foto
             const fotoExt = fotoFile.name.split('.').pop();
             const fotoPath = `foto/${f1Id}_${timeStamp}.${fotoExt}`;
             const { error: fotoError } = await supabaseClient.storage
                 .from('berkas-atlet')
                 .upload(fotoPath, fotoFile);
-            
+
             if (fotoError) throw fotoError;
             const { data: fotoUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(fotoPath);
 
@@ -469,16 +431,16 @@ if (btnSubmitVerify) {
             const { error: aktaError } = await supabaseClient.storage
                 .from('berkas-atlet')
                 .upload(aktaPath, aktaFile);
-            
+
             if (aktaError) throw aktaError;
             const { data: aktaUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(aktaPath);
 
             // 3. Update Tabel
             const { error: updateError } = await supabaseClient
                 .from('athletes')
-                .update({ 
+                .update({
                     foto_url: fotoUrlData.publicUrl,
-                    akta_url: aktaUrlData.publicUrl 
+                    akta_url: aktaUrlData.publicUrl
                 })
                 .eq('f1_id', f1Id);
 
@@ -487,7 +449,7 @@ if (btnSubmitVerify) {
             // 4. Sukses
             statusMsg.innerHTML = "✅ <strong>Berkas berhasil diunggah!</strong><br><br><span class='font-normal text-[11px] leading-relaxed block mt-1'>Tim Verifikator SCS akan melakukan peninjauan dan validasi keabsahan data dalam estimasi waktu <strong>1x24 jam operasional</strong>. Status atlet akan otomatis aktif setelah disetujui.</span>";
             statusMsg.className = "text-sm text-center rounded-lg p-4 bg-amber-50 border border-amber-200 text-amber-800 block";
-            
+
             document.getElementById('inputVerifyAthlete').value = '';
             document.getElementById('inputFoto').value = '';
             document.getElementById('inputAkta').value = '';
@@ -533,10 +495,10 @@ if (btnSaveEvent) {
     btnSaveEvent.addEventListener('click', async () => {
         const inputEventName = document.getElementById('inputEventName').value.trim();
         let inputSubdomain = document.getElementById('inputSubdomain').value.trim().toLowerCase();
-        
+
         const inputEventStartDate = document.getElementById('inputEventStartDate').value;
         const inputEventEndDate = document.getElementById('inputEventEndDate').value;
-        
+
         const statusMsg = document.getElementById('eventStatusMsg');
 
         inputSubdomain = inputSubdomain.replace(/[^a-z0-9-]/g, '');

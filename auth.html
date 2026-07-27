@@ -19,44 +19,50 @@
         </div>
         
         <div class="space-y-5">
+            <!-- Nama Klub (Hanya muncul saat Daftar) -->
             <div id="clubInputGroup" class="hidden">
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Klub / Penyelenggara</label>
-                <input id="clubName" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50" placeholder="Contoh: F1 SwimmingClub">
+                <input id="clubName" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 text-sm" placeholder="Contoh: Jago Swimming Academy">
             </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                <input id="email" type="email" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50" placeholder="coach@klub.com">
+                <input id="email" type="email" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 text-sm" placeholder="coach@klub.com">
             </div>
             
-            <!-- Kata Sandi 1 -->
+            <!-- Kata Sandi -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Kata Sandi</label>
                 <div class="relative">
-                    <input id="password" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 pr-12" placeholder="••••••••">
+                    <input id="password" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 pr-12 text-sm" placeholder="••••••••">
                     <button id="togglePassword" type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-scsBlue transition">
-                        <!-- SVG diinjeksi via JS -->
+                        👁️
+                    </button>
+                </div>
+                <!-- TULISAN LUPA KATA SANDI (DIPASTIKAN MUNCUL DI SINI) -->
+                <div id="forgotPasswordContainer" class="text-right mt-2">
+                    <a href="#" id="forgotPasswordLink" class="text-xs font-bold text-scsBlue hover:underline">Lupa Kata Sandi?</a>
+                </div>
+            </div>
+
+            <!-- Kata Sandi 2 (Konfirmasi - Hanya saat Daftar) -->
+            <div id="confirmPasswordGroup" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Konfirmasi Kata Sandi</label>
+                <div class="relative">
+                    <input id="confirmPassword" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 pr-12 text-sm" placeholder="••••••••">
+                    <button id="toggleConfirmPassword" type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-scsBlue transition">
+                        👁️
                     </button>
                 </div>
             </div>
 
-            <!-- Kata Sandi 2 (Konfirmasi) -->
-            <div id="confirmPasswordGroup" class="hidden">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Konfirmasi Kata Sandi</label>
-                <div class="relative">
-                    <input id="confirmPassword" type="password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-scsGold outline-none bg-gray-50 pr-12" placeholder="••••••••">
-                    <button id="toggleConfirmPassword" type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-scsBlue transition">
-                        <!-- SVG diinjeksi via JS -->
-                    </button>
-                </div>
-            </div>
- <!-- JAHITAN BARU: T&C dan Checkbox Promo -->
+            <!-- T&C dan Checkbox (Hanya saat Daftar) -->
             <div id="tncGroup" class="hidden space-y-4 mt-2">
                 <div class="p-4 bg-blue-50/50 border border-blue-100 rounded-xl text-xs text-gray-600 max-h-32 overflow-y-auto hide-scrollbar text-justify shadow-inner">
                     <p class="font-bold text-scsBlue mb-1 text-[13px]">Visi & Misi Sistem SCS</p>
-                    <p class="mb-3">Sistem ini dibangun untuk menciptakan ekosistem olahraga akuatik yang kompetitif, transparan, dan terukur. Dengan mendaftar, Klub berkomitmen untuk menginput profil atlet secara jujur demi menjunjung tinggi sportivitas, validitas rekor, dan akurasi *race intelligence* di setiap kompetisi.</p>
+                    <p class="mb-3">Sistem ini dibangun untuk menciptakan ekosistem olahraga akuatik yang kompetitif, transparan, dan terukur.</p>
                     <p class="font-bold text-scsBlue mb-1 text-[13px]">Privasi Data</p>
-                    <p>Kami melindungi data pribadi atlet. Data hanya diintegrasikan untuk keperluan pencatatan *seed time*, hasil lomba, dan penjadwalan *heat* resmi.</p>
+                    <p>Kami melindungi data pribadi atlet untuk keperluan pencatatan hasil lomba dan penjadwalan resmi.</p>
                 </div>
                 
                 <label class="flex items-start gap-3 cursor-pointer group">
@@ -64,13 +70,12 @@
                         <input type="checkbox" id="promoConsent" class="w-5 h-5 border-2 border-gray-300 rounded text-scsBlue focus:ring-scsGold transition-all cursor-pointer">
                     </div>
                     <span class="text-xs text-gray-600 group-hover:text-gray-900 transition-colors leading-relaxed">
-                        Saya menyetujui Syarat & Ketentuan di atas, serta bersedia menerima informasi pembaruan sistem dan penawaran eksklusif dari mitra dan sponsor resmi yang mendukung ekosistem akuatik ini.
+                        Saya menyetujui Syarat & Ketentuan di atas, serta bersedia menerima pembaruan sistem kompetisi.
                     </span>
                 </label>
             </div>
-            <!-- BATAS JAHITAN BARU -->
 
-            <div id="messageBox" class="hidden text-sm font-bold text-center rounded-lg p-3"></div>
+            <!-- Message Box -->
             <div id="messageBox" class="hidden text-sm font-bold text-center rounded-lg p-3"></div>
 
             <button id="mainBtn" class="w-full bg-scsBlue text-white py-3.5 rounded-xl font-bold text-lg hover:bg-blue-900 shadow-lg transition-all flex justify-center items-center">
@@ -86,7 +91,7 @@
         </div>
     </div>
 
-    <!-- PANGGIL LOGIC JAVASCRIPT DISINI -->
+    <!-- PANGGIL LOGIC JAVASCRIPT -->
     <script type="module" src="/src/auth.js"></script>
 </body>
 </html>

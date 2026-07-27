@@ -1,142 +1,206 @@
 import { supabaseClient } from './supabase.js';
 
-// 1. STATE UI 
-let isLoginMode = true;
-const formTitle = document.getElementById('formTitle');
-const formSubtitle = document.getElementById('formSubtitle');
-const clubInputGroup = document.getElementById('clubInputGroup');
-const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
-const tncGroup = document.getElementById('tncGroup'); // 👈 Tambahan baru
-const toggleText = document.getElementById('toggleText');
-const toggleBtn = document.getElementById('toggleBtn');
-const mainBtn = document.getElementById('mainBtn');
-const messageBox = document.getElementById('messageBox');
-
-// 2. Fungsi ubah tampilan Form (Klik Daftar)
-toggleBtn.addEventListener('click', () => {
-    isLoginMode = !isLoginMode;
-    messageBox.classList.add('hidden');
-    
-    if (isLoginMode) {
-        formTitle.innerText = "Masuk ke Portal";
-        formSubtitle.innerText = "Sistem Manajemen Kompetisi Akuatik";
-        clubInputGroup.classList.add('hidden');
-        confirmPasswordGroup.classList.add('hidden');
-        tncGroup.classList.add('hidden'); // 👈 Sembunyikan saat login
-        mainBtn.innerText = "Masuk ke Dashboard";
-        toggleText.innerText = "Belum bermitra dengan kami?";
-        toggleBtn.innerText = "Daftar sekarang";
-    } else {
-        formTitle.innerText = "Daftar Mitra Baru";
-        formSubtitle.innerText = "Buat akun untuk memulai kompetisi Anda";
-        clubInputGroup.classList.remove('hidden');
-        confirmPasswordGroup.classList.remove('hidden');
-        tncGroup.classList.remove('hidden'); // 👈 Munculkan saat daftar
-        mainBtn.innerText = "Buat Akun Sekarang";
-        toggleText.innerText = "Sudah punya akun?";
-        toggleBtn.innerText = "Masuk di sini";
+document.addEventListener('DOMContentLoaded', async () => {
+    // Cek Sesi Aktif
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        window.location.href = '/dashboard.html';
+        return;
     }
-});
 
+    // Element Mapping
+    const formTitle = document.getElementById('formTitle');
+    const formSubtitle = document.getElementById('formSubtitle');
+    const clubInputGroup = document.getElementById('clubInputGroup');
+    const clubNameInput = document.getElementById('clubName');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const tncGroup = document.getElementById('tncGroup');
+    const promoConsent = document.getElementById('promoConsent');
+    const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    
+    const messageBox = document.getElementById('messageBox');
+    const mainBtn = document.getElementById('mainBtn');
+    const toggleText = document.getElementById('toggleText');
+    const toggleBtn = document.getElementById('toggleBtn');
+    
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
 
-// 3. FUNGSI IKON MATA (Show/Hide Password)
-function setupEyeIcon(inputId, btnId) {
-    const input = document.getElementById(inputId);
-    const btn = document.getElementById(btnId);
-    
-    if (!input || !btn) return; // Mencegah error kalau elemen belum ada
-    
-    // Kode SVG untuk mata terbuka dan tertutup
-    const eyeOpen = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>`;
-    const eyeClosed = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>`;
-    
-    btn.innerHTML = eyeOpen; // Set awal
-    
-    btn.addEventListener('click', () => {
-        if (input.type === 'password') {
-            input.type = 'text';
-            btn.innerHTML = eyeClosed;
+    let isLoginMode = true; // Default: Mode Masuk
+
+    // --- A. TOGGLE PASSWORD VISIBILITY ---
+    togglePassword.addEventListener('click', () => {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            togglePassword.innerText = '🙈';
         } else {
-            input.type = 'password';
-            btn.innerHTML = eyeOpen;
+            passwordInput.type = 'password';
+            togglePassword.innerText = '👁️';
         }
     });
-}
-setupEyeIcon('password', 'togglePassword');
-setupEyeIcon('confirmPassword', 'toggleConfirmPassword');
 
-// 4. Fungsi nampilin notifikasi
-function showMessage(msg, isError = true) {
-    messageBox.innerText = msg;
-    messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-600', 'bg-green-100', 'text-green-600');
-    if (isError) {
-        messageBox.classList.add('bg-red-100', 'text-red-600');
-    } else {
-        messageBox.classList.add('bg-green-100', 'text-green-600');
-    }
-}
-
-// 5. FUNGSI EKSEKUSI DATA (Konek ke Supabase)
-mainBtn.addEventListener('click', async () => {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-
-    if (!email || !password) {
-        return showMessage("Email dan password wajib diisi bray!");
-    }
-
-    const originalBtnText = mainBtn.innerText;
-    mainBtn.innerText = "Memproses...";
-    mainBtn.disabled = true;
-    mainBtn.classList.add('opacity-70');
-
-    try {
-        if (isLoginMode) {
-            // PROSES LOGIN
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            
-            showMessage("Login sukses! Mengarahkan...", false);
-            
-            // JALUR TOL KE DASHBOARD (Anti-stuck Termux)
-            setTimeout(() => { window.location.replace("dashboard.html"); }, 500);
-            
+    toggleConfirmPassword.addEventListener('click', () => {
+        if (confirmPasswordInput.type === 'password') {
+            confirmPasswordInput.type = 'text';
+            toggleConfirmPassword.innerText = '🙈';
         } else {
-            // PROSES DAFTAR (REGISTER)
-            const confirmPassword = document.getElementById('confirmPassword').value.trim();
-            const clubName = document.getElementById('clubName').value.trim();
+            confirmPasswordInput.type = 'password';
+            toggleConfirmPassword.innerText = '👁️';
+        }
+    });
+
+    // --- B. TOGGLE MODE (LOGIN <-> REGISTER) ---
+    toggleBtn.addEventListener('click', () => {
+        isLoginMode = !isLoginMode;
+        messageBox.classList.add('hidden');
+
+        if (isLoginMode) {
+            // Mode Login
+            formTitle.innerText = "Masuk ke Portal";
+            formSubtitle.innerText = "Sistem Manajemen Kompetisi Akuatik";
+            clubInputGroup.classList.add('hidden');
+            confirmPasswordGroup.classList.add('hidden');
+            tncGroup.classList.add('hidden');
+            forgotPasswordContainer.classList.remove('hidden');
+            mainBtn.innerText = "Masuk ke Dashboard";
+            toggleText.innerText = "Belum bermitra dengan kami?";
+            toggleBtn.innerText = "Daftar sekarang";
+        } else {
+            // Mode Daftar
+            formTitle.innerText = "Pendaftaran Klub Baru";
+            formSubtitle.innerText = "Bergabunglah dengan ekosistem SCS";
+            clubInputGroup.classList.remove('hidden');
+            confirmPasswordGroup.classList.remove('hidden');
+            tncGroup.classList.remove('hidden');
+            forgotPasswordContainer.classList.add('hidden');
+            mainBtn.innerText = "Daftar Akun Sekarang";
+            toggleText.innerText = "Sudah punya akun?";
+            toggleBtn.innerText = "Masuk di sini";
+        }
+    });
+
+    // --- C. LOGIC UTAMA (SUBMIT FORM) ---
+    mainBtn.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        messageBox.classList.add('hidden');
+
+        if (!email || !password) {
+            showError("Email dan Kata Sandi wajib diisi!");
+            return;
+        }
+
+        mainBtn.innerText = "Memproses...";
+        mainBtn.disabled = true;
+        mainBtn.classList.add('opacity-70');
+
+        if (isLoginMode) {
+            // --- PROSES LOGIN ---
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                showError(error.message);
+                resetBtn("Masuk ke Dashboard");
+            } else {
+                showSuccess("Berhasil masuk! Mengalihkan...");
+                setTimeout(() => window.location.href = '/dashboard.html', 800);
+            }
+
+        } else {
+            // --- PROSES REGISTER / PENDAFTARAN ---
+            const clubName = clubNameInput.value.trim();
+            const confirmPassword = confirmPasswordInput.value;
 
             if (!clubName) {
-                throw new Error("Nama klub wajib diisi buat pendaftaran!");
+                showError("Nama Klub wajib diisi!");
+                resetBtn("Daftar Akun Sekarang");
+                return;
             }
             if (password !== confirmPassword) {
-                throw new Error("Kata sandi dan konfirmasi tidak cocok bray!");
+                showError("Konfirmasi kata sandi tidak cocok!");
+                resetBtn("Daftar Akun Sekarang");
+                return;
+            }
+            if (!promoConsent.checked) {
+                showError("Anda harus menyetujui Syarat & Ketentuan.");
+                resetBtn("Daftar Akun Sekarang");
+                return;
             }
 
-            // Daftarin ke sistem Auth Supabase
+            // 1. Daftarkan User ke Supabase Auth
             const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password });
-            if (authError) throw authError;
 
-            // Simpan nama klub ke tabel profiles
-            const { error: dbError } = await supabaseClient
-                .from('profiles')
-                .insert([{ email: email, club_name: clubName }]);
+            if (authError) {
+                showError(authError.message);
+                resetBtn("Daftar Akun Sekarang");
+                return;
+            }
+
+            const userId = authData.user?.id;
+
+            if (userId) {
+                // 2. Buat record klub baru di tabel 'clubs' dan sambungkan owner_id-nya!
+                const shortCode = clubName.split(' ').map(w => w[0]).join('').substring(0, 4).toUpperCase();
                 
-            if (dbError) throw dbError;
+                const { error: clubError } = await supabaseClient
+                    .from('clubs')
+                    .insert([{
+                        club_name: clubName,
+                        short_name: shortCode,
+                        owner_id: userId,
+                        tier: 'Basic',
+                        is_verified: false
+                    }]);
 
-            showMessage("Akun berhasil dibuat! Silakan masuk menggunakan akun tersebut.", false);
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('confirmPassword').value = '';
-            document.getElementById('clubName').value = '';
-            
-            // Otomatis kembalikan ke mode login setelah sukses daftar
-            setTimeout(() => { toggleBtn.click(); }, 2500);
+                if (clubError) {
+                    console.error("Gagal buat klub:", clubError.message);
+                }
+            }
+
+            showSuccess("Pendaftaran Berhasil! Silakan masuk.");
+            setTimeout(() => {
+                toggleBtn.click(); // Balikin ke mode login
+                resetBtn("Masuk ke Dashboard");
+                emailInput.value = '';
+                passwordInput.value = '';
+            }, 1500);
         }
-    } catch (err) {
-        showMessage("Gagal: " + err.message);
-    } finally {
-        mainBtn.innerText = originalBtnText;
+    });
+
+    // --- D. LUPA PASSWORD LINK ---
+    forgotPasswordLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        if (!email) {
+            alert("Silakan masukkan email Anda terlebih dahulu pada kolom Email.");
+            return;
+        }
+
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+        if (error) {
+            alert("Gagal mengirim instruksi reset: " + error.message);
+        } else {
+            alert("Link pemulihan kata sandi telah dikirim ke email Anda.");
+        }
+    });
+
+    // Helpers UI
+    function showError(msg) {
+        messageBox.innerText = `Gagal: ${msg}`;
+        messageBox.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+    }
+
+    function showSuccess(msg) {
+        messageBox.innerText = msg;
+        messageBox.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block";
+    }
+
+    function resetBtn(text) {
+        mainBtn.innerText = text;
         mainBtn.disabled = false;
         mainBtn.classList.remove('opacity-70');
     }

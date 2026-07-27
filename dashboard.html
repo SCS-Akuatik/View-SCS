@@ -37,8 +37,12 @@
             </div>
             
             <!-- Foto Profil Klub (Dengan Bubble Tooltip) -->
-            <div class="relative group cursor-pointer">
+            <div class="relative group cursor-pointer" id="logoUploadContainer">
+                <!-- INI YANG BARU: Input file disembunyikan pakai hidden -->
+                <input type="file" id="inputLogoKlub" accept="image/*" class="hidden">
+                
                 <img src="" id="clubLogoDisplay" alt="Club Logo" class="w-10 h-10 md:w-11 md:h-11 rounded-full border-2 border-scsGold shadow-sm object-cover bg-white">
+                
                 <!-- Bubble Tooltip Keren -->
                 <div id="logoTooltip" class="absolute right-0 top-14 w-40 bg-gray-900 text-white text-[10px] text-center p-2 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                     Upload emblem/logo club

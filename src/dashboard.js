@@ -629,3 +629,71 @@ if (btnSaveEvent) {
         }
     });
 }
+// ==========================================
+// 5. LOGIC UPLOAD LOGO KLUB (AKAL-AKALAN DEVELOPER)
+// ==========================================
+const logoUploadContainer = document.getElementById('logoUploadContainer');
+const inputLogoKlub = document.getElementById('inputLogoKlub');
+const logoTooltip = document.getElementById('logoTooltip');
+
+if (logoUploadContainer && inputLogoKlub) {
+    // 1. Saat foto/avatar diklik, buka file picker
+    logoUploadContainer.addEventListener('click', () => {
+        if (!currentClubId) {
+            alert("Sistem belum selesai memuat ID Klub. Silakan tunggu sebentar.");
+            return;
+        }
+        inputLogoKlub.click();
+    });
+
+    // 2. Saat user selesai milih file gambar
+    inputLogoKlub.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Ganti teks tooltip biar ada indikator loading
+        const originalTooltip = logoTooltip.innerHTML;
+        logoTooltip.innerHTML = "Mengunggah... ⏳";
+        
+        try {
+            // A. Upload ke Storage Supabase
+            const fileExt = file.name.split('.').pop();
+            const fileName = `logo_${currentClubId}_${Date.now()}.${fileExt}`;
+            const filePath = `${fileName}`; // Simpan langsung di root bucket logo-klub
+
+            const { error: uploadError } = await supabaseClient.storage
+                .from('logo-klub')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            // B. Dapatkan URL Public-nya
+            const { data: urlData } = supabaseClient.storage
+                .from('logo-klub')
+                .getPublicUrl(filePath);
+
+            // C. Update kolom logo_url di tabel clubs
+            const { error: updateError } = await supabaseClient
+                .from('clubs')
+                .update({ logo_url: urlData.publicUrl })
+                .eq('id', currentClubId);
+
+            if (updateError) throw updateError;
+
+            // D. Sukses! Refresh tampilan biar logo baru langsung nongol
+            logoTooltip.innerHTML = "Berhasil! ✅";
+            setTimeout(() => {
+                fetchDashboardData(); 
+                logoTooltip.innerHTML = originalTooltip;
+            }, 1000);
+
+        } catch (error) {
+            console.error(error);
+            alert("Gagal mengunggah logo: " + error.message);
+            logoTooltip.innerHTML = originalTooltip;
+        }
+        
+        // Reset input file biar bisa upload foto yang sama lagi kalau mau
+        inputLogoKlub.value = '';
+    });
+}

@@ -21,7 +21,7 @@ async function fetchDashboardData() {
     try {
         const dummyClubId = 1;
 
-        // TARIK DATA KLUB
+        // TARIK DATA KLUB (Logo, Tier, & Verifikasi)
         const { data: clubData, error: clubError } = await supabaseClient
             .from('clubs')
             .select('*')
@@ -33,13 +33,34 @@ async function fetchDashboardData() {
         const clubNameEl = document.getElementById('clubNameDisplay');
         if (clubNameEl) clubNameEl.innerText = clubData.club_name;
 
+        // --- Logic Badge Dinamis ---
+        const badgesContainer = document.getElementById('clubBadges');
+        let badgesHTML = '';
+        if (clubData.is_verified) {
+            badgesHTML += `<span class="bg-green-100 text-green-700 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase border border-green-200">Verified</span>`;
+        }
+        if (clubData.tier && clubData.tier !== 'Basic') {
+            badgesHTML += `<span class="bg-scsGold text-blue-900 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase">${clubData.tier} Tier</span>`;
+        }
+        if (badgesContainer) badgesContainer.innerHTML = badgesHTML;
+
+        // --- Logic Logo Klub Dinamis ---
         const logoEl = document.getElementById('clubLogoDisplay');
-        if (logoEl) {
-            const encodedName = encodeURIComponent(clubData.club_name);
-            logoEl.src = `https://ui-avatars.com/api/?name=${encodedName}&background=1e3a8a&color=fff&bold=true`;
+        const tooltipEl = document.getElementById('logoTooltip');
+        if (logoEl && tooltipEl) {
+            if (clubData.logo_url) {
+                // Jika sudah ada logo
+                logoEl.src = clubData.logo_url;
+                tooltipEl.innerText = "Ganti Logo Klub"; 
+            } else {
+                // Jika logo kosong, pakai Avatar Inisial & Munculin pesan Bubble
+                const encodedName = encodeURIComponent(clubData.club_name);
+                logoEl.src = `https://ui-avatars.com/api/?name=${encodedName}&background=1e3a8a&color=fff&bold=true`;
+                tooltipEl.innerHTML = `Upload emblem/logo club <div class="absolute -top-2 right-4 w-4 h-4 bg-gray-900 transform rotate-45"></div>`;
+            }
         }
 
-        // HITUNG & TARIK DATA ATLET (TANPA .order BIAR NGGAK ERROR)
+        // HITUNG & TARIK DATA ATLET
         const { data: athletesData, error: athletesError } = await supabaseClient
             .from('athletes')
             .select('*')
@@ -83,9 +104,7 @@ function renderAthleteTable(athletes) {
 
     athletes.forEach((atlet, index) => {
         const genderIcon = atlet.gender === 'Putra' ? '👦 Putra' : '👧 Putri';
-        // Kalau foto_url ada di database, pakai foto itu. Kalau kosong, pakai avatar inisial
         const avatarUrl = atlet.foto_url ? atlet.foto_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(atlet.full_name)}&background=f3f4f6&color=374151`;
-        // Icon ceklis jika dokumen lengkap
         const statusDokumen = (atlet.foto_url && atlet.akta_url) ? '<span class="text-green-500 text-xs ml-1" title="Terverifikasi">✅</span>' : '';
 
         const row = `
@@ -123,13 +142,14 @@ function renderAthleteTable(athletes) {
 }
 
 // ==========================================
-// 2. LOGIC TOMBOL & MODAL (AKSI CEPAT)
+// 2. LOGIC TOMBOL & MODAL
 // ==========================================
 
 const btnAddAthlete = document.getElementById('btnAddAthlete');
 const modalAddAthlete = document.getElementById('modalAddAthlete');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const btnSaveAthlete = document.getElementById('btnSaveAthlete');
+const btnProsesExcel = document.getElementById('btnProsesExcel');
 
 const btnVerify = document.getElementById('btnVerify');
 const modalVerifyAthlete = document.getElementById('modalVerifyAthlete');
@@ -141,7 +161,7 @@ const modalCreateEvent = document.getElementById('modalCreateEvent');
 const closeModalEventBtn = document.getElementById('closeModalEventBtn');
 const btnSaveEvent = document.getElementById('btnSaveEvent');
 
-// --- A. LOGIC TAMBAH ATLET ---
+// --- A. LOGIC TAMBAH ATLET (Tab Switcher & Upload) ---
 if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
     btnAddAthlete.addEventListener('click', () => {
         modalAddAthlete.classList.remove('hidden');
@@ -152,8 +172,37 @@ if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
         modalAddAthlete.firstElementChild.classList.add('scale-95');
         setTimeout(() => modalAddAthlete.classList.add('hidden'), 200);
     });
+
+    // Toggle Tabs UI
+    const tabManualBtn = document.getElementById('tabManualBtn');
+    const tabExcelBtn = document.getElementById('tabExcelBtn');
+    const sectionManual = document.getElementById('sectionManual');
+    const sectionExcel = document.getElementById('sectionExcel');
+    const statusMsg = document.getElementById('statusMsg');
+
+    tabManualBtn.addEventListener('click', () => {
+        tabManualBtn.className = "flex-1 py-1.5 bg-white shadow-sm rounded-md text-sm font-bold text-blue-900 transition-all";
+        tabExcelBtn.className = "flex-1 py-1.5 text-gray-500 text-sm font-bold hover:text-blue-900 transition-all";
+        sectionManual.classList.remove('hidden');
+        sectionExcel.classList.add('hidden');
+        btnSaveAthlete.classList.remove('hidden');
+        btnProsesExcel.classList.add('hidden');
+        statusMsg.classList.add('hidden');
+    });
+
+    tabExcelBtn.addEventListener('click', () => {
+        tabExcelBtn.className = "flex-1 py-1.5 bg-white shadow-sm rounded-md text-sm font-bold text-blue-900 transition-all";
+        tabManualBtn.className = "flex-1 py-1.5 text-gray-500 text-sm font-bold hover:text-blue-900 transition-all";
+        sectionExcel.classList.remove('hidden');
+        sectionManual.classList.add('hidden');
+        btnProsesExcel.classList.remove('hidden');
+        btnProsesExcel.style.display = 'flex'; // Paksa tampil sebagai flex
+        btnSaveAthlete.classList.add('hidden');
+        statusMsg.classList.add('hidden');
+    });
 }
 
+// 1. Simpan Manual
 if (btnSaveAthlete) {
     btnSaveAthlete.addEventListener('click', async () => {
         const inputNama = document.getElementById('inputNama').value.trim();
@@ -198,7 +247,7 @@ if (btnSaveAthlete) {
             document.getElementById('inputDOB').value = '';
 
             setTimeout(() => {
-                modalAddAthlete.classList.add('hidden');
+                closeModalBtn.click();
                 btnSaveAthlete.innerText = "Simpan & Generate F1 ID";
                 btnSaveAthlete.disabled = false;
                 statusMsg.classList.add('hidden');
@@ -212,6 +261,110 @@ if (btnSaveAthlete) {
             btnSaveAthlete.innerText = "Simpan & Generate F1 ID";
             btnSaveAthlete.disabled = false;
         }
+    });
+}
+
+// 2. Mesin Ajaib Import Excel (SheetJS)
+if (btnProsesExcel) {
+    btnProsesExcel.addEventListener('click', async () => {
+        const fileInput = document.getElementById('inputExcel');
+        const statusMsg = document.getElementById('statusMsg');
+
+        if (!fileInput.files.length) {
+            statusMsg.innerText = "Pilih file Excel/CSV terlebih dahulu!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-3";
+            return;
+        }
+
+        const file = fileInput.files[0];
+        btnProsesExcel.innerHTML = "Membaca data file...";
+        btnProsesExcel.disabled = true;
+        btnProsesExcel.classList.add('opacity-70');
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                // Baca file pakai SheetJS
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheet];
+                // Convert ke JSON (Array)
+                const excelData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+                // Hapus baris pertama (Header kolom)
+                excelData.shift();
+
+                const dummyClubId = 1;
+                const athletesToInsert = [];
+
+                excelData.forEach(row => {
+                    // Pastikan baris nggak kosong (minimal ada Nama & TglLahir)
+                    if (row.length >= 2) {
+                        const nama = row[0];
+                        let dob = row[1];
+                        let gender = row[2] || 'Putra'; // Default ke Putra kalau kosong
+
+                        // Trik mengatasi Format Tanggal aneh dari Excel Serial Date
+                        if (typeof dob === 'number') {
+                            const dateObj = new Date(Math.round((dob - 25569) * 86400 * 1000));
+                            dob = dateObj.toISOString().split('T')[0]; // Format ke YYYY-MM-DD
+                        }
+
+                        if (nama && dob) {
+                            const dateD = new Date(dob);
+                            const yy = dateD.getFullYear().toString().slice(-2);
+                            const mm = ('0' + (dateD.getMonth() + 1)).slice(-2);
+                            const random3 = Math.floor(Math.random() * 900) + 100;
+                            const generatedF1Id = `F1-${yy}${mm}${random3}`;
+
+                            athletesToInsert.push({
+                                f1_id: generatedF1Id,
+                                full_name: nama,
+                                dob: dob,
+                                gender: gender,
+                                club_id: dummyClubId
+                            });
+                        }
+                    }
+                });
+
+                if (athletesToInsert.length === 0) throw new Error("Data kosong atau format tabel salah.");
+
+                btnProsesExcel.innerHTML = `Menyuntik ${athletesToInsert.length} atlet ke Database...`;
+
+                // Tembak massal ke Supabase
+                const { error } = await supabaseClient
+                    .from('athletes')
+                    .insert(athletesToInsert);
+
+                if (error) throw error;
+
+                // Sukses!
+                statusMsg.innerText = `BOOM! Berhasil import ${athletesToInsert.length} atlet baru!`;
+                statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block mt-3";
+                
+                document.getElementById('inputExcel').value = '';
+
+                setTimeout(() => {
+                    closeModalBtn.click();
+                    btnProsesExcel.innerHTML = "Mulai Import Data";
+                    btnProsesExcel.disabled = false;
+                    btnProsesExcel.classList.remove('opacity-70');
+                    statusMsg.classList.add('hidden');
+                    fetchDashboardData(); 
+                }, 2000);
+
+            } catch (err) {
+                console.error(err);
+                statusMsg.innerText = "Gagal import: " + err.message;
+                statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-3";
+                btnProsesExcel.innerHTML = "Mulai Import Data";
+                btnProsesExcel.disabled = false;
+                btnProsesExcel.classList.remove('opacity-70');
+            }
+        };
+        reader.readAsArrayBuffer(file);
     });
 }
 

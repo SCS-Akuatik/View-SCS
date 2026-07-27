@@ -116,12 +116,33 @@
             </button>
         </div>
 
+        <!-- CONTAINER DAFTAR EVENT (BARU) -->
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden mb-10">
+            <div class="p-5 md:p-6 border-b border-gray-100 bg-emerald-50/50 flex items-center gap-3">
+                <span class="text-2xl">🏆</span>
+                <div>
+                    <h2 class="text-xl font-extrabold text-emerald-900">Event Lomba Saya</h2>
+                    <p class="text-xs text-gray-500 mt-1">Daftar event yang Anda selenggarakan.</p>
+                </div>
+            </div>
+            <div id="eventListContainer" class="p-5 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Data Event akan dimunculkan di sini via JS -->
+                <p class="text-sm text-gray-500">Mencari data event...</p>
+            </div>
+        </div>
+
         <!-- TABEL DATABASE ATLET -->
         <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden mb-10">
             <div class="p-5 md:p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 class="text-xl font-extrabold text-blue-900">Database Atlet Klub</h2>
                     <p class="text-xs text-gray-500 mt-1">Kelola F1 ID peserta dari Supabase.</p>
+                </div>
+                <!-- Controls Pagination (Geser Kanan Kiri) -->
+                <div class="flex items-center gap-2">
+                    <button id="btnPrevPage" class="px-3 py-1.5 text-sm font-bold bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-blue-50 disabled:opacity-50">&laquo; Prev</button>
+                    <span id="pageIndicator" class="text-xs font-bold text-gray-400">Hal 1 / 1</span>
+                    <button id="btnNextPage" class="px-3 py-1.5 text-sm font-bold bg-white border border-gray-200 rounded-lg text-gray-600 hover:bg-blue-50 disabled:opacity-50">Next &raquo;</button>
                 </div>
             </div>
 
@@ -144,7 +165,6 @@
                 </table>
             </div>
         </div>
-    </div>
 
 
     <!-- ==============================================================

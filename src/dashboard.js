@@ -1,5 +1,13 @@
 import { supabaseClient } from './supabase.js';
 
+// ==========================================
+// STATE GLOBAL UNTUK APLIKASI
+// ==========================================
+let allAthletes = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let currentClubId = null; // Menyimpan ID Klub yang sedang login
+
 document.addEventListener('DOMContentLoaded', async () => {
     // Tombol Keluar
     const logoutBtn = document.getElementById('logoutBtn');
@@ -10,41 +18,72 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Jalankan fungsi tarik data!
+    // Logic Klik Tombol Pagination (Geser Kanan Kiri)
+    const btnPrev = document.getElementById('btnPrevPage');
+    const btnNext = document.getElementById('btnNextPage');
+    
+    if(btnPrev) {
+        btnPrev.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderAthleteTable();
+            }
+        });
+    }
+    
+    if(btnNext) {
+        btnNext.addEventListener('click', () => {
+            const totalPages = Math.ceil(allAthletes.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderAthleteTable();
+            }
+        });
+    }
+
+    // Jalankan fungsi tarik data utama!
     fetchDashboardData();
 });
 
 // ==========================================
-// 1. FUNGSI TARIK DATA DASHBOARD
+// 1. FUNGSI TARIK DATA DASHBOARD (FULL DINAMIS)
 // ==========================================
 async function fetchDashboardData() {
     try {
-        const dummyClubId = 1;
+        // --- A. CEK SESI LOGIN ---
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+        
+        if (sessionError || !session) {
+            window.location.href = '/auth.html';
+            return;
+        }
 
-        // TARIK DATA KLUB (Logo, Tier, & Verifikasi)
+        const userId = session.user.id; 
+
+        // --- B. CARI KLUB MILIK USER INI ---
         const { data: clubData, error: clubError } = await supabaseClient
             .from('clubs')
             .select('*')
-            .eq('id', dummyClubId)
+            .eq('owner_id', userId)
             .single();
 
-        if (clubError) throw clubError;
+        if (clubError || !clubData) {
+            document.getElementById('athleteTableBody').innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Akun Anda belum terhubung dengan klub manapun. Hubungi Admin.</td></tr>`;
+            return;
+        }
 
+        currentClubId = clubData.id; // SET GLOBAL VARIABEL
+
+        // --- C. RENDER PROFIL KLUB DI ATAS ---
         const clubNameEl = document.getElementById('clubNameDisplay');
         if (clubNameEl) clubNameEl.innerText = clubData.club_name;
 
-        // --- Logic Badge Dinamis ---
         const badgesContainer = document.getElementById('clubBadges');
         let badgesHTML = '';
-        if (clubData.is_verified) {
-            badgesHTML += `<span class="bg-green-100 text-green-700 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase border border-green-200">Verified</span>`;
-        }
-        if (clubData.tier && clubData.tier !== 'Basic') {
-            badgesHTML += `<span class="bg-scsGold text-blue-900 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase">${clubData.tier} Tier</span>`;
-        }
+        if (clubData.is_verified) badgesHTML += `<span class="bg-green-100 text-green-700 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase border border-green-200">Verified</span>`;
+        if (clubData.tier && clubData.tier !== 'Basic') badgesHTML += `<span class="bg-scsGold text-blue-900 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase">${clubData.tier} Tier</span>`;
         if (badgesContainer) badgesContainer.innerHTML = badgesHTML;
 
-        // --- Logic Logo Klub Dinamis ---
         const logoEl = document.getElementById('clubLogoDisplay');
         const tooltipEl = document.getElementById('logoTooltip');
         if (logoEl && tooltipEl) {
@@ -52,81 +91,118 @@ async function fetchDashboardData() {
                 logoEl.src = clubData.logo_url;
                 tooltipEl.innerText = "Ganti Logo Klub";
             } else {
-                const encodedName = encodeURIComponent(clubData.club_name);
+                const encodedName = encodeURIComponent(clubData.short_name || clubData.club_name);
                 logoEl.src = `https://ui-avatars.com/api/?name=${encodedName}&background=1e3a8a&color=fff&bold=true`;
                 tooltipEl.innerHTML = `Upload emblem/logo club <div class="absolute -top-2 right-4 w-4 h-4 bg-gray-900 transform rotate-45"></div>`;
             }
         }
 
-        // HITUNG & TARIK DATA ATLET
+        // --- D. TARIK DATA EVENT MILIK KLUB INI ---
+        const { data: eventsData, error: eventsErr } = await supabaseClient
+            .from('events')
+            .select('*')
+            .eq('club_id', currentClubId);
+        
+        const totalEventEl = document.getElementById('valEventAktif');
+        if (totalEventEl) totalEventEl.innerText = eventsData ? eventsData.length : 0;
+
+        // Render Card Event Lomba
+        const eventContainer = document.getElementById('eventListContainer');
+        if (eventContainer) {
+            if (!eventsData || eventsData.length === 0) {
+                eventContainer.innerHTML = `<p class="text-sm text-gray-500 italic col-span-full">Belum ada event lomba yang dibuat. Silakan klik 'Buat Event' di menu Aksi Cepat.</p>`;
+            } else {
+                let evHTML = '';
+                eventsData.forEach(ev => {
+                    evHTML += `
+                        <div class="border border-emerald-100 bg-white p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all group flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-extrabold text-emerald-900 text-lg group-hover:text-emerald-700 transition">${ev.event_name}</h3>
+                                <p class="text-xs text-gray-500 mt-1 font-mono">🔗 ${ev.subdomain}.funswimming.my.id</p>
+                                <p class="text-xs text-gray-500 mt-1">📅 ${ev.event_date} s/d ${ev.end_date}</p>
+                            </div>
+                            <a href="/event-dashboard.html?id=${ev.id}" class="mt-4 bg-emerald-50 text-emerald-700 text-center text-xs font-bold py-2 rounded-lg hover:bg-emerald-600 hover:text-white transition">Masuk Panel Panitia &raquo;</a>
+                        </div>
+                    `;
+                });
+                eventContainer.innerHTML = evHTML;
+            }
+        }
+
+        // --- E. TARIK DATA ATLET MILIK KLUB INI ---
         const { data: athletesData, error: athletesError } = await supabaseClient
             .from('athletes')
             .select('*')
-            .eq('club_id', dummyClubId);
+            .eq('club_id', currentClubId);
 
         if (athletesError) throw athletesError;
 
         const totalAtletEl = document.getElementById('valTotalAtlet');
         if (totalAtletEl) totalAtletEl.innerText = athletesData.length;
 
-        // TARIK JUMLAH EVENT
-        const { count: eventCount } = await supabaseClient
-            .from('events')
-            .select('*', { count: 'exact', head: true });
-
-        const totalEventEl = document.getElementById('valEventAktif');
-        if (totalEventEl) totalEventEl.innerText = eventCount || 0;
-
-        // --- INJEKSI DROPDOWN VERIFIKASI ---
+        // Render Dropdown Verifikasi
         const selectVerify = document.getElementById('inputVerifyAthlete');
         if (selectVerify) {
             selectVerify.innerHTML = '<option value="">-- Pilih Atlet (Hanya yang belum lengkap) --</option>';
-
             let pendingCount = 0;
             athletesData.forEach(atlet => {
-                // Tampilkan hanya jika foto atau akta belum ada
                 if (!atlet.foto_url || !atlet.akta_url) {
                     selectVerify.innerHTML += `<option value="${atlet.f1_id}">${atlet.full_name} (${atlet.f1_id})</option>`;
                     pendingCount++;
                 }
             });
-
-            // Update statistik F1 ID Pending di atas layar
             const pendingEl = document.getElementById('valF1Pending');
             if (pendingEl) pendingEl.innerText = pendingCount;
         }
 
-        // RENDER TABEL (Di-reverse agar yang paling baru di atas)
-        renderAthleteTable(athletesData.reverse());
+        // F. URUTKAN ALFABET, SIMPAN KE MEMORI, LALU RENDER HALAMAN 1
+        allAthletes = athletesData.sort((a, b) => a.full_name.localeCompare(b.full_name));
+        currentPage = 1;
+        renderAthleteTable();
 
     } catch (error) {
-        console.error('Gagal menarik data dari Supabase:', error.message);
+        console.error('Gagal menarik data:', error.message);
         document.getElementById('athleteTableBody').innerHTML = `
             <tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Gagal memuat data: ${error.message}</td></tr>
         `;
     }
 }
 
-// Fungsi Render Tabel HTML
-function renderAthleteTable(athletes) {
+// ==========================================
+// 3. FUNGSI RENDER TABEL & PAGINATION
+// ==========================================
+function renderAthleteTable() {
     const tbody = document.getElementById('athleteTableBody');
+    const pageInd = document.getElementById('pageIndicator');
+    const btnPrev = document.getElementById('btnPrevPage');
+    const btnNext = document.getElementById('btnNextPage');
+    
     if (!tbody) return;
+    tbody.innerHTML = ''; 
 
-    tbody.innerHTML = '';
-
-    if (athletes.length === 0) {
+    if (allAthletes.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Belum ada atlet yang terdaftar di klub ini.</td></tr>`;
+        if(pageInd) pageInd.innerText = `Hal 1 / 1`;
+        if(btnPrev) btnPrev.disabled = true;
+        if(btnNext) btnNext.disabled = true;
         return;
     }
 
-    athletes.forEach((atlet, index) => {
+    // Hitung Slice per Halaman
+    const totalPages = Math.ceil(allAthletes.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const athletesToShow = allAthletes.slice(startIndex, endIndex);
+
+    athletesToShow.forEach((atlet, idx) => {
+        const actualIndex = startIndex + idx + 1; // Nomor urut lanjut terus
         const genderIcon = atlet.gender === 'Putra' ? '👦 Putra' : '👧 Putri';
         const avatarUrl = atlet.foto_url ? atlet.foto_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(atlet.full_name)}&background=f3f4f6&color=374151`;
         const statusDokumen = (atlet.foto_url && atlet.akta_url) ? '<span class="text-green-500 text-xs ml-1" title="Terverifikasi">✅</span>' : '';
 
         const row = `
             <tr class="hover:bg-blue-50/50 transition-colors group border-b border-gray-50">
-                <td class="p-4 text-center font-bold text-gray-400">${index + 1}</td>
+                <td class="p-4 text-center font-bold text-gray-400">${actualIndex}</td>
                 <td class="p-4">
                     <div class="flex items-center gap-3">
                         <img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-sm">
@@ -156,10 +232,15 @@ function renderAthleteTable(athletes) {
         `;
         tbody.innerHTML += row;
     });
+
+    // Update Tombol Kiri Kanan
+    if(pageInd) pageInd.innerText = `Hal ${currentPage} / ${totalPages}`;
+    if(btnPrev) btnPrev.disabled = currentPage === 1;
+    if(btnNext) btnNext.disabled = currentPage === totalPages;
 }
 
 // ==========================================
-// 2. LOGIC TOMBOL & MODAL
+// 4. LOGIC MODAL (TAMBAH, VERIFIKASI, EVENT)
 // ==========================================
 
 const btnAddAthlete = document.getElementById('btnAddAthlete');
@@ -190,7 +271,6 @@ if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
         setTimeout(() => modalAddAthlete.classList.add('hidden'), 200);
     });
 
-    // Toggle Tabs UI
     const tabManualBtn = document.getElementById('tabManualBtn');
     const tabExcelBtn = document.getElementById('tabExcelBtn');
     const sectionManual = document.getElementById('sectionManual');
@@ -235,6 +315,12 @@ if (btnSaveAthlete) {
             return;
         }
 
+        if (!currentClubId) {
+            statusMsg.innerText = "Kesalahan Sistem: ID Klub tidak ditemukan.";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+            return;
+        }
+
         btnSaveAthlete.innerText = "Memproses...";
         btnSaveAthlete.disabled = true;
 
@@ -245,8 +331,6 @@ if (btnSaveAthlete) {
             const random3 = Math.floor(Math.random() * 900) + 100;
             const generatedF1Id = `F1-${yy}${mm}${random3}`;
 
-            const dummyClubId = 1;
-
             const { error } = await supabaseClient
                 .from('athletes')
                 .insert([{
@@ -254,7 +338,7 @@ if (btnSaveAthlete) {
                     full_name: inputNama,
                     dob: inputDOB,
                     gender: inputGender,
-                    club_id: dummyClubId
+                    club_id: currentClubId // SEKARANG MENGGUNAKAN ID KLUB AKTIF
                 }]);
 
             if (error) throw error;
@@ -283,7 +367,7 @@ if (btnSaveAthlete) {
     });
 }
 
-// 2. Mesin Ajaib Import Excel (SheetJS)
+// 2. Import Excel
 if (btnProsesExcel) {
     btnProsesExcel.addEventListener('click', async () => {
         const fileInput = document.getElementById('inputExcel');
@@ -291,6 +375,12 @@ if (btnProsesExcel) {
 
         if (!fileInput.files.length) {
             statusMsg.innerText = "Pilih file Excel/CSV terlebih dahulu!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-3";
+            return;
+        }
+
+        if (!currentClubId) {
+            statusMsg.innerText = "Kesalahan Sistem: ID Klub tidak ditemukan.";
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-3";
             return;
         }
@@ -309,9 +399,8 @@ if (btnProsesExcel) {
                 const worksheet = workbook.Sheets[firstSheet];
                 const excelData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
 
-                excelData.shift(); // Hapus Header
+                excelData.shift();
 
-                const dummyClubId = 1;
                 const athletesToInsert = [];
 
                 excelData.forEach(row => {
@@ -337,7 +426,7 @@ if (btnProsesExcel) {
                                 full_name: nama,
                                 dob: dob,
                                 gender: gender,
-                                club_id: dummyClubId
+                                club_id: currentClubId // MENGGUNAKAN ID KLUB AKTIF
                             });
                         }
                     }
@@ -380,7 +469,7 @@ if (btnProsesExcel) {
     });
 }
 
-// --- B. LOGIC VERIFIKASI (REAL STORAGE UPLOAD) ---
+// --- B. LOGIC VERIFIKASI ---
 if (btnVerify && modalVerifyAthlete && closeModalVerifyBtn) {
     btnVerify.addEventListener('click', () => {
         modalVerifyAthlete.classList.remove('hidden');
@@ -415,39 +504,26 @@ if (btnSubmitVerify) {
         try {
             const timeStamp = Date.now();
 
-            // 1. Upload Foto
             const fotoExt = fotoFile.name.split('.').pop();
             const fotoPath = `foto/${f1Id}_${timeStamp}.${fotoExt}`;
-            const { error: fotoError } = await supabaseClient.storage
-                .from('berkas-atlet')
-                .upload(fotoPath, fotoFile);
-
+            const { error: fotoError } = await supabaseClient.storage.from('berkas-atlet').upload(fotoPath, fotoFile);
             if (fotoError) throw fotoError;
             const { data: fotoUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(fotoPath);
 
-            // 2. Upload Akta
             const aktaExt = aktaFile.name.split('.').pop();
             const aktaPath = `akta/${f1Id}_${timeStamp}.${aktaExt}`;
-            const { error: aktaError } = await supabaseClient.storage
-                .from('berkas-atlet')
-                .upload(aktaPath, aktaFile);
-
+            const { error: aktaError } = await supabaseClient.storage.from('berkas-atlet').upload(aktaPath, aktaFile);
             if (aktaError) throw aktaError;
             const { data: aktaUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(aktaPath);
 
-            // 3. Update Tabel
             const { error: updateError } = await supabaseClient
                 .from('athletes')
-                .update({
-                    foto_url: fotoUrlData.publicUrl,
-                    akta_url: aktaUrlData.publicUrl
-                })
+                .update({ foto_url: fotoUrlData.publicUrl, akta_url: aktaUrlData.publicUrl })
                 .eq('f1_id', f1Id);
 
             if (updateError) throw updateError;
 
-            // 4. Sukses
-            statusMsg.innerHTML = "✅ <strong>Berkas berhasil diunggah!</strong><br><br><span class='font-normal text-[11px] leading-relaxed block mt-1'>Tim Verifikator SCS akan melakukan peninjauan dan validasi keabsahan data dalam estimasi waktu <strong>1x24 jam operasional</strong>. Status atlet akan otomatis aktif setelah disetujui.</span>";
+            statusMsg.innerHTML = "✅ <strong>Berkas berhasil diunggah!</strong><br><br><span class='font-normal text-[11px] leading-relaxed block mt-1'>Tim Verifikator akan melakukan peninjauan. Status atlet akan otomatis aktif setelah disetujui.</span>";
             statusMsg.className = "text-sm text-center rounded-lg p-4 bg-amber-50 border border-amber-200 text-amber-800 block";
 
             document.getElementById('inputVerifyAthlete').value = '';
@@ -495,16 +571,20 @@ if (btnSaveEvent) {
     btnSaveEvent.addEventListener('click', async () => {
         const inputEventName = document.getElementById('inputEventName').value.trim();
         let inputSubdomain = document.getElementById('inputSubdomain').value.trim().toLowerCase();
-
         const inputEventStartDate = document.getElementById('inputEventStartDate').value;
         const inputEventEndDate = document.getElementById('inputEventEndDate').value;
-
         const statusMsg = document.getElementById('eventStatusMsg');
 
         inputSubdomain = inputSubdomain.replace(/[^a-z0-9-]/g, '');
 
         if (!inputEventName || !inputSubdomain || !inputEventStartDate || !inputEventEndDate) {
             statusMsg.innerText = "Semua kolom wajib diisi!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+            return;
+        }
+
+        if (!currentClubId) {
+            statusMsg.innerText = "Kesalahan Sistem: ID Klub tidak ditemukan.";
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
             return;
         }
@@ -519,8 +599,6 @@ if (btnSaveEvent) {
         btnSaveEvent.disabled = true;
 
         try {
-            const dummyClubId = 1;
-
             const { data, error } = await supabaseClient
                 .from('events')
                 .insert([{
@@ -528,7 +606,7 @@ if (btnSaveEvent) {
                     subdomain: inputSubdomain,
                     event_date: inputEventStartDate,
                     end_date: inputEventEndDate,
-                    club_id: dummyClubId
+                    club_id: currentClubId // MENGGUNAKAN ID KLUB AKTIF
                 }])
                 .select()
                 .single();

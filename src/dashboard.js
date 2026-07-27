@@ -1,12 +1,11 @@
-// Kita panggil nama aslinya, tapi kita "palsukan" panggilannya jadi supabase khusus di file ini aja
-import { supabaseClient as supabase } from './supabase.js';
+import { supabaseClient } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Tombol Keluar
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.href = '/auth.html';
         });
     }
@@ -20,11 +19,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ==========================================
 async function fetchDashboardData() {
     try {
-        // Asumsi kita tarik data dummy untuk Klub ID = 1 (Jago Renang Academy)
         const dummyClubId = 1;
 
         // TARIK DATA KLUB
-        const { data: clubData, error: clubError } = await supabase
+        const { data: clubData, error: clubError } = await supabaseClient
             .from('clubs')
             .select('*')
             .eq('id', dummyClubId)
@@ -41,12 +39,11 @@ async function fetchDashboardData() {
             logoEl.src = `https://ui-avatars.com/api/?name=${encodedName}&background=1e3a8a&color=fff&bold=true`;
         }
 
-        // HITUNG & TARIK DATA ATLET
-        const { data: athletesData, error: athletesError } = await supabase
+        // HITUNG & TARIK DATA ATLET (TANPA .order BIAR NGGAK ERROR)
+        const { data: athletesData, error: athletesError } = await supabaseClient
             .from('athletes')
             .select('*')
-            .eq('club_id', dummyClubId)
-            .order('created_at', { ascending: false }); // Urutkan yang terbaru di atas
+            .eq('club_id', dummyClubId);
 
         if (athletesError) throw athletesError;
 
@@ -54,20 +51,20 @@ async function fetchDashboardData() {
         if (totalAtletEl) totalAtletEl.innerText = athletesData.length;
 
         // TARIK JUMLAH EVENT
-        const { count: eventCount } = await supabase
+        const { count: eventCount } = await supabaseClient
             .from('events')
             .select('*', { count: 'exact', head: true });
         
         const totalEventEl = document.getElementById('valEventAktif');
         if (totalEventEl) totalEventEl.innerText = eventCount || 0;
 
-        // RENDER TABEL
-        renderAthleteTable(athletesData);
+        // RENDER TABEL (Di-reverse agar data yang baru masuk tampil di atas)
+        renderAthleteTable(athletesData.reverse());
 
     } catch (error) {
         console.error('Gagal menarik data dari Supabase:', error.message);
         document.getElementById('athleteTableBody').innerHTML = `
-            <tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Gagal memuat data. Periksa koneksi Supabase.</td></tr>
+            <tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Gagal memuat data: ${error.message}</td></tr>
         `;
     }
 }
@@ -129,7 +126,6 @@ function renderAthleteTable(athletes) {
 // 2. LOGIC TOMBOL & MODAL (AKSI CEPAT)
 // ==========================================
 
-// Deklarasi Elemen 
 const btnAddAthlete = document.getElementById('btnAddAthlete');
 const modalAddAthlete = document.getElementById('modalAddAthlete');
 const closeModalBtn = document.getElementById('closeModalBtn');
@@ -144,7 +140,6 @@ const btnCreateEvent = document.getElementById('btnCreateEvent');
 const modalCreateEvent = document.getElementById('modalCreateEvent');
 const closeModalEventBtn = document.getElementById('closeModalEventBtn');
 const btnSaveEvent = document.getElementById('btnSaveEvent');
-
 
 // --- A. LOGIC TAMBAH ATLET ---
 if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
@@ -184,7 +179,7 @@ if (btnSaveAthlete) {
 
             const dummyClubId = 1; 
 
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('athletes')
                 .insert([{
                     f1_id: generatedF1Id,
@@ -219,7 +214,6 @@ if (btnSaveAthlete) {
         }
     });
 }
-
 
 // --- B. LOGIC VERIFIKASI (REAL STORAGE UPLOAD) ---
 if (btnVerify && modalVerifyAthlete && closeModalVerifyBtn) {
@@ -256,32 +250,28 @@ if (btnSubmitVerify) {
         try {
             const timeStamp = Date.now();
             
-            // 1. UPLOAD FOTO KE STORAGE
+            // 1. Upload Foto
             const fotoExt = fotoFile.name.split('.').pop();
             const fotoPath = `foto/${f1Id}_${timeStamp}.${fotoExt}`;
-            const { error: fotoError } = await supabase.storage
+            const { error: fotoError } = await supabaseClient.storage
                 .from('berkas-atlet')
                 .upload(fotoPath, fotoFile);
             
             if (fotoError) throw fotoError;
-            
-            // Ambil URL Publik Foto
-            const { data: fotoUrlData } = supabase.storage.from('berkas-atlet').getPublicUrl(fotoPath);
+            const { data: fotoUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(fotoPath);
 
-            // 2. UPLOAD AKTA KE STORAGE
+            // 2. Upload Akta
             const aktaExt = aktaFile.name.split('.').pop();
             const aktaPath = `akta/${f1Id}_${timeStamp}.${aktaExt}`;
-            const { error: aktaError } = await supabase.storage
+            const { error: aktaError } = await supabaseClient.storage
                 .from('berkas-atlet')
                 .upload(aktaPath, aktaFile);
             
             if (aktaError) throw aktaError;
-            
-            // Ambil URL Publik Akta
-            const { data: aktaUrlData } = supabase.storage.from('berkas-atlet').getPublicUrl(aktaPath);
+            const { data: aktaUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(aktaPath);
 
-            // 3. SUNTIK URL KE TABEL ATHLETES
-            const { error: updateError } = await supabase
+            // 3. Update Tabel
+            const { error: updateError } = await supabaseClient
                 .from('athletes')
                 .update({ 
                     foto_url: fotoUrlData.publicUrl,
@@ -291,16 +281,14 @@ if (btnSubmitVerify) {
 
             if (updateError) throw updateError;
 
-            // 4. PESAN SUKSES
+            // 4. Sukses
             statusMsg.innerHTML = "✅ <strong>Berkas berhasil diunggah!</strong><br><br><span class='font-normal text-[11px] leading-relaxed block mt-1'>Tim Verifikator SCS akan melakukan peninjauan dan validasi keabsahan data dalam estimasi waktu <strong>1x24 jam operasional</strong>. Status atlet akan otomatis aktif setelah disetujui.</span>";
             statusMsg.className = "text-sm text-center rounded-lg p-4 bg-amber-50 border border-amber-200 text-amber-800 block";
             
-            // Reset isian
             document.getElementById('inputVerifyAthlete').value = '';
             document.getElementById('inputFoto').value = '';
             document.getElementById('inputAkta').value = '';
 
-            // Refresh tabel background biar foto baru muncul
             fetchDashboardData();
 
             setTimeout(() => {
@@ -324,7 +312,6 @@ if (btnSubmitVerify) {
         }
     });
 }
-
 
 // --- C. LOGIC BUAT EVENT ---
 if (btnCreateEvent && modalCreateEvent && closeModalEventBtn) {
@@ -369,7 +356,7 @@ if (btnSaveEvent) {
         try {
             const dummyClubId = 1;
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('events')
                 .insert([{
                     event_name: inputEventName,

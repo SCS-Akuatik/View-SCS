@@ -1,32 +1,69 @@
-// File: src/settings-lomba.js
+import { supabaseClient } from './supabase.js';
 
-// 1. STATE MANAGEMENT
-let dataKU = [
-    { id: 1, nama: 'KU Senior', tahunMulai: 1900, tahunAkhir: 2007, aktif: false },
-    { id: 2, nama: 'KU 1', tahunMulai: 2008, tahunAkhir: 2010, aktif: true },
-    { id: 3, nama: 'KU 2', tahunMulai: 2011, tahunAkhir: 2012, aktif: true },
-    { id: 4, nama: 'KU Fun Swimming', tahunMulai: 2017, tahunAkhir: 2018, aktif: true }
-];
+// 1. STATE MANAGEMENT (Bukan lagi dummy, akan diisi dari Database)
+let dataKU = [];
+let dataGaya = [];
+let currentEventId = null;
 
-let dataGaya = [
-    {
-        id: 1, nama: 'Gaya Bebas (Freestyle)', icon: '🏊‍♂️',
-        jarak: [
-            { id: 101, nama: '25m', aktif: true },
-            { id: 102, nama: '50m', aktif: true }
-        ]
-    },
-    {
-        id: 2, nama: 'Gaya Dada (Breaststroke)', icon: '🐸',
-        jarak: [
-            { id: 201, nama: '25m', aktif: true }
-        ]
+// ==========================================
+// 2. FUNGSI TARIK DATA (PENTING!)
+// ==========================================
+async function loadDataLomba() {
+    // 1. Ambil ID Event dari URL
+    const urlParams = new URLSearchParams(window.location.search);
+    currentEventId = urlParams.get('id');
+
+    if (!currentEventId) {
+        alert("ID Event tidak ditemukan! Mengembalikan ke Dashboard.");
+        window.location.replace('/dashboard.html');
+        return;
     }
-];
 
-// 2. RENDER FUNCTIONS
+    try {
+        // 2. Tarik data dari kolom config_ku dan config_gaya
+        const { data, error } = await supabaseClient
+            .from('events')
+            .select('config_ku, config_gaya')
+            .eq('id', currentEventId)
+            .single();
+
+        if (error) throw error;
+
+        // 3. Masukkan data dari DB ke State (Kalau kosong, pakai array kosong [])
+        dataKU = data?.config_ku || [];
+        dataGaya = data?.config_gaya || [];
+
+        // 4. Kalau ternyata ini event baru dan bener-bener kosong, kita kasih template default
+        if (dataKU.length === 0) {
+            dataKU = [
+                { id: 1, nama: 'KU 1', tahunMulai: 2008, tahunAkhir: 2010, aktif: true },
+                { id: 2, nama: 'KU 2', tahunMulai: 2011, tahunAkhir: 2012, aktif: true }
+            ];
+        }
+        if (dataGaya.length === 0) {
+            dataGaya = [
+                { id: 1, nama: 'Gaya Bebas (Freestyle)', icon: '🏊‍♂️', jarak: [{ id: 101, nama: '50m', aktif: true }] },
+                { id: 2, nama: 'Gaya Dada (Breaststroke)', icon: '🐸', jarak: [{ id: 201, nama: '50m', aktif: true }] }
+            ];
+        }
+
+        // 5. Render ke layar
+        window.renderKU();
+        window.renderGaya();
+
+    } catch (err) {
+        console.error("Gagal memuat konfigurasi lomba:", err.message);
+        alert("Gagal memuat konfigurasi lomba. Cek konsol browser.");
+    }
+}
+
+
+// ==========================================
+// 3. RENDER FUNCTIONS (SAMA SEPERTI SEBELUMNYA)
+// ==========================================
 window.renderKU = function() {
     const container = document.getElementById('kuContainer');
+    if (!container) return;
     container.innerHTML = ''; 
     
     dataKU.forEach(ku => {
@@ -53,6 +90,7 @@ window.renderKU = function() {
 
 window.renderGaya = function() {
     const container = document.getElementById('gayaContainer');
+    if (!container) return;
     container.innerHTML = '';
     
     dataGaya.forEach(gaya => {
@@ -95,16 +133,22 @@ window.renderGaya = function() {
     });
 }
 
-// 3. FUNGSI MODAL
+// ==========================================
+// 4. FUNGSI MODAL (TIDAK ADA YANG BERUBAH DARI VERSI LAMA)
+// ==========================================
 window.openModal = function(id) {
     const modal = document.getElementById(id);
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    if(modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 }
 window.closeModal = function(id) {
     const modal = document.getElementById(id);
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    if(modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 }
 
 // --- KU LOGIC ---
@@ -250,53 +294,65 @@ window.toggleJarak = function(gayaId, jarakId) {
     dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif;
 }
 
-// 4. KUMPULKAN DATA & TEMBAK KE DATABASE
-window.simpanKeDatabase = async function() {
-    // 1. Ambil Event ID dari URL (Misal: /settings-lomba.html?id=123)
-    const urlParams = new URLSearchParams(window.location.search);
-    const eventId = urlParams.get('id');
 
-    if (!eventId) {
-        alert("Error: ID Event tidak ditemukan di URL. Silakan kembali ke Dashboard.");
+// ==========================================
+// 5. KUMPULKAN DATA & TEMBAK KE DATABASE
+// ==========================================
+window.simpanKeDatabase = async function() {
+    if (!currentEventId) {
+        alert("Error: ID Event tidak ditemukan.");
         return;
     }
 
-    // 2. Ubah tombol jadi loading
+    // Ubah tombol jadi loading
     const btnSave = document.querySelector('button[onclick="simpanKeDatabase()"]');
     const originalText = btnSave.innerHTML;
-    btnSave.innerHTML = "Memproses...";
+    btnSave.innerHTML = "Menyimpan...";
     btnSave.disabled = true;
 
     try {
-        // 3. Tembak data JSON ke kolom config di tabel events
-        const { data, error } = await supabase
+        // Tembak data JSON ke kolom config_ku dan config_gaya di tabel events
+        const { error } = await supabaseClient
             .from('events')
             .update({ 
                 config_ku: dataKU, 
                 config_gaya: dataGaya 
             })
-            .eq('id', eventId);
+            .eq('id', currentEventId);
 
         if (error) throw error;
 
-        // 4. Notifikasi Sukses
-        alert("Mantap! Konfigurasi Lomba berhasil disimpan ke Supabase.");
+        alert("Mantap! Konfigurasi Lomba berhasil disimpan.");
         
-        // Opsional: Kembali ke dashboard event
-        // window.location.href = `/event-dashboard.html?id=${eventId}`;
+        // Kembalikan tombol
+        btnSave.innerHTML = originalText;
+        btnSave.disabled = false;
 
     } catch (err) {
         console.error("Gagal menyimpan:", err.message);
         alert("Gagal menyimpan konfigurasi: " + err.message);
-    } finally {
-        // Kembalikan tombol seperti semula
+        
+        // Kembalikan tombol kalau error
         btnSave.innerHTML = originalText;
         btnSave.disabled = false;
     }
 }
 
-// Initialize Render saat Halaman Dimuat
+
+// --- START ---
 document.addEventListener('DOMContentLoaded', () => {
-    window.renderKU();
-    window.renderGaya();
+    // Tombol kembali di navbar agar tetap bawa parameter ID
+    const btnKembali = document.querySelector('a[href="/event-dashboard.html"]');
+    if (btnKembali) {
+        btnKembali.onclick = (e) => {
+            e.preventDefault();
+            if (currentEventId) {
+                window.location.href = `/event-dashboard.html?id=${currentEventId}`;
+            } else {
+                window.location.href = `/dashboard.html`;
+            }
+        };
+    }
+
+    loadDataLomba();
 });

@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-      <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3a8a">
     <link rel="apple-touch-icon" href="/images/logo.png">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings Lomba | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
     <style>
         svg { max-width: 100%; height: auto; display: block; }
-        /* Animasi mulus buat modal */
         .modal-enter { animation: modalFadeIn 0.2s ease-out forwards; }
         @keyframes modalFadeIn {
             from { opacity: 0; transform: scale(0.95); }
@@ -36,7 +33,7 @@
         
         <div class="mb-6">
             <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Konfigurasi Event</h1>
-            <p class="text-slate-500 text-sm mt-1">Atur Kelompok Umur (KU) dan Nomor Lomba yang dipertandingkan.</p>
+            <p class="text-slate-500 text-sm mt-1">Atur Kelompok Umur (KU), Nomor Lomba, Harga, dan Desain Form Pendaftaran Publik.</p>
         </div>
 
         <!-- SECTION 1: KELOMPOK UMUR -->
@@ -51,17 +48,12 @@
                         <p class="text-xs text-slate-500">Master Data KU. Toggle untuk tampilkan di form registrasi.</p>
                     </div>
                 </div>
-                <!-- Tombol [+] Tambah KU -->
                 <button onclick="openModalKU()" class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-bold text-xs transition-colors shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span class="hidden sm:inline">Tambah KU</span>
                 </button>
             </div>
-
-            <!-- Container Dinamis List KU -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="kuContainer">
-                <!-- Akan dirender JS -->
-            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="kuContainer"></div>
         </div>
 
         <!-- SECTION 2: NOMOR LOMBA (GAYA) -->
@@ -76,25 +68,80 @@
                         <p class="text-xs text-slate-500">Master Data Nomor Lomba. Toggle untuk tampilkan di form.</p>
                     </div>
                 </div>
-                <!-- Tombol [+] Tambah Gaya Master -->
                 <button onclick="openModalGaya()" class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-bold text-xs transition-colors shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span>Kategori Gaya Baru</span>
                 </button>
             </div>
+            <div id="gayaContainer"></div>
+        </div>
 
-            <!-- Container Dinamis List Gaya -->
-            <div id="gayaContainer">
-                <!-- Akan dirender JS -->
+        <!-- SECTION 3: DESAIN & BIAYA PENDAFTARAN (BARU) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6">
+            <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-4">
+                <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">🎨</div>
+                <div>
+                    <h2 class="font-bold text-slate-800 text-lg">Desain Form & Biaya Pendaftaran</h2>
+                    <p class="text-xs text-slate-500">Atur tampilan halaman subdomain dan logika harga diskon.</p>
+                </div>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Kolom Upload Gambar -->
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Upload Header Banner</label>
+                        <input type="file" id="inputHeader" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 mb-2 cursor-pointer">
+                        <img id="previewHeader" src="" class="hidden w-full h-24 object-cover rounded-xl border border-slate-200 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Background Pattern (Transparan)</label>
+                        <input type="file" id="inputBg" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 mb-2 cursor-pointer">
+                        <img id="previewBg" src="" class="hidden w-full h-24 object-cover rounded-xl border border-slate-200 shadow-sm bg-slate-800">
+                    </div>
+                </div>
+
+                <!-- Kolom Pricing & Toggles -->
+                <div class="space-y-5">
+                    <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50">
+                        <div>
+                            <p class="font-bold text-sm text-slate-700">Nomor Estafet</p>
+                            <p class="text-[10px] text-slate-500">Tampilkan pendaftaran tim estafet.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" id="toggleEstafet" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Biaya Per Nomor (Normal)</label>
+                        <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 ring-emerald-500">
+                            <span class="px-4 py-2.5 bg-slate-100 text-slate-500 font-bold border-r border-slate-300">Rp</span>
+                            <input type="number" id="inputBiayaNormal" class="w-full p-2.5 outline-none text-sm text-slate-700 font-bold" placeholder="40000">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Syarat Diskon (Berapa Nomor)</label>
+                            <input type="number" id="inputMinDiskon" class="w-full p-2.5 border border-slate-300 rounded-xl outline-none focus:ring-2 ring-emerald-500 text-sm font-bold" placeholder="Contoh: 3">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Biaya Setelah Diskon</label>
+                            <input type="number" id="inputBiayaDiskon" class="w-full p-2.5 border border-slate-300 rounded-xl outline-none focus:ring-2 ring-emerald-500 text-sm font-bold" placeholder="35000">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
     </div>
 
     <!-- Floating Save Button -->
     <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
         <div class="max-w-4xl mx-auto flex justify-end gap-3">
-            <button class="px-5 py-2.5 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-100 transition-colors">Batal</button>
+            <button onclick="window.history.back()" class="px-5 py-2.5 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-100 transition-colors">Batal</button>
             <button onclick="simpanKeDatabase()" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                 Simpan Pengaturan
@@ -102,8 +149,8 @@
         </div>
     </div>
 
-    <!-- ================= MODAL AREA ================= -->
-    <!-- Modal Tambah/Edit KU (FIXED: Usia -> Tahun Lahir) -->
+    <!-- Modal Area Tetap Sama -->
+    <!-- (Modal KU) -->
     <div id="modalKU" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -114,24 +161,24 @@
                 <input type="hidden" id="kuId">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kelompok Umur</label>
-                    <input type="text" id="kuNama" placeholder="misal: Junior A, Kelas 3 SD..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                    <input type="text" id="kuNama" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tahun Lahir Mulai</label>
-                        <input type="number" id="kuTahunMulai" placeholder="2017" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Thn Mulai</label>
+                        <input type="number" id="kuTahunMulai" class="w-full px-3 py-2 border rounded-lg text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Tahun Lahir Akhir</label>
-                        <input type="number" id="kuTahunAkhir" placeholder="2018" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Thn Akhir</label>
+                        <input type="number" id="kuTahunAkhir" class="w-full px-3 py-2 border rounded-lg text-sm">
                     </div>
                 </div>
-                <button onclick="saveKU()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan KU</button>
+                <button onclick="saveKU()" class="w-full py-2.5 bg-indigo-600 text-white font-bold rounded-xl text-sm mt-2">Simpan</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Tambah/Edit Gaya -->
+    <!-- (Modal Gaya) -->
     <div id="modalGaya" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -142,18 +189,18 @@
                 <input type="hidden" id="gayaId">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Nama Gaya</label>
-                    <input type="text" id="gayaNama" placeholder="misal: Gaya Kupu-kupu..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                    <input type="text" id="gayaNama" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Ikon (Emoji / Teks)</label>
-                    <input type="text" id="gayaIcon" placeholder="misal: 🦋" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition-colors">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Ikon Emoji</label>
+                    <input type="text" id="gayaIcon" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
-                <button onclick="saveGaya()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan Kategori</button>
+                <button onclick="saveGaya()" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl text-sm mt-2">Simpan</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Tambah/Edit Jarak (FIXED: Ada Note 'm' otomatis) -->
+    <!-- (Modal Jarak) -->
     <div id="modalJarak" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-xs shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -164,11 +211,10 @@
                 <input type="hidden" id="jarakParentId">
                 <input type="hidden" id="jarakId">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Variasi Jarak</label>
-                    <input type="text" id="jarakNama" placeholder="misal: 25, 50, 4x50" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:bg-white transition-colors">
-                    <p class="text-[9px] text-slate-400 mt-1.5">*Sistem otomatis menambahkan 'm' (contoh: 25m)</p>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Jarak</label>
+                    <input type="text" id="jarakNama" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
-                <button onclick="saveJarak()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-colors mt-2">Simpan Jarak</button>
+                <button onclick="saveJarak()" class="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-sm mt-2">Simpan</button>
             </div>
         </div>
     </div>
@@ -177,4 +223,3 @@
     <script type="module" src="/src/settings-lomba.js"></script>
 </body>
 </html>
-

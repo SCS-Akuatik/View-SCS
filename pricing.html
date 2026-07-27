@@ -17,11 +17,16 @@
             width: 24px; height: 24px;
             background: #f59e0b; cursor: pointer; border-radius: 50%;
         }
+        /* Tooltip Hover Area */
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased">
 
-    <!-- NAVBAR (Fixed dengan z-index dan padding aman untuk tombol Masuk) -->
+    <!-- NAVBAR -->
     <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 md:h-20">
@@ -35,7 +40,7 @@
                     <a href="/#ekosistem" class="text-gray-600 hover:text-scsBlue font-medium">Ekosistem</a>
                     <a href="/pricing.html" class="text-scsBlue font-extrabold border-b-2 border-scsBlue pb-1">Harga</a> 
                 </div>
-                <!-- Tombol Masuk dengan posisi absolute/right yang aman dari benturan -->
+                <!-- Tombol Masuk -->
                 <a href="/auth.html" class="absolute right-4 md:right-8 bg-scsBlue text-white px-4 py-2 text-xs md:text-sm rounded-full font-bold shadow-md hover:bg-blue-900 transition z-50">
                     Masuk
                 </a>
@@ -43,22 +48,31 @@
         </div>
     </nav>
 
-    <!-- HERO PRICING (Diberikan padding-top tambahan agar tidak ketutup fixed navbar) -->
-    <section class="pt-28 md:pt-36 pb-16 bg-slate-900 text-white text-center px-4">
-        <div class="max-w-3xl mx-auto">
+    <!-- HERO PRICING & SOCIAL PROOF -->
+    <section class="pt-28 md:pt-36 pb-16 bg-slate-900 text-white text-center px-4 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
             <h1 class="text-3xl md:text-5xl font-extrabold mb-4">Pilih Paket Sesuai Skala Eventmu</h1>
             <p class="text-base md:text-lg text-slate-400 mb-8">Dari fun swimming komunitas hingga kejuaraan nasional. Semua fitur esensial ada di sini.</p>
+            
+            <!-- Social Proof -->
+            <div class="flex flex-wrap justify-center gap-4 md:gap-8 text-sm md:text-base font-bold text-slate-300 mt-6 bg-slate-800/50 inline-flex py-3 px-6 rounded-full border border-slate-700 backdrop-blur-sm">
+                <span class="flex items-center gap-2"><span class="text-scsGold text-lg">🏆</span> 40+ Event</span>
+                <span class="opacity-30">|</span>
+                <span class="flex items-center gap-2"><span class="text-scsGold text-lg">🏟️</span> 25+ Klub</span>
+                <span class="opacity-30">|</span>
+                <span class="flex items-center gap-2"><span class="text-scsGold text-lg">🏊‍♂️</span> 3.500+ Atlet</span>
+            </div>
         </div>
     </section>
 
     <!-- PRICING CARDS -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10 mb-20">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10 mb-20">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             <!-- STARTER TIER -->
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col hover:border-blue-300 transition-colors">
                 <h3 class="text-xl font-bold text-slate-800 uppercase tracking-wide">Starter</h3>
-                <p class="text-xs text-slate-400 mb-4 font-semibold uppercase tracking-wider">Free Access</p>
+                <p class="text-xs md:text-sm text-slate-500 font-bold mb-4">Trial Membuat Lomba</p>
                 <div class="mb-6 pb-6 border-b border-slate-100">
                     <span class="text-3xl font-extrabold text-slate-900">Rp 0</span>
                     <span class="text-slate-500 font-medium">/forever</span>
@@ -75,13 +89,28 @@
             </div>
 
             <!-- GROWTH TIER -->
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Populer</div>
+            <div class="bg-white rounded-2xl shadow-md border border-green-200 p-6 flex flex-col relative overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="absolute top-0 right-0 bg-green-100 text-green-700 text-[10px] font-extrabold px-3 py-1.5 rounded-bl-lg uppercase flex items-center gap-1">💰 Paling Hemat</div>
                 <h3 class="text-xl font-bold text-slate-800 uppercase tracking-wide">Growth</h3>
-                <div class="mb-6 pb-6 border-b border-slate-100 mt-9">
-                    <div class="text-2xl font-extrabold text-slate-900">Rp 200rb<span class="text-sm font-normal text-slate-500"> /event (3 months)</span></div>
-                    <div class="text-sm text-slate-500 font-medium mt-1">+ Rp 3.000 x Nama/Nomor</div>
+                <p class="text-xs md:text-sm text-slate-500 font-bold mb-4">Event sampai ±500 peserta</p>
+                
+                <div class="mb-6 pb-6 border-b border-slate-100 mt-2">
+                    <div class="text-2xl font-extrabold text-slate-900">Rp 200.000<span class="text-sm font-normal text-slate-500"> / event (3 bln)</span></div>
+                    <div class="text-xs md:text-sm text-slate-600 font-bold mt-2 flex items-center gap-1.5 flex-wrap">
+                        + Rp3.000 per Entry Nomor Lomba
+                        
+                        <!-- Tooltip Info (Entry) -->
+                        <div class="tooltip-container relative inline-block cursor-help">
+                            <svg class="w-4 h-4 text-slate-400 hover:text-scsBlue transition-colors" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            <div class="tooltip-text invisible opacity-0 absolute z-50 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl bottom-full left-1/2 transform -translate-x-1/2 mb-2 transition-all duration-200 font-normal leading-relaxed">
+                                <strong>1 Entry Nomor Lomba = 1 atlet pada 1 nomor pertandingan.</strong><br><br>
+                                <span class="text-gray-300">Contoh: Aditya mengikuti 50m Bebas, 100m Bebas, 200m Bebas, dan 50m Dada = <strong>4 entry</strong>.</span>
+                                <svg class="absolute text-gray-900 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <ul class="space-y-4 mb-8 flex-1 text-sm text-slate-600">
                     <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Fitur Starter</li>
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Cetak PDF & Buku Acara</li>
@@ -93,38 +122,74 @@
                 <button class="block w-full py-3 px-4 border-2 border-scsBlue text-scsBlue hover:bg-blue-50 text-center font-bold rounded-xl transition-colors">Pilih Growth</button>
             </div>
 
-            <!-- PRO TIER (Badge diganti RECOMMENDED / 0 Risk Guarantee) -->
+            <!-- PRO TIER (Diperbaiki T&C Sponsornya) -->
             <div class="bg-scsBlue rounded-2xl shadow-2xl border-2 border-scsGold p-6 flex flex-col relative transform md:-translate-y-4">
-                <div class="absolute top-0 right-0 bg-scsGold text-scsBlue text-[10px] font-extrabold px-3 py-1 rounded-bl-lg uppercase tracking-wider">0 Risk Guarantee</div>
+                <div class="absolute top-0 right-0 bg-scsGold text-scsBlue text-[10px] font-extrabold px-3 py-1.5 rounded-bl-lg uppercase tracking-wider flex items-center gap-1">⭐ Direkomendasikan</div>
                 <h3 class="text-xl font-bold text-white uppercase tracking-wide">Pro</h3>
-                <div class="mb-6 pb-6 border-b border-blue-800 mt-9 text-white">
-                    <div class="text-2xl font-extrabold">Rp 500rb<span class="text-sm font-normal text-blue-200"> /event (3 months)</span></div>
-                    <div class="text-sm text-blue-200 font-medium mt-1">+ Rp 3.000 x Nama/Nomor</div>
+                <p class="text-xs md:text-sm text-blue-200 font-bold mb-4">Event yang ingin sponsor</p>
+                
+                <div class="mb-6 pb-6 border-b border-blue-800 mt-2 text-white">
+                    <div class="text-2xl font-extrabold">Rp 500.000<span class="text-sm font-normal text-blue-200"> / event (3 bln)</span></div>
+                    <div class="text-xs md:text-sm text-blue-100 font-bold mt-2 flex items-center gap-1.5 flex-wrap">
+                        + Rp3.000 per Entry Nomor Lomba
+                        
+                        <!-- Tooltip Info (Entry) -->
+                        <div class="tooltip-container relative inline-block cursor-help">
+                            <svg class="w-4 h-4 text-blue-300 hover:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            <div class="tooltip-text invisible opacity-0 absolute z-50 w-64 p-3 bg-white text-gray-800 text-xs rounded-lg shadow-xl bottom-full left-1/2 transform -translate-x-1/2 mb-2 transition-all duration-200 font-normal leading-relaxed">
+                                <strong>1 Entry Nomor Lomba = 1 atlet pada 1 nomor pertandingan.</strong><br><br>
+                                <span class="text-gray-600">Contoh: Aditya mengikuti 50m Bebas, 100m Bebas, 200m Bebas, dan 50m Dada = <strong>4 entry</strong>.</span>
+                                <svg class="absolute text-white h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <ul class="space-y-4 mb-8 flex-1 text-sm text-blue-50">
                     <li class="flex items-start gap-2 font-bold"><span class="text-scsGold">✓</span> Semua Fitur Growth</li>
-                    <li class="flex items-start gap-2 font-bold text-scsBlue bg-gradient-to-r from-scsGold to-yellow-400 p-2 rounded-lg -mx-2 shadow-lg"><span class="text-scsBlue">🤝</span> 100% SPONSOR GUARANTEE</li>
-                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Jaminan Dana Sponsor Cair</li>
-                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Biaya 500K Pasti Kembali (Cashback)</li>
-                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Bebas Repot Cari Sponsor Sendiri</li>
+                    
+                    <!-- Perubahan Copywriting Sponsor -->
+                    <li class="flex items-start gap-2 font-bold text-scsBlue bg-gradient-to-r from-scsGold to-yellow-400 p-2 rounded-lg -mx-2 shadow-lg"><span class="text-scsBlue">🤝</span> PROGRAM SPONSOR SCS</li>
+                    
+                    <li class="flex items-start gap-2">
+                        <span class="text-scsGold font-bold mt-0.5">✓</span>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            Garansi Cashback Rp500.000*
+                            <!-- Tooltip T&C Cashback -->
+                            <div class="tooltip-container relative inline-block cursor-help">
+                                <svg class="w-4 h-4 text-blue-300 hover:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                                <div class="tooltip-text invisible opacity-0 absolute z-50 w-[260px] p-4 bg-white text-gray-800 text-xs rounded-xl shadow-2xl bottom-full left-1/2 transform -translate-x-1/2 mb-2 transition-all duration-200 font-normal leading-relaxed border border-gray-100">
+                                    <strong class="text-scsBlue text-sm block mb-1">*Syarat & Ketentuan Berlaku</strong>
+                                    <span class="text-gray-600 block">Garansi cashback diberikan apabila event Anda telah memenuhi syarat kelayakan & kuota minimum peserta dari Program Sponsor SCS, namun sponsor urung turun dalam batas waktu yang disepakati.</span>
+                                    <svg class="absolute text-white h-3 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Dibantu negosiasi & pencarian sponsor</li>
                     <li class="flex items-start gap-2"><span class="text-scsGold font-bold">✓</span> Multi-Event Management</li>
                 </ul>
                 <button class="block w-full py-3 px-4 bg-scsGold hover:bg-yellow-500 text-scsBlue text-center font-extrabold rounded-xl transition-colors shadow-lg">Pilih Pro</button>
             </div>
 
-            <!-- ELITE TIER (Dilengkapi Badge ALL-IN kecil) -->
+            <!-- ELITE TIER -->
             <div class="bg-gray-900 rounded-2xl shadow-md border border-gray-800 p-6 flex flex-col text-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-gray-700 text-gray-200 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">All-In</div>
+                <div class="absolute top-0 right-0 bg-gray-700 text-gray-200 text-[10px] font-bold px-3 py-1.5 rounded-bl-lg uppercase">All-In</div>
                 <h3 class="text-xl font-bold uppercase tracking-wide mt-2">Elite</h3>
-                <div class="mb-6 pb-6 border-b border-gray-800 mt-6">
-                    <div class="text-2xl font-extrabold">Rp 2.5 Jt<span class="text-sm font-normal text-gray-400"> /event (3 months)</span></div>
-                    <div class="text-sm text-gray-400 font-medium mt-1">(+ Surcharge Engineer)</div>
+                <p class="text-xs md:text-sm text-gray-400 font-bold mb-4">Kejurprov / Kejurnas / Profesional</p>
+                
+                <div class="mb-6 pb-6 border-b border-gray-800 mt-2">
+                    <div class="text-2xl font-extrabold">Rp 2.5 Juta<span class="text-sm font-normal text-gray-400"> / event (3 bln)</span></div>
+                    <div class="text-sm text-gray-400 font-medium mt-1">Full Service IT & Server</div>
                 </div>
+                
                 <ul class="space-y-4 mb-8 flex-1 text-sm text-gray-300">
                     <li class="flex items-start gap-2 font-bold"><span class="text-emerald-500">✓</span> Semua Fitur Pro</li>
-                    <li class="flex items-start gap-2 font-bold text-white bg-gray-800 p-2 rounded-lg -mx-2"><span class="text-emerald-500">👨‍💻</span> ENGINEER STANDBY <br><span class="text-[10px] font-normal text-gray-400">(1 Hari Race = +Rp 500K)</span></li>
-                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Server Dedicated During Race</li>
-                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Live Result Display</li>
+                    <li class="flex items-start gap-2 font-bold text-white bg-gray-800 p-2 rounded-lg -mx-2"><span class="text-emerald-500">👨‍💻</span> Tim engineer on-site / remote standby</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Zero downtime</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Live result tanpa delay</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Prioritas support saat lomba</li>
                     <li class="flex items-start gap-2"><span class="text-emerald-500 font-bold">✓</span> Custom Branding Full</li>
                 </ul>
                 <button class="block w-full py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white text-center font-bold rounded-xl transition-colors">Hubungi Kami</button>
@@ -169,37 +234,37 @@
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 flex flex-col justify-center items-center text-center">
                         <span class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Total Biaya (Growth)</span>
                         <div class="text-3xl font-black text-slate-800" id="outGrowth">Rp 0</div>
-                        <p class="text-xs text-slate-400 mt-2">Rp 200.000 + Biaya Nama/Nomor</p>
+                        <p class="text-xs text-slate-400 mt-2">Rp 200.000 + Biaya Entry Lomba</p>
                     </div>
                     <div class="bg-blue-50 p-5 rounded-2xl border border-blue-200 flex flex-col justify-center items-center text-center shadow-inner">
                         <span class="text-sm font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-1">⭐ Total Biaya (Pro)</span>
                         <div class="text-3xl font-black text-scsBlue" id="outPro">Rp 0</div>
-                        <p class="text-xs text-blue-400 mt-2">Rp 500.000 + Biaya Nama/Nomor</p>
+                        <p class="text-xs text-blue-400 mt-2">Rp 500.000 + Biaya Entry Lomba</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FAQ SECTION -->
+    <!-- FAQ SECTION (Tetap ada buat SEO & kelengkapan) -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-2xl font-extrabold text-slate-800 mb-8 text-center">Pertanyaan yang Sering Diajukan (FAQ)</h2>
             
             <div class="space-y-4">
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h4 class="font-bold text-slate-800 text-lg mb-2">Apakah biaya 500rb di paket Pro dijamin kembali?</h4>
-                    <p class="text-slate-600 text-sm">Betul 100%! Dengan mengambil paket Pro, event Anda masuk dalam prioritas utama ekosistem sponsor kami. Jika dalam waktu yang ditentukan sponsor belum turun, kami akan memberikan <strong>Cashback penuh senilai biaya upgrade Anda</strong>.</p>
+                    <h4 class="font-bold text-slate-800 text-lg mb-2">Bagaimana detail Cashback Rp 500.000 di paket Pro?</h4>
+                    <p class="text-slate-600 text-sm">Tim SCS bertindak sebagai agensi yang membantu mencarikan sponsor untuk event Anda. Jika event Anda memenuhi kriteria brand dan kuota peserta yang disepakati di awal, namun kami gagal menurunkan sponsor, maka biaya Rp 500.000 yang Anda bayarkan akan kami kembalikan 100% (Cashback penuh).</p>
                 </div>
 
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h4 class="font-bold text-slate-800 text-lg mb-2">Bagaimana cara kerja fitur Sponsorship Broker?</h4>
-                    <p class="text-slate-600 text-sm">Tim SCS bertindak sebagai agensi eksklusif yang mencarikan sponsor untuk event Anda. Jika event Anda memenuhi kriteria brand, Anda akan mendapat notifikasi di Dashboard dan tinggal klik "Cairkan Dana". Anda bebas repot bikin proposal dan bisa fokus ngurus teknis lomba!</p>
+                    <h4 class="font-bold text-slate-800 text-lg mb-2">Apa bedanya Starter, Growth, dan Pro?</h4>
+                    <p class="text-slate-600 text-sm">Starter murni untuk coba-coba (tidak bisa cetak hasil). Growth cocok untuk event mandiri tanpa butuh bantuan sponsor dari SCS. Sedangkan Pro adalah program bisnis di mana kami bantu mencarikan *support* dana dari brand lokal/nasional untuk menekan biaya operasional event Anda.</p>
                 </div>
                 
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-lg mb-2">Engineer standby ngapain aja (Paket Elite)?</h4>
-                    <p class="text-slate-600 text-sm">Monitoring server real-time, handle troubleshooting teknis di lokasi, backup data live, dan memastikan *zero downtime* saat race berlangsung. Panitia fokus ngurus acara, urusan IT kami yang jaga.</p>
+                    <p class="text-slate-600 text-sm">Tim kami akan *standby* untuk memastikan zero downtime, memonitor server real-time, handle troubleshooting teknis di lokasi, dan backup data live. Panitia cukup fokus ngurus acara dan medali, urusan kelancaran IT kami yang jaga penuh.</p>
                 </div>
             </div>
         </div>

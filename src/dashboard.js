@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
+// ==========================================
 // 1. FUNGSI TARIK DATA DASHBOARD
 // ==========================================
 async function fetchDashboardData() {
@@ -49,16 +50,65 @@ async function fetchDashboardData() {
         const tooltipEl = document.getElementById('logoTooltip');
         if (logoEl && tooltipEl) {
             if (clubData.logo_url) {
-                // Jika sudah ada logo
                 logoEl.src = clubData.logo_url;
                 tooltipEl.innerText = "Ganti Logo Klub"; 
             } else {
-                // Jika logo kosong, pakai Avatar Inisial & Munculin pesan Bubble
                 const encodedName = encodeURIComponent(clubData.club_name);
                 logoEl.src = `https://ui-avatars.com/api/?name=${encodedName}&background=1e3a8a&color=fff&bold=true`;
                 tooltipEl.innerHTML = `Upload emblem/logo club <div class="absolute -top-2 right-4 w-4 h-4 bg-gray-900 transform rotate-45"></div>`;
             }
         }
+
+        // HITUNG & TARIK DATA ATLET
+        const { data: athletesData, error: athletesError } = await supabaseClient
+            .from('athletes')
+            .select('*')
+            .eq('club_id', dummyClubId);
+
+        if (athletesError) throw athletesError;
+
+        const totalAtletEl = document.getElementById('valTotalAtlet');
+        if (totalAtletEl) totalAtletEl.innerText = athletesData.length;
+
+        // TARIK JUMLAH EVENT
+        const { count: eventCount } = await supabaseClient
+            .from('events')
+            .select('*', { count: 'exact', head: true });
+        
+        const totalEventEl = document.getElementById('valEventAktif');
+        if (totalEventEl) totalEventEl.innerText = eventCount || 0;
+
+        // --- INJEKSI DROPDOWN VERIFIKASI ---
+        const selectVerify = document.getElementById('inputVerifyAthlete');
+        if (selectVerify) {
+            // Kosongkan dulu lalu beri opsi default
+            selectVerify.innerHTML = '<option value="">-- Pilih Atlet (Hanya yang belum lengkap) --</option>';
+            
+            // Looping data atlet, filter yang belum punya foto ATAU akta
+            let pendingCount = 0;
+            athletesData.forEach(atlet => {
+                if (!atlet.foto_url || !atlet.akta_url) {
+                    selectVerify.innerHTML += `<option value="${atlet.f1_id}">${atlet.full_name} (${atlet.f1_id})</option>`;
+                    pendingCount++;
+                }
+            });
+
+            // Update angka "F1 ID Pending" di statistik atas (bonus UX!)
+            const pendingEl = document.getElementById('valF1Pending');
+            if (pendingEl) pendingEl.innerText = pendingCount;
+        }
+
+        // RENDER TABEL (Di-reverse agar data yang baru masuk tampil di atas)
+        renderAthleteTable(athletesData.reverse());
+
+    } catch (error) {
+        console.error('Gagal menarik data dari Supabase:', error.message);
+        document.getElementById('athleteTableBody').innerHTML = `
+            <tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Gagal memuat data: ${error.message}</td></tr>
+        `;
+    }
+}
+
 
         // HITUNG & TARIK DATA ATLET
         const { data: athletesData, error: athletesError } = await supabaseClient

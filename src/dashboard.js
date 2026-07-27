@@ -45,7 +45,8 @@ async function fetchDashboardData() {
         const { data: athletesData, error: athletesError } = await supabase
             .from('athletes')
             .select('*')
-            .eq('club_id', dummyClubId);
+            .eq('club_id', dummyClubId)
+            .order('created_at', { ascending: false }); // Urutkan yang terbaru di atas
 
         if (athletesError) throw athletesError;
 
@@ -85,16 +86,19 @@ function renderAthleteTable(athletes) {
 
     athletes.forEach((atlet, index) => {
         const genderIcon = atlet.gender === 'Putra' ? '👦 Putra' : '👧 Putri';
-        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(atlet.full_name)}&background=f3f4f6&color=374151`;
+        // Kalau foto_url ada di database, pakai foto itu. Kalau kosong, pakai avatar inisial
+        const avatarUrl = atlet.foto_url ? atlet.foto_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(atlet.full_name)}&background=f3f4f6&color=374151`;
+        // Icon ceklis jika dokumen lengkap
+        const statusDokumen = (atlet.foto_url && atlet.akta_url) ? '<span class="text-green-500 text-xs ml-1" title="Terverifikasi">✅</span>' : '';
 
         const row = `
             <tr class="hover:bg-blue-50/50 transition-colors group border-b border-gray-50">
                 <td class="p-4 text-center font-bold text-gray-400">${index + 1}</td>
                 <td class="p-4">
                     <div class="flex items-center gap-3">
-                        <img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover border border-gray-200">
+                        <img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-sm">
                         <div>
-                            <p class="font-extrabold text-gray-800">${atlet.full_name}</p>
+                            <p class="font-extrabold text-gray-800">${atlet.full_name} ${statusDokumen}</p>
                             <p class="text-xs text-gray-500">${genderIcon}</p>
                         </div>
                     </div>
@@ -125,27 +129,24 @@ function renderAthleteTable(athletes) {
 // 2. LOGIC TOMBOL & MODAL (AKSI CEPAT)
 // ==========================================
 
-// Deklarasi Elemen (Cukup satu kali saja di sini)
+// Deklarasi Elemen 
 const btnAddAthlete = document.getElementById('btnAddAthlete');
-const btnVerify = document.getElementById('btnVerify');
-const btnCreateEvent = document.getElementById('btnCreateEvent');
-
 const modalAddAthlete = document.getElementById('modalAddAthlete');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const btnSaveAthlete = document.getElementById('btnSaveAthlete');
 
+const btnVerify = document.getElementById('btnVerify');
+const modalVerifyAthlete = document.getElementById('modalVerifyAthlete');
+const closeModalVerifyBtn = document.getElementById('closeModalVerifyBtn');
+const btnSubmitVerify = document.getElementById('btnSubmitVerify');
+
+const btnCreateEvent = document.getElementById('btnCreateEvent');
 const modalCreateEvent = document.getElementById('modalCreateEvent');
 const closeModalEventBtn = document.getElementById('closeModalEventBtn');
 const btnSaveEvent = document.getElementById('btnSaveEvent');
 
-// --- A. LOGIC VERIFIKASI ---
-if (btnVerify) {
-    btnVerify.addEventListener('click', () => {
-        alert("Fitur Verifikasi Dokumen sedang dalam tahap integrasi. Segera hadir!");
-    });
-}
 
-// --- B. LOGIC TAMBAH ATLET ---
+// --- A. LOGIC TAMBAH ATLET ---
 if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
     btnAddAthlete.addEventListener('click', () => {
         modalAddAthlete.classList.remove('hidden');
@@ -219,6 +220,112 @@ if (btnSaveAthlete) {
     });
 }
 
+
+// --- B. LOGIC VERIFIKASI (REAL STORAGE UPLOAD) ---
+if (btnVerify && modalVerifyAthlete && closeModalVerifyBtn) {
+    btnVerify.addEventListener('click', () => {
+        modalVerifyAthlete.classList.remove('hidden');
+        setTimeout(() => modalVerifyAthlete.firstElementChild.classList.remove('scale-95'), 10);
+    });
+
+    closeModalVerifyBtn.addEventListener('click', () => {
+        modalVerifyAthlete.firstElementChild.classList.add('scale-95');
+        setTimeout(() => modalVerifyAthlete.classList.add('hidden'), 200);
+    });
+}
+
+if (btnSubmitVerify) {
+    btnSubmitVerify.addEventListener('click', async () => {
+        const f1Id = document.getElementById('inputVerifyAthlete').value;
+        const fotoFile = document.getElementById('inputFoto').files[0];
+        const aktaFile = document.getElementById('inputAkta').files[0];
+        const statusMsg = document.getElementById('verifyStatusMsg');
+
+        if (!f1Id || !fotoFile || !aktaFile) {
+            statusMsg.innerText = "Atlet, Foto, dan Akta Kelahiran wajib dilengkapi!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+            return;
+        }
+
+        btnSubmitVerify.innerText = "Mengunggah Dokumen...";
+        btnSubmitVerify.disabled = true;
+        btnSubmitVerify.classList.add('opacity-70');
+        statusMsg.innerText = "Mohon tunggu, sedang mengirim berkas ke server...";
+        statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-blue-50 text-blue-600 block";
+
+        try {
+            const timeStamp = Date.now();
+            
+            // 1. UPLOAD FOTO KE STORAGE
+            const fotoExt = fotoFile.name.split('.').pop();
+            const fotoPath = `foto/${f1Id}_${timeStamp}.${fotoExt}`;
+            const { error: fotoError } = await supabase.storage
+                .from('berkas-atlet')
+                .upload(fotoPath, fotoFile);
+            
+            if (fotoError) throw fotoError;
+            
+            // Ambil URL Publik Foto
+            const { data: fotoUrlData } = supabase.storage.from('berkas-atlet').getPublicUrl(fotoPath);
+
+            // 2. UPLOAD AKTA KE STORAGE
+            const aktaExt = aktaFile.name.split('.').pop();
+            const aktaPath = `akta/${f1Id}_${timeStamp}.${aktaExt}`;
+            const { error: aktaError } = await supabase.storage
+                .from('berkas-atlet')
+                .upload(aktaPath, aktaFile);
+            
+            if (aktaError) throw aktaError;
+            
+            // Ambil URL Publik Akta
+            const { data: aktaUrlData } = supabase.storage.from('berkas-atlet').getPublicUrl(aktaPath);
+
+            // 3. SUNTIK URL KE TABEL ATHLETES
+            const { error: updateError } = await supabase
+                .from('athletes')
+                .update({ 
+                    foto_url: fotoUrlData.publicUrl,
+                    akta_url: aktaUrlData.publicUrl 
+                })
+                .eq('f1_id', f1Id);
+
+            if (updateError) throw updateError;
+
+            // 4. PESAN SUKSES
+            statusMsg.innerHTML = "✅ <strong>Berkas berhasil diunggah!</strong><br><br><span class='font-normal text-[11px] leading-relaxed block mt-1'>Tim Verifikator SCS akan melakukan peninjauan dan validasi keabsahan data dalam estimasi waktu <strong>1x24 jam operasional</strong>. Status atlet akan otomatis aktif setelah disetujui.</span>";
+            statusMsg.className = "text-sm text-center rounded-lg p-4 bg-amber-50 border border-amber-200 text-amber-800 block";
+            
+            // Reset isian
+            document.getElementById('inputVerifyAthlete').value = '';
+            document.getElementById('inputFoto').value = '';
+            document.getElementById('inputAkta').value = '';
+
+            // Refresh tabel background biar foto baru muncul
+            fetchDashboardData();
+
+            setTimeout(() => {
+                modalVerifyAthlete.firstElementChild.classList.add('scale-95');
+                setTimeout(() => {
+                    modalVerifyAthlete.classList.add('hidden');
+                    btnSubmitVerify.innerText = "Kirim Dokumen Verifikasi";
+                    btnSubmitVerify.disabled = false;
+                    btnSubmitVerify.classList.remove('opacity-70');
+                    statusMsg.classList.add('hidden');
+                }, 200);
+            }, 5000);
+
+        } catch (err) {
+            console.error(err);
+            statusMsg.innerText = "Gagal mengunggah dokumen: " + err.message;
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+            btnSubmitVerify.innerText = "Kirim Dokumen Verifikasi";
+            btnSubmitVerify.disabled = false;
+            btnSubmitVerify.classList.remove('opacity-70');
+        }
+    });
+}
+
+
 // --- C. LOGIC BUAT EVENT ---
 if (btnCreateEvent && modalCreateEvent && closeModalEventBtn) {
     btnCreateEvent.addEventListener('click', () => {
@@ -236,13 +343,22 @@ if (btnSaveEvent) {
     btnSaveEvent.addEventListener('click', async () => {
         const inputEventName = document.getElementById('inputEventName').value.trim();
         let inputSubdomain = document.getElementById('inputSubdomain').value.trim().toLowerCase();
-        const inputEventDate = document.getElementById('inputEventDate').value;
+        
+        const inputEventStartDate = document.getElementById('inputEventStartDate').value;
+        const inputEventEndDate = document.getElementById('inputEventEndDate').value;
+        
         const statusMsg = document.getElementById('eventStatusMsg');
 
         inputSubdomain = inputSubdomain.replace(/[^a-z0-9-]/g, '');
 
-        if (!inputEventName || !inputSubdomain || !inputEventDate) {
+        if (!inputEventName || !inputSubdomain || !inputEventStartDate || !inputEventEndDate) {
             statusMsg.innerText = "Semua kolom wajib diisi!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+            return;
+        }
+
+        if (new Date(inputEventEndDate) < new Date(inputEventStartDate)) {
+            statusMsg.innerText = "Tanggal Selesai tidak boleh mendahului Tanggal Mulai!";
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
             return;
         }
@@ -258,7 +374,8 @@ if (btnSaveEvent) {
                 .insert([{
                     event_name: inputEventName,
                     subdomain: inputSubdomain,
-                    event_date: inputEventDate,
+                    event_date: inputEventStartDate,
+                    end_date: inputEventEndDate,
                     club_id: dummyClubId
                 }])
                 .select()

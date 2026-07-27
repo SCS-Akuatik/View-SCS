@@ -250,14 +250,49 @@ window.toggleJarak = function(gayaId, jarakId) {
     dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif;
 }
 
-// 4. KUMPULKAN DATA UNTUK DATABASE
-window.simpanKeDatabase = function() {
-    const payload = {
-        kelompok_umur: dataKU,
-        nomor_lomba: dataGaya
-    };
-    console.log("JSON Siap Kirim ke Supabase:", JSON.stringify(payload, null, 2));
-    alert("Data berhasil dibungkus! Cek Console Browser (F12) buat lihat hasil JSON Master Data-nya.");
+// 4. KUMPULKAN DATA & TEMBAK KE DATABASE
+window.simpanKeDatabase = async function() {
+    // 1. Ambil Event ID dari URL (Misal: /settings-lomba.html?id=123)
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('id');
+
+    if (!eventId) {
+        alert("Error: ID Event tidak ditemukan di URL. Silakan kembali ke Dashboard.");
+        return;
+    }
+
+    // 2. Ubah tombol jadi loading
+    const btnSave = document.querySelector('button[onclick="simpanKeDatabase()"]');
+    const originalText = btnSave.innerHTML;
+    btnSave.innerHTML = "Memproses...";
+    btnSave.disabled = true;
+
+    try {
+        // 3. Tembak data JSON ke kolom config di tabel events
+        const { data, error } = await supabase
+            .from('events')
+            .update({ 
+                config_ku: dataKU, 
+                config_gaya: dataGaya 
+            })
+            .eq('id', eventId);
+
+        if (error) throw error;
+
+        // 4. Notifikasi Sukses
+        alert("Mantap! Konfigurasi Lomba berhasil disimpan ke Supabase.");
+        
+        // Opsional: Kembali ke dashboard event
+        // window.location.href = `/event-dashboard.html?id=${eventId}`;
+
+    } catch (err) {
+        console.error("Gagal menyimpan:", err.message);
+        alert("Gagal menyimpan konfigurasi: " + err.message);
+    } finally {
+        // Kembalikan tombol seperti semula
+        btnSave.innerHTML = originalText;
+        btnSave.disabled = false;
+    }
 }
 
 // Initialize Render saat Halaman Dimuat

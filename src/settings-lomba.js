@@ -2,13 +2,13 @@ import { supabaseClient } from './supabase.js';
 
 let dataKU = [];
 let dataGaya = [];
+let dataEstafet = []; // Array Master Data Baru untuk Estafet
 let currentEventId = null;
 
 // State untuk Form Desain
 let configForm = {
     header_url: '',
     bg_url: '',
-    enable_estafet: false,
     biaya_normal: '',
     min_diskon: '',
     biaya_diskon: ''
@@ -25,9 +25,10 @@ async function loadDataLomba() {
     }
 
     try {
+        // Tambahkan config_estafet ke query select
         const { data, error } = await supabaseClient
             .from('events')
-            .select('config_ku, config_gaya, config')
+            .select('config_ku, config_gaya, config_estafet, config')
             .eq('id', currentEventId)
             .single();
 
@@ -35,22 +36,24 @@ async function loadDataLomba() {
 
         dataKU = data?.config_ku || [];
         dataGaya = data?.config_gaya || [];
+        dataEstafet = data?.config_estafet || [];
         
-        // Load data Config Form
         const eventConfig = data?.config || {};
         configForm.header_url = eventConfig.header_url || '';
         configForm.bg_url = eventConfig.bg_url || '';
-        configForm.enable_estafet = eventConfig.enable_estafet || false;
         configForm.biaya_normal = eventConfig.biaya_normal || '';
         configForm.min_diskon = eventConfig.min_diskon || '';
         configForm.biaya_diskon = eventConfig.biaya_diskon || '';
 
-        // Pasang Default jika kosong
-        if (dataKU.length === 0) dataKU = [{ id: 1, nama: 'KU 1', tahunMulai: 2008, tahunAkhir: 2010, aktif: true }];
+        // Default Data jika kosong
+        if (dataKU.length === 0) dataKU = [{ id: 1, nama: 'KU A', tahunMulai: 2011, tahunAkhir: 2012, aktif: true }];
         if (dataGaya.length === 0) dataGaya = [{ id: 1, nama: 'Gaya Bebas', jarak: [{ id: 101, nama: '50m', aktif: true }] }];
+        // Default Estafet
+        if (dataEstafet.length === 0) dataEstafet = [{ id: 1, nama: 'Estafet Gaya Bebas', list: [{ id: 101, jarak: '4x50m', jenis: 'Mix', aktif: true }] }];
 
         window.renderKU();
         window.renderGaya();
+        window.renderEstafet();
         renderFormConfig();
 
     } catch (err) {
@@ -59,9 +62,7 @@ async function loadDataLomba() {
     }
 }
 
-// Render UI Form Desain & Harga
 function renderFormConfig() {
-    document.getElementById('toggleEstafet').checked = configForm.enable_estafet;
     document.getElementById('inputBiayaNormal').value = configForm.biaya_normal;
     document.getElementById('inputMinDiskon').value = configForm.min_diskon;
     document.getElementById('inputBiayaDiskon').value = configForm.biaya_diskon;
@@ -78,14 +79,13 @@ function renderFormConfig() {
     }
 }
 
-// Logic Upload Gambar langsung ke Supabase Storage
 async function handleImageUpload(event, keyName, previewId) {
     const file = event.target.files[0];
     if (!file) return;
 
     const preview = document.getElementById(previewId);
     preview.classList.remove('hidden');
-    preview.src = 'https://media.tenor.com/On7kvXhzmV4AAAAj/loading-gif.gif'; // Animasi loading
+    preview.src = 'https://media.tenor.com/On7kvXhzmV4AAAAj/loading-gif.gif'; 
 
     try {
         const fileExt = file.name.split('.').pop();
@@ -101,7 +101,6 @@ async function handleImageUpload(event, keyName, previewId) {
             .from('event-assets')
             .getPublicUrl(fileName);
 
-        // Simpan URL ke state sementara
         configForm[keyName] = urlData.publicUrl;
         preview.src = urlData.publicUrl;
 
@@ -112,17 +111,15 @@ async function handleImageUpload(event, keyName, previewId) {
     }
 }
 
-// Pasang Listener Upload
 document.addEventListener('DOMContentLoaded', () => {
     loadDataLomba();
-
     document.getElementById('inputHeader').addEventListener('change', (e) => handleImageUpload(e, 'header_url', 'previewHeader'));
     document.getElementById('inputBg').addEventListener('change', (e) => handleImageUpload(e, 'bg_url', 'previewBg'));
 });
 
 
 // ==========================================
-// RENDER KU & GAYA (VERSI CLEAN B2B SAAS)
+// RENDER KU & GAYA INDIVIDU
 // ==========================================
 window.renderKU = function() {
     const container = document.getElementById('kuContainer');
@@ -130,7 +127,6 @@ window.renderKU = function() {
     container.innerHTML = ''; 
     dataKU.forEach(ku => {
         const checked = ku.aktif ? 'checked' : '';
-        // Ikon SVG diganti dengan text button 'Edit' dan 'Hapus'
         container.innerHTML += `
         <div class="flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group shadow-sm">
             <div class="flex flex-col">
@@ -185,98 +181,148 @@ window.renderGaya = function() {
 }
 
 // ==========================================
-// MODALS LOGIC (SEAMLESS EDITING)
+// RENDER ESTAFET (BARU)
+// ==========================================
+window.renderEstafet = function() {
+    const container = document.getElementById('estafetContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    dataEstafet.forEach(estafet => {
+        let listHTML = '';
+        estafet.list.forEach(item => {
+            const checked = item.aktif ? 'checked' : '';
+            // Label Badge (Putra = Biru, Putri = Pink, Mix = Ungu)
+            let badgeColor = 'bg-gray-100 text-gray-600';
+            if(item.jenis === 'Putra') badgeColor = 'bg-blue-100 text-blue-700';
+            if(item.jenis === 'Putri') badgeColor = 'bg-pink-100 text-pink-700';
+            if(item.jenis === 'Mix') badgeColor = 'bg-purple-100 text-purple-700';
+
+            listHTML += `
+            <div class="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-white group/item hover:border-purple-200 transition-colors shadow-sm">
+                <div class="flex flex-col gap-1">
+                    <span class="font-bold text-slate-700 text-xs">${item.jarak}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-bold px-2 py-0.5 rounded ${badgeColor} uppercase tracking-wider">${item.jenis}</span>
+                        <button onclick="deleteItemEstafet(${estafet.id}, ${item.id})" class="text-slate-400 hover:text-red-500 font-bold text-[10px] opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>
+                    </div>
+                </div>
+                <input type="checkbox" class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500" ${checked} onchange="toggleItemEstafet(${estafet.id}, ${item.id})">
+            </div>`;
+        });
+        
+        container.innerHTML += `
+        <div class="mb-6 p-5 border border-purple-100 rounded-xl bg-purple-50/30 group/cat">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-purple-200/50">
+                <div class="flex items-center gap-3">
+                    <h3 class="font-extrabold text-slate-800 text-sm tracking-wide uppercase">${estafet.nama}</h3>
+                    <button onclick="deleteEstafet(${estafet.id})" class="text-[10px] font-bold text-slate-400 hover:text-red-600 opacity-0 group-hover/cat:opacity-100 transition-opacity">Hapus Kategori</button>
+                </div>
+                <button onclick="openModalItemEstafet(${estafet.id})" class="text-[10px] font-bold text-purple-700 bg-purple-100 px-3 py-1.5 rounded-md hover:bg-purple-200 transition-colors">Tambah Nomor</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${listHTML}</div>
+        </div>`;
+    });
+}
+
+
+// ==========================================
+// SEMUA LOGIKA MODAL
 // ==========================================
 window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
 window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
 
-// 1. Logika Tambah KU Baru
+// Modal KU
 window.openModalKU = () => { 
-    document.getElementById('kuId').value = ''; 
-    document.getElementById('kuNama').value = ''; 
-    document.getElementById('kuTahunMulai').value = ''; 
-    document.getElementById('kuTahunAkhir').value = ''; 
-    
-    // Set UI Mode "Tambah Baru"
+    document.getElementById('kuId').value = ''; document.getElementById('kuNama').value = ''; 
+    document.getElementById('kuTahunMulai').value = ''; document.getElementById('kuTahunAkhir').value = ''; 
     document.getElementById('modalKUTitle').innerText = 'Buat KU Baru';
     const btnSave = document.getElementById('btnSaveKU');
-    btnSave.innerText = 'Simpan';
-    btnSave.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
-    btnSave.classList.add('bg-blue-600', 'hover:bg-blue-700');
-
+    btnSave.innerText = 'Simpan'; btnSave.className = 'w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors';
     window.openModal('modalKU'); 
 }
-
-// 2. Logika Edit KU (Tarik data lama)
 window.editKU = (id) => { 
     const ku = dataKU.find(k => k.id === id); 
-    document.getElementById('kuId').value = ku.id; 
-    document.getElementById('kuNama').value = ku.nama; 
-    document.getElementById('kuTahunMulai').value = ku.tahunMulai; 
-    document.getElementById('kuTahunAkhir').value = ku.tahunAkhir; 
-    
-    // Set UI Mode "Edit"
+    document.getElementById('kuId').value = ku.id; document.getElementById('kuNama').value = ku.nama; 
+    document.getElementById('kuTahunMulai').value = ku.tahunMulai; document.getElementById('kuTahunAkhir').value = ku.tahunAkhir; 
     document.getElementById('modalKUTitle').innerText = 'Edit Kelompok Umur';
     const btnSave = document.getElementById('btnSaveKU');
-    btnSave.innerText = 'Simpan Perubahan';
-    btnSave.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-    btnSave.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-
+    btnSave.innerText = 'Simpan Perubahan'; btnSave.className = 'w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors';
     window.openModal('modalKU'); 
 }
-
 window.saveKU = () => { 
-    const id = document.getElementById('kuId').value; 
-    const nama = document.getElementById('kuNama').value; 
-    const tahunMulai = document.getElementById('kuTahunMulai').value; 
-    const tahunAkhir = document.getElementById('kuTahunAkhir').value; 
-    
-    if(!nama) return alert('Nama Kelompok Umur wajib diisi!'); 
-    
-    if(id) { 
-        // Mode Edit
-        const index = dataKU.findIndex(k => k.id == id); 
-        dataKU[index] = { ...dataKU[index], nama, tahunMulai, tahunAkhir }; 
-    } else { 
-        // Mode Tambah
-        dataKU.push({ id: Date.now(), nama, tahunMulai, tahunAkhir, aktif: true }); 
-    } 
-    window.renderKU(); 
-    window.closeModal('modalKU'); 
+    const id = document.getElementById('kuId').value; const nama = document.getElementById('kuNama').value; 
+    const tahunMulai = document.getElementById('kuTahunMulai').value; const tahunAkhir = document.getElementById('kuTahunAkhir').value; 
+    if(!nama) return alert('Nama KU wajib diisi!'); 
+    if(id) { const index = dataKU.findIndex(k => k.id == id); dataKU[index] = { ...dataKU[index], nama, tahunMulai, tahunAkhir }; } 
+    else { dataKU.push({ id: Date.now(), nama, tahunMulai, tahunAkhir, aktif: true }); } 
+    window.renderKU(); window.closeModal('modalKU'); 
 }
-
-window.deleteKU = (id) => { if(confirm('Yakin ingin menghapus Kelompok Umur ini?')) { dataKU = dataKU.filter(k => k.id !== id); window.renderKU(); } }
+window.deleteKU = (id) => { if(confirm('Yakin hapus Kelompok Umur ini?')) { dataKU = dataKU.filter(k => k.id !== id); window.renderKU(); } }
 window.toggleKU = (id) => { const index = dataKU.findIndex(k => k.id == id); dataKU[index].aktif = !dataKU[index].aktif; }
 
-// 3. Logika Gaya (Tanpa Emoji)
-window.openModalGaya = () => { 
-    document.getElementById('gayaId').value = ''; 
-    document.getElementById('gayaNama').value = ''; 
-    window.openModal('modalGaya'); 
-}
-
+// Modal Gaya Individu
+window.openModalGaya = () => { document.getElementById('gayaId').value = ''; document.getElementById('gayaNama').value = ''; window.openModal('modalGaya'); }
 window.saveGaya = () => { 
-    const id = document.getElementById('gayaId').value; 
-    const nama = document.getElementById('gayaNama').value; 
-    
-    if(!nama) return alert('Nama Kategori Gaya wajib diisi!'); 
-    
-    if(id) { 
-        const index = dataGaya.findIndex(g => g.id == id); 
-        dataGaya[index].nama = nama; 
-    } else { 
-        dataGaya.push({ id: Date.now(), nama, jarak: [] }); 
-    } 
-    window.renderGaya(); 
-    window.closeModal('modalGaya'); 
+    const id = document.getElementById('gayaId').value; const nama = document.getElementById('gayaNama').value; 
+    if(!nama) return alert('Nama Gaya wajib diisi!'); 
+    if(id) { const index = dataGaya.findIndex(g => g.id == id); dataGaya[index].nama = nama; } 
+    else { dataGaya.push({ id: Date.now(), nama, jarak: [] }); } 
+    window.renderGaya(); window.closeModal('modalGaya'); 
 }
-window.deleteGaya = (id) => { if(confirm('Hapus Kategori Gaya ini beserta seluruh jaraknya?')) { dataGaya = dataGaya.filter(g => g.id !== id); window.renderGaya(); } }
+window.deleteGaya = (id) => { if(confirm('Hapus Kategori Gaya ini?')) { dataGaya = dataGaya.filter(g => g.id !== id); window.renderGaya(); } }
 
-// 4. Logika Jarak 
 window.openModalJarak = (gayaId) => { document.getElementById('jarakParentId').value = gayaId; document.getElementById('jarakId').value = ''; document.getElementById('jarakNama').value = ''; window.openModal('modalJarak'); }
-window.saveJarak = () => { const gayaId = document.getElementById('jarakParentId').value; let nama = document.getElementById('jarakNama').value; if(!nama) return; nama = nama.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); if (!nama.endsWith('m')) nama += 'm'; const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); dataGaya[gayaIndex].jarak.push({ id: Date.now(), nama, aktif: true }); window.renderGaya(); window.closeModal('modalJarak'); }
+window.saveJarak = () => { 
+    const gayaId = document.getElementById('jarakParentId').value; let nama = document.getElementById('jarakNama').value; 
+    if(!nama) return; nama = nama.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); if (!nama.endsWith('m')) nama += 'm'; 
+    const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); dataGaya[gayaIndex].jarak.push({ id: Date.now(), nama, aktif: true }); 
+    window.renderGaya(); window.closeModal('modalJarak'); 
+}
 window.deleteJarak = (gayaId, jarakId) => { if(confirm('Hapus jarak ini?')) { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); dataGaya[gayaIndex].jarak = dataGaya[gayaIndex].jarak.filter(j => j.id !== jarakId); window.renderGaya(); } }
 window.toggleJarak = (gayaId, jarakId) => { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId); dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif; }
+
+// Modal Estafet (Kategori & Detail)
+window.openModalEstafet = () => { document.getElementById('estafetId').value = ''; document.getElementById('estafetNama').value = ''; window.openModal('modalEstafet'); }
+window.saveEstafet = () => {
+    const nama = document.getElementById('estafetNama').value;
+    if(!nama) return alert('Nama Kategori Estafet wajib diisi!');
+    dataEstafet.push({ id: Date.now(), nama, list: [] });
+    window.renderEstafet(); window.closeModal('modalEstafet');
+}
+window.deleteEstafet = (id) => { if(confirm('Hapus Kategori Estafet ini?')) { dataEstafet = dataEstafet.filter(e => e.id !== id); window.renderEstafet(); } }
+
+window.openModalItemEstafet = (estafetId) => {
+    document.getElementById('itemEstafetParentId').value = estafetId;
+    document.getElementById('itemEstafetJarak').value = '';
+    document.getElementById('itemEstafetJenis').value = 'Putra';
+    window.openModal('modalItemEstafet');
+}
+window.saveItemEstafet = () => {
+    const parentId = document.getElementById('itemEstafetParentId').value;
+    let jarak = document.getElementById('itemEstafetJarak').value;
+    const jenis = document.getElementById('itemEstafetJenis').value;
+    
+    if(!jarak) return alert('Jarak wajib diisi!');
+    jarak = jarak.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); 
+    if (!jarak.endsWith('m')) jarak += 'm'; 
+
+    const index = dataEstafet.findIndex(e => e.id == parentId);
+    dataEstafet[index].list.push({ id: Date.now(), jarak, jenis, aktif: true });
+    
+    window.renderEstafet(); window.closeModal('modalItemEstafet');
+}
+window.deleteItemEstafet = (parentId, itemId) => {
+    if(confirm('Hapus Nomor Estafet ini?')) {
+        const index = dataEstafet.findIndex(e => e.id == parentId);
+        dataEstafet[index].list = dataEstafet[index].list.filter(i => i.id !== itemId);
+        window.renderEstafet();
+    }
+}
+window.toggleItemEstafet = (parentId, itemId) => {
+    const parentIndex = dataEstafet.findIndex(e => e.id == parentId);
+    const itemIndex = dataEstafet[parentIndex].list.findIndex(i => i.id == itemId);
+    dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif;
+}
 
 
 // ==========================================
@@ -287,14 +333,11 @@ window.simpanKeDatabase = async function() {
     btnSave.innerHTML = "Menyimpan...";
     btnSave.disabled = true;
 
-    // Kumpulkan data Desain Form & Harga
-    configForm.enable_estafet = document.getElementById('toggleEstafet').checked;
     configForm.biaya_normal = document.getElementById('inputBiayaNormal').value;
     configForm.min_diskon = document.getElementById('inputMinDiskon').value;
     configForm.biaya_diskon = document.getElementById('inputBiayaDiskon').value;
 
     try {
-        // Gabungkan config lama dengan configForm baru
         const { data: oldData } = await supabaseClient.from('events').select('config').eq('id', currentEventId).single();
         const mergedConfig = { ...(oldData.config || {}), ...configForm };
 
@@ -303,12 +346,13 @@ window.simpanKeDatabase = async function() {
             .update({ 
                 config_ku: dataKU, 
                 config_gaya: dataGaya,
+                config_estafet: dataEstafet, // Simpan state Estafet ke kolom baru
                 config: mergedConfig
             })
             .eq('id', currentEventId);
 
         if (error) throw error;
-        alert("Konfigurasi Form Lomba berhasil disimpan!");
+        alert("Konfigurasi Lomba & Estafet berhasil disimpan!");
         window.location.href = `/event-dashboard.html?id=${currentEventId}`;
 
     } catch (err) {

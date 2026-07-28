@@ -33,7 +33,7 @@
         
         <div class="mb-6">
             <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Konfigurasi Event</h1>
-            <p class="text-slate-500 text-sm mt-1">Atur Kelompok Umur (KU), Nomor Lomba, Harga, dan Desain Form Pendaftaran Publik.</p>
+            <p class="text-slate-500 text-sm mt-1">Atur Kelompok Umur (KU), Nomor Lomba, Estafet, dan Desain Form Publik.</p>
         </div>
 
         <!-- SECTION 1: KELOMPOK UMUR -->
@@ -50,12 +50,12 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="kuContainer"></div>
         </div>
 
-        <!-- SECTION 2: NOMOR LOMBA (GAYA) -->
+        <!-- SECTION 2: NOMOR LOMBA (INDIVIDU) -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-slate-100 pb-4">
                 <div>
-                    <h2 class="font-bold text-slate-800 text-lg">Nomor Lomba (Gaya & Jarak)</h2>
-                    <p class="text-xs text-slate-500">Master Data Nomor Lomba. Toggle untuk tampilkan di form.</p>
+                    <h2 class="font-bold text-slate-800 text-lg">Nomor Lomba (Individu)</h2>
+                    <p class="text-xs text-slate-500">Master Data Nomor Lomba Perorangan.</p>
                 </div>
                 <button onclick="openModalGaya()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-bold text-xs transition-colors shrink-0">
                     Kategori Gaya Baru
@@ -64,7 +64,21 @@
             <div id="gayaContainer"></div>
         </div>
 
-        <!-- SECTION 3: DESAIN & BIAYA PENDAFTARAN -->
+        <!-- SECTION 3: NOMOR LOMBA (ESTAFET) - BARU! -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6 border-l-4 border-l-purple-500">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-slate-100 pb-4">
+                <div>
+                    <h2 class="font-bold text-slate-800 text-lg">Nomor Lomba (Estafet)</h2>
+                    <p class="text-xs text-slate-500">Pengaturan khusus untuk nomor beregu (Putra, Putri, Mix).</p>
+                </div>
+                <button onclick="openModalEstafet()" class="px-4 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg font-bold text-xs transition-colors shrink-0">
+                    Kategori Estafet Baru
+                </button>
+            </div>
+            <div id="estafetContainer"></div>
+        </div>
+
+        <!-- SECTION 4: DESAIN & BIAYA PENDAFTARAN -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 md:p-7 mb-6">
             <div class="mb-5 border-b border-slate-100 pb-4">
                 <h2 class="font-bold text-slate-800 text-lg">Desain Form & Biaya Pendaftaran</h2>
@@ -72,9 +86,8 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Kolom Upload Gambar -->
+                <!-- Kolom Upload Gambar (Sempurnakan dengan rasio) -->
                 <div class="space-y-6">
-                    <!-- Header Banner -->
                     <div>
                         <div class="flex justify-between items-end mb-1">
                             <label class="block text-sm font-bold text-slate-700">Upload Header Banner</label>
@@ -83,7 +96,6 @@
                         
                         <input type="file" id="inputHeader" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 mb-3 cursor-pointer transition-colors">
                         
-                        <!-- Preview Box (Rasio Banner 3:1) -->
                         <div class="w-full aspect-[3/1] bg-slate-100 rounded-xl border border-dashed border-slate-300 overflow-hidden relative flex items-center justify-center">
                             <span class="text-xs text-slate-400 font-medium absolute z-0">Area Preview Header</span>
                             <img id="previewHeader" src="" class="hidden w-full h-full object-cover relative z-10 shadow-sm">
@@ -92,7 +104,6 @@
 
                     <hr class="border-slate-100">
 
-                    <!-- Background Pattern -->
                     <div>
                         <div class="flex justify-between items-end mb-1">
                             <label class="block text-sm font-bold text-slate-700">Background Pattern</label>
@@ -101,7 +112,6 @@
                         
                         <input type="file" id="inputBg" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 mb-3 cursor-pointer transition-colors">
                         
-                        <!-- Preview Box (Rasio 16:9 disimulasikan sebagai Background) -->
                         <div class="w-full aspect-video bg-slate-800 rounded-xl border border-slate-200 overflow-hidden relative flex items-center justify-center">
                             <span class="text-xs text-slate-500 font-medium absolute z-0">Preview Background</span>
                             <img id="previewBg" src="" class="hidden w-full h-full object-cover relative z-10 shadow-sm opacity-50">
@@ -109,20 +119,8 @@
                     </div>
                 </div>
 
-
-                <!-- Kolom Pricing & Toggles -->
+                <!-- Kolom Pricing -->
                 <div class="space-y-5">
-                    <div class="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50">
-                        <div>
-                            <p class="font-bold text-sm text-slate-700">Nomor Estafet</p>
-                            <p class="text-[10px] text-slate-500">Tampilkan pendaftaran tim estafet.</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                            <input type="checkbox" id="toggleEstafet" class="sr-only peer">
-                            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    </div>
-                    
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1">Biaya Per Nomor (Normal)</label>
                         <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden focus-within:ring-2 ring-blue-500">
@@ -157,7 +155,9 @@
         </div>
     </div>
 
-    <!-- (Modal KU) -->
+    <!-- SEMUA MODALS DI SINI -->
+
+    <!-- Modal KU -->
     <div id="modalKU" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -180,36 +180,34 @@
                         <input type="number" id="kuTahunAkhir" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
-                <!-- ID btnSaveKU ditambahkan di sini -->
                 <button id="btnSaveKU" onclick="saveKU()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors">Simpan</button>
             </div>
         </div>
     </div>
 
-    <!-- (Modal Gaya) -->
+    <!-- Modal Gaya (Individu) -->
     <div id="modalGaya" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="font-bold text-slate-800" id="modalGayaTitle">Kategori Gaya Baru</h3>
+                <h3 class="font-bold text-slate-800" id="modalGayaTitle">Kategori Gaya (Individu)</h3>
                 <button onclick="closeModal('modalGaya')" class="text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors">Tutup</button>
             </div>
             <div class="p-5 space-y-4">
                 <input type="hidden" id="gayaId">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Nama Gaya</label>
-                    <input type="text" id="gayaNama" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="gayaNama" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Gaya Bebas">
                 </div>
-                <!-- Input Emoji Dihapus -->
                 <button onclick="saveGaya()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors">Simpan</button>
             </div>
         </div>
     </div>
 
-    <!-- (Modal Jarak) -->
+    <!-- Modal Jarak (Individu) -->
     <div id="modalJarak" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-xs shadow-xl overflow-hidden modal-enter">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="font-bold text-slate-800" id="modalJarakTitle">Tambah Jarak</h3>
+                <h3 class="font-bold text-slate-800" id="modalJarakTitle">Tambah Jarak Individu</h3>
                 <button onclick="closeModal('modalJarak')" class="text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors">Tutup</button>
             </div>
             <div class="p-5 space-y-4">
@@ -217,9 +215,53 @@
                 <input type="hidden" id="jarakId">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Jarak</label>
-                    <input type="text" id="jarakNama" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="jarakNama" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: 50m">
                 </div>
                 <button onclick="saveJarak()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kategori Estafet -->
+    <div id="modalEstafet" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl overflow-hidden modal-enter">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800">Kategori Estafet Baru</h3>
+                <button onclick="closeModal('modalEstafet')" class="text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors">Tutup</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="estafetId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Kategori Estafet</label>
+                    <input type="text" id="estafetNama" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Contoh: Estafet Gaya Ganti">
+                </div>
+                <button onclick="saveEstafet()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors">Simpan Kategori</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Item Estafet (Jarak & Jenis) -->
+    <div id="modalItemEstafet" class="fixed inset-0 bg-slate-900/40 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-xs shadow-xl overflow-hidden modal-enter">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800">Tambah Detail Estafet</h3>
+                <button onclick="closeModal('modalItemEstafet')" class="text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors">Tutup</button>
+            </div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="itemEstafetParentId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Jarak Estafet</label>
+                    <input type="text" id="itemEstafetJarak" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Contoh: 4x50m">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Jenis Regu</label>
+                    <select id="itemEstafetJenis" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                        <option value="Putra">Putra (4 Pa)</option>
+                        <option value="Putri">Putri (4 Pi)</option>
+                        <option value="Mix">Mix (2 Pa & 2 Pi)</option>
+                    </select>
+                </div>
+                <button onclick="saveItemEstafet()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors">Simpan Nomor</button>
             </div>
         </div>
     </div>

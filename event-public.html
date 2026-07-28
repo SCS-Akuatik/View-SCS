@@ -8,7 +8,7 @@
 </head>
 <body id="pageBody" class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-20 relative">
 
-    <!-- Background Pattern (Dipisah biar bisa transparan tanpa merusak form) -->
+    <!-- Background Pattern -->
     <div id="bgOverlay" class="fixed inset-0 z-[-1] bg-cover bg-center opacity-10 hidden"></div>
 
     <!-- HEADER STICKY -->
@@ -16,7 +16,6 @@
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-slate-900/20 flex flex-col justify-end p-4 md:p-6">
             <h1 id="publicEventName" class="text-xl md:text-3xl font-black text-white tracking-tight drop-shadow-md truncate">Memuat Event...</h1>
             
-            <!-- Badge Statistik -->
             <div class="flex gap-2 md:gap-3 mt-2">
                 <div class="flex items-center gap-1.5 text-slate-100 text-[10px] md:text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-sm">
                     <span>👥</span> <span id="statPesertaPublik">0 Terdaftar</span>
@@ -28,10 +27,10 @@
         </div>
     </div>
 
-    <!-- Container Utama Form Pendaftaran -->
+    <!-- Container Utama Form -->
     <div class="max-w-2xl mx-auto px-4 mt-6">
         
-        <!-- Kotak Informasi Biaya & Diskon -->
+        <!-- Kotak Informasi Biaya -->
         <div class="bg-blue-900 border border-blue-800 rounded-2xl p-5 mb-6 shadow-lg text-sm relative overflow-hidden">
             <div class="absolute -right-4 -top-4 text-6xl opacity-10">💰</div>
             <h3 class="font-bold text-yellow-400 mb-1 relative z-10">Informasi Biaya Pendaftaran</h3>
@@ -43,48 +42,51 @@
         <div class="bg-white/95 backdrop-blur-md text-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-200 space-y-5">
             <h2 class="text-xl font-extrabold text-blue-900 border-b border-slate-100 pb-3">Formulir Pendaftaran Atlet</h2>
             
-            <!-- GARIS MERAH: Bar Login Klub -->
-            <div id="loginBar" class="flex flex-col sm:flex-row justify-between sm:items-center bg-blue-50 text-blue-800 p-3 rounded-xl border border-blue-100 gap-3">
-                <span class="text-xs font-bold">Klub SCS terdaftar? Login biar sat-set!</span>
-                <button id="btnToggleLogin" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm">
-                    Login Klub
+            <!-- GARIS UNGU: Bar Login Klub -->
+            <div id="loginBar" class="flex flex-col sm:flex-row justify-between sm:items-center bg-indigo-50 text-indigo-900 p-3.5 rounded-xl border border-indigo-100 gap-3 transition-all">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🛡️</span>
+                    <span class="text-xs font-extrabold tracking-wide">Sudah terdaftar di SCS?</span>
+                </div>
+                <button id="btnToggleLogin" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-xs font-bold transition-colors shadow-sm">
+                    Login di Sini
                 </button>
             </div>
 
-            <!-- Area Form Login (Disembunyikan default) -->
-            <div id="areaLogin" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                <input type="email" id="loginEmail" placeholder="Email Admin Klub" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="password" id="loginPassword" placeholder="Password" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button id="btnProsesLogin" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-sm transition-colors">
-                    Masuk & Tarik Data Atlet
+            <!-- Area Form Login (Hidden by default) -->
+            <div id="areaLogin" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 shadow-inner">
+                <input type="email" id="loginEmail" placeholder="Email Terdaftar" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="password" id="loginPassword" placeholder="Password" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button id="btnProsesLogin" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-sm transition-colors shadow-md">
+                    Masuk & Sinkronisasi Data
                 </button>
             </div>
 
-            <!-- GARIS HIJAU: Area Input / Dropdown Atlet -->
+            <!-- GARIS MERAH: Input Nama Klub / Sekolah / Individu (Bisa HILANG kalau login) -->
+            <div id="areaKlubManual">
+                <label class="block text-xs font-bold text-slate-600 mb-1">Nama Klub / Sekolah / Coach / Individu</label>
+                <input type="text" id="inputKlubManual" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700" placeholder="Ketik nama tim atau sekolah...">
+            </div>
+
+            <!-- F1 ID / NAMA ATLET -->
             <div id="areaPencarianAtlet">
                 <label class="block text-xs font-bold text-slate-600 mb-1">F1 ID Atlet atau Nama Lengkap</label>
-                
-                <!-- Mode 1: Input Manual (Kalau belum login) -->
-                <input type="text" id="inputCariAtlet" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="Ketik F1 ID atau Nama Atlet...">
-                
-                <!-- Mode 2: Dropdown (Kalau sudah login) -->
+                <input type="text" id="inputCariAtlet" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="Ketik Nama Atlet atau F1 ID...">
                 <select id="dropdownAtlet" class="hidden w-full px-4 py-3 bg-emerald-50 border border-emerald-400 rounded-xl text-sm font-bold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner">
-                    <option value="">-- Pilih Atlet dari Klub Kamu --</option>
+                    <option value="">-- Pilih Atlet dari Data Kamu --</option>
                 </select>
             </div>
 
+            <!-- DATA PRIBADI ATLET -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- Tgl Lahir -->
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal Lahir</label>
                     <input type="date" id="inputTglLahir" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-600 font-bold">
                 </div>
-                <!-- KU Auto-Lock -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Kelompok Umur (Auto)</label>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Kelompok Umur</label>
                     <input type="text" id="inputAutoKU" class="w-full px-4 py-3 bg-slate-200 border border-slate-300 rounded-xl text-sm font-bold text-slate-500 cursor-not-allowed" readonly placeholder="Otomatis...">
                 </div>
-                <!-- Gender (Fix Halaman) -->
                 <div class="col-span-2">
                     <label class="block text-xs font-bold text-slate-600 mb-1">Jenis Kelamin</label>
                     <select id="inputGender" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-700 font-bold focus:ring-2 focus:ring-blue-500">
@@ -95,7 +97,7 @@
                 </div>
             </div>
 
-            <!-- List Pilihan Nomor Lomba -->
+            <!-- PILIHAN NOMOR LOMBA -->
             <div class="pt-2">
                 <label class="block text-xs font-bold text-slate-600 mb-3">Pilih Nomor Lomba</label>
                 <div id="containerNomorLomba" class="space-y-4">
@@ -103,8 +105,26 @@
                 </div>
             </div>
 
+            <!-- AREA UPLOAD AKTA (Otomatis muncul untuk UNVERIFIED) -->
+            <div id="areaAkta" class="hidden mt-4 p-5 border border-amber-200 bg-amber-50/50 rounded-2xl transition-all">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-sm font-extrabold text-amber-900">Verifikasi Kelompok Umur</h3>
+                    <span class="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded uppercase tracking-wider">Unverified</span>
+                </div>
+                <p class="text-xs text-amber-800 leading-relaxed mb-4">
+                    Sistem mendeteksi data atlet ini belum terverifikasi. Untuk menjaga sportivitas lomba, mohon unggah foto/scan Akta Kelahiran asli.
+                </p>
+                <input type="file" id="inputAkta" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 mb-4 cursor-pointer transition-colors outline-none">
+                
+                <!-- Disclaimer Privasi (Bahasa Empati & Tegas) -->
+                <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-sm">
+                    <p class="text-[10px] text-slate-600 leading-relaxed font-medium">
+                        <span class="font-bold text-slate-800">Keamanan Data Pribadi SCS:</span> Kami sangat melindungi privasi atlet. Dokumen ini dienkripsi di server pusat SCS. Panitia penyelenggara lokal <span class="font-bold underline decoration-amber-300">tidak memiliki akses</span> untuk mengunduh atau mendistribusikan dokumen ini. Data murni digunakan oleh sistem untuk validasi umur pendaftaran.
+                    </p>
+                </div>
+            </div>
+
             <button id="btnKirimPendaftaran" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl shadow-lg transition-all mt-4 flex items-center justify-center gap-2 text-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Kirim Pendaftaran
             </button>
         </div>

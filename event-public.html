@@ -8,14 +8,12 @@
 </head>
 <body id="pageBody" class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-20 relative">
 
-    <!-- Background Pattern -->
     <div id="bgOverlay" class="fixed inset-0 z-[-1] bg-cover bg-center opacity-10 hidden"></div>
 
     <!-- HEADER STICKY -->
     <div id="headerBannerContainer" class="w-full bg-blue-900 bg-cover bg-center shadow-lg sticky top-0 z-50 h-32 md:h-40 transition-all border-b-4 border-yellow-400">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-slate-900/20 flex flex-col justify-end p-4 md:p-6">
             <h1 id="publicEventName" class="text-xl md:text-3xl font-black text-white tracking-tight drop-shadow-md truncate">Memuat Event...</h1>
-            
             <div class="flex gap-2 md:gap-3 mt-2">
                 <div class="flex items-center gap-1.5 text-slate-100 text-[10px] md:text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-sm">
                     <span>👥</span> <span id="statPesertaPublik">0 Terdaftar</span>
@@ -62,16 +60,16 @@
                 </button>
             </div>
 
-            <!-- GARIS MERAH: Input Nama Klub / Sekolah / Individu (Bisa HILANG kalau login) -->
+            <!-- GARIS MERAH: Input Nama Klub Manual -->
             <div id="areaKlubManual">
-                <label class="block text-xs font-bold text-slate-600 mb-1">Nama Klub / Sekolah / Coach / Individu</label>
-                <input type="text" id="inputKlubManual" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700" placeholder="Ketik nama tim atau sekolah...">
+                <label class="block text-xs font-bold text-slate-600 mb-1">Nama Klub / Sekolah / Individu</label>
+                <input type="text" id="inputKlubManual" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700" placeholder="Contoh: Rock Swimming / SDN 1 Surabaya">
             </div>
 
-            <!-- F1 ID / NAMA ATLET -->
+            <!-- PENCARIAN ATLET -->
             <div id="areaPencarianAtlet">
-                <label class="block text-xs font-bold text-slate-600 mb-1">F1 ID Atlet atau Nama Lengkap</label>
-                <input type="text" id="inputCariAtlet" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="Ketik Nama Atlet atau F1 ID...">
+                <label class="block text-xs font-bold text-slate-600 mb-1">Nama Atlet (Atau Pilih dari Data)</label>
+                <input type="text" id="inputCariAtlet" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="Ketik Nama Atlet...">
                 <select id="dropdownAtlet" class="hidden w-full px-4 py-3 bg-emerald-50 border border-emerald-400 rounded-xl text-sm font-bold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner">
                     <option value="">-- Pilih Atlet dari Data Kamu --</option>
                 </select>
@@ -99,27 +97,27 @@
 
             <!-- PILIHAN NOMOR LOMBA -->
             <div class="pt-2">
-                <label class="block text-xs font-bold text-slate-600 mb-3">Pilih Nomor Lomba</label>
+                <label class="block text-xs font-bold text-slate-600 mb-3">Pilih Nomor Lomba (Maks sesuai aturan)</label>
                 <div id="containerNomorLomba" class="space-y-4">
                     <p class="text-xs text-slate-400 italic">Memuat nomor lomba...</p>
                 </div>
             </div>
 
-            <!-- AREA UPLOAD AKTA (Otomatis muncul untuk UNVERIFIED) -->
-            <div id="areaAkta" class="hidden mt-4 p-5 border border-amber-200 bg-amber-50/50 rounded-2xl transition-all">
+            <!-- AREA UPLOAD AKTA -->
+            <!-- Tampil otomatis untuk Tamu/Individu. Akan disembunyikan JS jika F1_ID verified terpilih -->
+            <div id="areaAkta" class="mt-4 p-5 border border-amber-200 bg-amber-50/50 rounded-2xl transition-all">
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-sm font-extrabold text-amber-900">Verifikasi Kelompok Umur</h3>
-                    <span class="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded uppercase tracking-wider">Unverified</span>
+                    <h3 class="text-sm font-extrabold text-amber-900">Verifikasi Akta Kelahiran</h3>
+                    <span class="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded uppercase tracking-wider">Wajib Upload</span>
                 </div>
                 <p class="text-xs text-amber-800 leading-relaxed mb-4">
-                    Sistem mendeteksi data atlet ini belum terverifikasi. Untuk menjaga sportivitas lomba, mohon unggah foto/scan Akta Kelahiran asli.
+                    Sistem mendeteksi data atlet belum diverifikasi. Untuk menjaga sportivitas, mohon unggah foto/scan Akta Kelahiran asli.
                 </p>
                 <input type="file" id="inputAkta" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 mb-4 cursor-pointer transition-colors outline-none">
                 
-                <!-- Disclaimer Privasi (Bahasa Empati & Tegas) -->
                 <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-sm">
                     <p class="text-[10px] text-slate-600 leading-relaxed font-medium">
-                        <span class="font-bold text-slate-800">Keamanan Data Pribadi SCS:</span> Kami sangat melindungi privasi atlet. Dokumen ini dienkripsi di server pusat SCS. Panitia penyelenggara lokal <span class="font-bold underline decoration-amber-300">tidak memiliki akses</span> untuk mengunduh atau mendistribusikan dokumen ini. Data murni digunakan oleh sistem untuk validasi umur pendaftaran.
+                        <span class="font-bold text-slate-800">Keamanan Data Pribadi SCS:</span> Dokumen ini dienkripsi di server pusat SCS. Panitia penyelenggara lokal <span class="font-bold underline decoration-amber-300">tidak memiliki akses</span> untuk mengunduh dokumen ini. Murni digunakan untuk validasi umur.
                     </p>
                 </div>
             </div>

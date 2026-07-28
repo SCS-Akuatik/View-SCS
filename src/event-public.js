@@ -162,11 +162,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     dropdown.classList.remove('hidden');
                     dropdown.classList.add('mb-3'); // Tambah jarak margin bawah sedikit
 
-                    // E. Isi Dropdown dengan daftar atlet (tambahkan data-name)
+                    // E. Isi Dropdown dengan daftar atlet (Tarik sesuai nama kolom di DB)
                     dropdown.innerHTML = '<option value="">-- Pilih Atlet dari Klub Kamu --</option>'; // Reset opsi
                     athletes.forEach(atlet => {
-                        dropdown.innerHTML += `<option value="${atlet.f1_id}" data-name="${atlet.full_name}" data-tgl="${atlet.tanggal_lahir}" data-gender="${atlet.jenis_kelamin}">${atlet.full_name} (${atlet.f1_id})</option>`;
+                        // Tarik langsung dari kolom dob dan gender
+                        const tgl = atlet.dob || '';
+                        const jk = atlet.gender || '';
+
+                        dropdown.innerHTML += `<option value="${atlet.f1_id}" data-name="${atlet.full_name}" data-tgl="${tgl}" data-gender="${jk}">${atlet.full_name} (${atlet.f1_id})</option>`;
                     });
+
 
                     alert(`Berhasil menarik ${athletes.length} data atlet!`);
 
@@ -189,7 +194,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const inputGender = document.getElementById('inputGender');
 
                 if(selectedOption.value !== "") {
-                    // Tarik data yang dititipkan
+                    // Tarik data yang dititipkan dari option
                     const nama = selectedOption.getAttribute('data-name');
                     const f1Id = selectedOption.value;
                     const tglLahir = selectedOption.getAttribute('data-tgl');
@@ -200,17 +205,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                     inputTgl.value = tglLahir;
                     inputGender.value = gender;
 
-                    // Kunci kolom biar elegan dan nggak terhapus tak sengaja
+                    // Kunci SEMUA kolom biar anti-error (Terkunci abu-abu)
                     inputManual.readOnly = true;
                     inputManual.classList.add('bg-slate-200', 'cursor-not-allowed');
+
+                    inputTgl.readOnly = true;
+                    inputTgl.classList.add('bg-slate-200', 'cursor-not-allowed', 'pointer-events-none');
+
+                    inputGender.classList.add('bg-slate-200', 'cursor-not-allowed', 'pointer-events-none');
 
                     // Pancing event 'change' biar satpam KU otomatis mendeteksi tahun lahir
                     inputTgl.dispatchEvent(new Event('change'));
                 } else {
-                    // Kalau milih "-- Pilih Atlet --" (kosong), reset dan buka lagi kuncinya
+                    // Kalau milih "-- Pilih Atlet --" (kosong), reset dan buka lagi semua kuncinya
                     inputManual.value = "";
+                    inputTgl.value = "";
+                    inputGender.value = "";
+
                     inputManual.readOnly = false;
                     inputManual.classList.remove('bg-slate-200', 'cursor-not-allowed');
+
+                    inputTgl.readOnly = false;
+                    inputTgl.classList.remove('bg-slate-200', 'cursor-not-allowed', 'pointer-events-none');
+
+                    inputGender.classList.remove('bg-slate-200', 'cursor-not-allowed', 'pointer-events-none');
                 }
             });
         }

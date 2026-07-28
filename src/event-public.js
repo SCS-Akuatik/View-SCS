@@ -151,17 +151,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     areaLogin.classList.add('hidden'); // Sembunyikan form login
                     document.getElementById('loginBar').innerHTML = `<span class="text-emerald-700 font-bold text-sm">✅ Login sukses! Silakan pilih atletmu di bawah.</span>`;
                     
-                    // D. Sembunyikan Input Text, Munculkan Dropdown
+                    // D. Ubah Tampilan UI
+                    areaLogin.classList.add('hidden');
+                    document.getElementById('loginBar').innerHTML = `<span class="text-emerald-700 font-bold text-sm">✅ Login sukses! Silakan pilih atletmu di bawah.</span>`;
+                    
                     const inputManual = document.getElementById('inputCariAtlet');
                     const dropdown = document.getElementById('dropdownAtlet');
                     
-                    inputManual.classList.add('hidden');
+                    // Munculkan dropdown, TAPI biarkan input manual tetap tampil
                     dropdown.classList.remove('hidden');
+                    dropdown.classList.add('mb-3'); // Tambah jarak margin bawah sedikit
 
-                    // E. Isi Dropdown dengan daftar atlet
+                    // E. Isi Dropdown dengan daftar atlet (tambahkan data-name)
+                    dropdown.innerHTML = '<option value="">-- Pilih Atlet dari Klub Kamu --</option>'; // Reset opsi
                     athletes.forEach(atlet => {
-                        // Simpan data tgl lahir dan gender di dalam element option
-                        dropdown.innerHTML += `<option value="${atlet.f1_id}" data-tgl="${atlet.tanggal_lahir}" data-gender="${atlet.jenis_kelamin}">${atlet.full_name} (${atlet.f1_id})</option>`;
+                        dropdown.innerHTML += `<option value="${atlet.f1_id}" data-name="${atlet.full_name}" data-tgl="${atlet.tanggal_lahir}" data-gender="${atlet.jenis_kelamin}">${atlet.full_name} (${atlet.f1_id})</option>`;
                     });
 
                     alert(`Berhasil menarik ${athletes.length} data atlet!`);
@@ -180,21 +184,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(dropdown) {
             dropdown.addEventListener('change', (e) => {
                 const selectedOption = e.target.options[e.target.selectedIndex];
-                
+                const inputManual = document.getElementById('inputCariAtlet');
+                const inputTgl = document.getElementById('inputTglLahir');
+                const inputGender = document.getElementById('inputGender');
+
                 if(selectedOption.value !== "") {
-                    // Tarik data dari attribute custom yang kita titipkan tadi
+                    // Tarik data yang dititipkan
+                    const nama = selectedOption.getAttribute('data-name');
+                    const f1Id = selectedOption.value;
                     const tglLahir = selectedOption.getAttribute('data-tgl');
                     const gender = selectedOption.getAttribute('data-gender');
 
-                    // Isi otomatis ke form di bawahnya
-                    const inputTgl = document.getElementById('inputTglLahir');
-                    const inputGender = document.getElementById('inputGender');
-
+                    // Auto-fill ke kolom manual
+                    inputManual.value = `${nama} (${f1Id})`;
                     inputTgl.value = tglLahir;
                     inputGender.value = gender;
 
+                    // Kunci kolom biar elegan dan nggak terhapus tak sengaja
+                    inputManual.readOnly = true;
+                    inputManual.classList.add('bg-slate-200', 'cursor-not-allowed');
+
                     // Pancing event 'change' biar satpam KU otomatis mendeteksi tahun lahir
                     inputTgl.dispatchEvent(new Event('change'));
+                } else {
+                    // Kalau milih "-- Pilih Atlet --" (kosong), reset dan buka lagi kuncinya
+                    inputManual.value = "";
+                    inputManual.readOnly = false;
+                    inputManual.classList.remove('bg-slate-200', 'cursor-not-allowed');
                 }
             });
         }

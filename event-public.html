@@ -99,8 +99,17 @@
                     <h3 class="text-sm font-extrabold text-amber-900">Verifikasi Akta Kelahiran</h3>
                     <span class="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded uppercase tracking-wider">Wajib Upload</span>
                 </div>
-                <p class="text-xs text-amber-800 leading-relaxed mb-4">Sistem mendeteksi data atlet belum diverifikasi. Mohon unggah foto/scan Akta asli.</p>
-                <input type="file" id="inputAkta" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 mb-4 cursor-pointer">
+                <p class="text-xs text-amber-800 leading-relaxed mb-4">
+                    Sistem mendeteksi data atlet belum diverifikasi. Untuk menjaga sportivitas, mohon unggah foto/scan Akta Kelahiran asli.
+                </p>
+                <input type="file" id="inputAkta" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 mb-4 cursor-pointer transition-colors outline-none">
+                
+                <!-- Disclaimer Privasi (Dikembalikan!) -->
+                <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-sm">
+                    <p class="text-[10px] text-slate-600 leading-relaxed font-medium">
+                        <span class="font-bold text-slate-800">Keamanan Data Pribadi SCS:</span> Dokumen ini dienkripsi di server pusat SCS. Panitia penyelenggara lokal <span class="font-bold underline decoration-amber-300">tidak memiliki akses</span> untuk mengunduh dokumen ini. Murni digunakan untuk validasi umur pendaftaran.
+                    </p>
+                </div>
             </div>
 
             <button id="btnKirimPendaftaran" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl shadow-lg transition-all mt-4 flex items-center justify-center gap-2 text-lg">

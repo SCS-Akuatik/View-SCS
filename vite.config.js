@@ -16,6 +16,13 @@ export default defineConfig({
         rank: resolve(__dirname, 'rank.html'),       
         promosi: resolve(__dirname, 'promosi.html'), 
         f1Profile: resolve(__dirname, 'f1-profile.html') // 👈 Masuk ke dalam sini ya!
+                // Halaman Publik (Subdomain)
+        eventPublic: resolve(__dirname, 'event-public.html'),
+        
+        // --- TAMBAHKAN HALAMAN LAIN DI SINI KALAU ADA ---
+        // liveResult: resolve(__dirname, 'live-result.html'),
+        // nomorStart: resolve(__dirname, 'nomor-start.html'),
+        // eventPeserta: resolve(__dirname, 'event-peserta.html
       }
     }
   }

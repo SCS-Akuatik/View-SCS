@@ -105,4 +105,97 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error(err);
         alert("Gagal memuat halaman pendaftaran.");
     }
+            // ==========================================
+        // FITUR LOGIN KLUB & DROPDOWN ATLET
+        // ==========================================
+        const btnToggleLogin = document.getElementById('btnToggleLogin');
+        const areaLogin = document.getElementById('areaLogin');
+        const btnProsesLogin = document.getElementById('btnProsesLogin');
+        
+        // 1. Munculin form login kalau ditekan
+        if(btnToggleLogin) {
+            btnToggleLogin.addEventListener('click', () => {
+                areaLogin.classList.toggle('hidden');
+            });
+        }
+
+        // 2. Proses Login ke Supabase
+        if(btnProsesLogin) {
+            btnProsesLogin.addEventListener('click', async () => {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                if(!email || !password) return alert("Email dan Password wajib diisi!");
+
+                btnProsesLogin.innerText = "Mengecek data...";
+                btnProsesLogin.disabled = true;
+
+                try {
+                    // A. Login Auth Supabase
+                    const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (authError) throw authError;
+
+                    // B. Tarik data atlet milik klub ini (Berdasarkan RLS owner_id)
+                    const { data: athletes, error: athError } = await supabaseClient
+                        .from('athletes')
+                        .select('*')
+                        .order('nama_lengkap', { ascending: true });
+
+                    if (athError) throw athError;
+
+                    // C. Ubah Tampilan UI
+                    areaLogin.classList.add('hidden'); // Sembunyikan form login
+                    document.getElementById('loginBar').innerHTML = `<span class="text-emerald-700 font-bold text-sm">✅ Login sukses! Silakan pilih atletmu di bawah.</span>`;
+                    
+                    // D. Sembunyikan Input Text, Munculkan Dropdown
+                    const inputManual = document.getElementById('inputCariAtlet');
+                    const dropdown = document.getElementById('dropdownAtlet');
+                    
+                    inputManual.classList.add('hidden');
+                    dropdown.classList.remove('hidden');
+
+                    // E. Isi Dropdown dengan daftar atlet
+                    athletes.forEach(atlet => {
+                        // Simpan data tgl lahir dan gender di dalam element option
+                        dropdown.innerHTML += `<option value="${atlet.f1_id}" data-tgl="${atlet.tanggal_lahir}" data-gender="${atlet.jenis_kelamin}">${atlet.nama_lengkap} (${atlet.f1_id})</option>`;
+                    });
+
+                    alert(`Berhasil menarik ${athletes.length} data atlet!`);
+
+                } catch (err) {
+                    alert("Gagal login: " + err.message);
+                } finally {
+                    btnProsesLogin.innerText = "Masuk & Tarik Data Atlet";
+                    btnProsesLogin.disabled = false;
+                }
+            });
+        }
+
+        // 3. Efek Auto-Fill ketika Dropdown dipilih!
+        const dropdown = document.getElementById('dropdownAtlet');
+        if(dropdown) {
+            dropdown.addEventListener('change', (e) => {
+                const selectedOption = e.target.options[e.target.selectedIndex];
+                
+                if(selectedOption.value !== "") {
+                    // Tarik data dari attribute custom yang kita titipkan tadi
+                    const tglLahir = selectedOption.getAttribute('data-tgl');
+                    const gender = selectedOption.getAttribute('data-gender');
+
+                    // Isi otomatis ke form di bawahnya
+                    const inputTgl = document.getElementById('inputTglLahir');
+                    const inputGender = document.getElementById('inputGender');
+
+                    inputTgl.value = tglLahir;
+                    inputGender.value = gender;
+
+                    // Pancing event 'change' biar satpam KU otomatis mendeteksi tahun lahir
+                    inputTgl.dispatchEvent(new Event('change'));
+                }
+            });
+        }
 });

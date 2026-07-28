@@ -32,12 +32,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('pageTitle').innerText = `${eventData.event_name} | Pendaftaran Resmi`;
         document.getElementById('publicEventName').innerText = eventData.event_name;
 
+        // Render Header Banner
         if (config.header_url) {
             document.getElementById('headerBannerContainer').style.backgroundImage = `url('${config.header_url}')`;
         }
+        
+        // Render Background (Tembak ke elemen overlay yang baru)
         if (config.bg_url) {
-            document.getElementById('pageBody').style.backgroundImage = `url('${config.bg_url}')`;
+            const bgOverlay = document.getElementById('bgOverlay');
+            bgOverlay.style.backgroundImage = `url('${config.bg_url}')`;
+            bgOverlay.classList.remove('hidden'); // Munculkan background
         }
+
 
         // 4. Render Info Biaya & Diskon
         const normalPrice = Number(config.biaya_normal || 0).toLocaleString('id-ID');

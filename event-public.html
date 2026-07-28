@@ -6,12 +6,25 @@
     <title id="pageTitle">Pendaftaran Lomba | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
 </head>
-<body id="pageBody" class="bg-slate-900 min-h-screen font-sans text-slate-100 pb-20 bg-cover bg-center bg-fixed" style="">
+<body id="pageBody" class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-20 relative">
 
-    <!-- Header Banner Dinamis -->
-    <div id="headerBannerContainer" class="w-full h-48 md:h-64 bg-slate-800 bg-cover bg-center shadow-md relative">
-        <div class="absolute inset-0 bg-black/40 flex items-end p-6">
-            <h1 id="publicEventName" class="text-2xl md:text-4xl font-black text-white tracking-tight drop-shadow-md">Memuat Event...</h1>
+    <!-- Background Pattern (Dipisah biar bisa transparan tanpa merusak form) -->
+    <div id="bgOverlay" class="fixed inset-0 z-[-1] bg-cover bg-center opacity-10 hidden"></div>
+
+    <!-- HEADER STICKY -->
+    <div id="headerBannerContainer" class="w-full bg-blue-900 bg-cover bg-center shadow-lg sticky top-0 z-50 h-32 md:h-40 transition-all border-b-4 border-yellow-400">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-slate-900/20 flex flex-col justify-end p-4 md:p-6">
+            <h1 id="publicEventName" class="text-xl md:text-3xl font-black text-white tracking-tight drop-shadow-md truncate">Memuat Event...</h1>
+            
+            <!-- Badge Statistik -->
+            <div class="flex gap-2 md:gap-3 mt-2">
+                <div class="flex items-center gap-1.5 text-slate-100 text-[10px] md:text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-sm">
+                    <span>👥</span> <span id="statPesertaPublik">0 Terdaftar</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-yellow-300 text-[10px] md:text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-sm">
+                    <span>🔥</span> <span id="statHeatPublik">0 Heat Est.</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -19,48 +32,59 @@
     <div class="max-w-2xl mx-auto px-4 mt-6">
         
         <!-- Kotak Informasi Biaya & Diskon -->
-        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 mb-6 shadow-xl text-sm">
-            <h3 class="font-bold text-yellow-400 mb-1">💰 Informasi Biaya Pendaftaran</h3>
-            <p id="infoBiayaNormal" class="text-slate-200">Biaya per nomor: Memuat...</p>
-            <p id="infoDiskon" class="text-slate-300 text-xs mt-1"></p>
+        <div class="bg-blue-900 border border-blue-800 rounded-2xl p-5 mb-6 shadow-lg text-sm relative overflow-hidden">
+            <div class="absolute -right-4 -top-4 text-6xl opacity-10">💰</div>
+            <h3 class="font-bold text-yellow-400 mb-1 relative z-10">Informasi Biaya Pendaftaran</h3>
+            <p id="infoBiayaNormal" class="text-blue-100 relative z-10">Biaya per nomor: Memuat...</p>
+            <p id="infoDiskon" class="text-blue-200 text-xs mt-1 font-bold relative z-10"></p>
         </div>
 
         <!-- Form Pendaftaran Atlet -->
-        <div class="bg-white text-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-100 space-y-5">
-            <h2 class="text-xl font-extrabold text-blue-900 border-b pb-3">Formulir Pendaftaran Atlet</h2>
+        <div class="bg-white/95 backdrop-blur-md text-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-200 space-y-5">
+            <h2 class="text-xl font-extrabold text-blue-900 border-b border-slate-100 pb-3">Formulir Pendaftaran Atlet</h2>
             
             <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1">F1 ID Atlet atau Nama Lengkap</label>
-                <input type="text" id="inputCariAtlet" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik F1 ID atau Nama Atlet...">
+                <input type="text" id="inputCariAtlet" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="Ketik F1 ID atau Nama Atlet...">
             </div>
 
-            <!-- Auto-Lock Kelompok Umur -->
             <div class="grid grid-cols-2 gap-4">
+                <!-- Tgl Lahir -->
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal Lahir</label>
-                    <input type="date" id="inputTglLahir" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600">
+                    <input type="date" id="inputTglLahir" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-600 font-bold">
                 </div>
+                <!-- KU Auto-Lock -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Kelompok Umur (Auto-Lock)</label>
-                    <input type="text" id="inputAutoKU" class="w-full px-4 py-3 bg-slate-200 border border-slate-300 rounded-xl text-sm font-bold text-slate-600 cursor-not-allowed" readonly placeholder="Otomatis terisi...">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Kelompok Umur (Auto)</label>
+                    <input type="text" id="inputAutoKU" class="w-full px-4 py-3 bg-slate-200 border border-slate-300 rounded-xl text-sm font-bold text-slate-500 cursor-not-allowed" readonly placeholder="Otomatis...">
+                </div>
+                <!-- Gender (Fix Halaman) -->
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Jenis Kelamin</label>
+                    <select id="inputGender" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm text-slate-700 font-bold focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Pilih Jenis Kelamin --</option>
+                        <option value="Putra">Putra</option>
+                        <option value="Putri">Putri</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- List Pilihan Nomor Lomba (Ditarik dari JSONB config_gaya) -->
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-2">Pilih Nomor Lomba</label>
+            <!-- List Pilihan Nomor Lomba -->
+            <div class="pt-2">
+                <label class="block text-xs font-bold text-slate-600 mb-3">Pilih Nomor Lomba</label>
                 <div id="containerNomorLomba" class="space-y-4">
                     <p class="text-xs text-slate-400 italic">Memuat nomor lomba...</p>
                 </div>
             </div>
 
-            <button id="btnKirimPendaftaran" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl shadow-lg transition-all mt-4">
+            <button id="btnKirimPendaftaran" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl shadow-lg transition-all mt-4 flex items-center justify-center gap-2 text-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Kirim Pendaftaran
             </button>
         </div>
     </div>
 
-    <!-- Script Intelijen Publik -->
     <script type="module" src="/src/event-public.js"></script>
 </body>
 </html>

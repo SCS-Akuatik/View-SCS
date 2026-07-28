@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!-- SATPAM SUBDOMAIN: Redirect otomatis kalau ini halaman lomba -->
+    <script>
+        (function() {
+            const host = window.location.hostname;
+            // Jika yang dibuka BUKAN domain utama, BUKAN www, dan BUKAN localhost
+            if (host !== 'funswimming.my.id' && host !== 'www.funswimming.my.id' && host !== 'localhost' && !host.includes('vercel.app')) {
+                // Tendang langsung ke halaman form pendaftaran
+                window.location.replace('/event-public.html');
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCS - Swimming Competition System</title>

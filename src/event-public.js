@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const { data: athletes, error: athError } = await supabaseClient
                         .from('athletes')
                         .select('*')
-                        .order('fulm_name', { ascending: true });
+                        .order('full_name', { ascending: true });
 
                     if (athError) throw athError;
 

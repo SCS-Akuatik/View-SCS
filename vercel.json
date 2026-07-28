@@ -2,3 +2,11 @@
   "cleanUrls": true,
   "trailingSlash": false
 }
+{
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/event-public.html"
+    }
+  ]
+}

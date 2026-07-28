@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Pendaftaran Lomba | SCS</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body id="pageBody" class="bg-slate-900 min-h-screen font-sans text-slate-100 pb-20 bg-cover bg-center bg-fixed" style="">
+
+    <!-- Header Banner Dinamis -->
+    <div id="headerBannerContainer" class="w-full h-48 md:h-64 bg-slate-800 bg-cover bg-center shadow-md relative">
+        <div class="absolute inset-0 bg-black/40 flex items-end p-6">
+            <h1 id="publicEventName" class="text-2xl md:text-4xl font-black text-white tracking-tight drop-shadow-md">Memuat Event...</h1>
+        </div>
+    </div>
+
+    <!-- Container Utama Form Pendaftaran -->
+    <div class="max-w-2xl mx-auto px-4 mt-6">
+        
+        <!-- Kotak Informasi Biaya & Diskon -->
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 mb-6 shadow-xl text-sm">
+            <h3 class="font-bold text-yellow-400 mb-1">💰 Informasi Biaya Pendaftaran</h3>
+            <p id="infoBiayaNormal" class="text-slate-200">Biaya per nomor: Memuat...</p>
+            <p id="infoDiskon" class="text-slate-300 text-xs mt-1"></p>
+        </div>
+
+        <!-- Form Pendaftaran Atlet -->
+        <div class="bg-white text-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-100 space-y-5">
+            <h2 class="text-xl font-extrabold text-blue-900 border-b pb-3">Formulir Pendaftaran Atlet</h2>
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">F1 ID Atlet atau Nama Lengkap</label>
+                <input type="text" id="inputCariAtlet" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik F1 ID atau Nama Atlet...">
+            </div>
+
+            <!-- Auto-Lock Kelompok Umur -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal Lahir</label>
+                    <input type="date" id="inputTglLahir" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Kelompok Umur (Auto-Lock)</label>
+                    <input type="text" id="inputAutoKU" class="w-full px-4 py-3 bg-slate-200 border border-slate-300 rounded-xl text-sm font-bold text-slate-600 cursor-not-allowed" readonly placeholder="Otomatis terisi...">
+                </div>
+            </div>
+
+            <!-- List Pilihan Nomor Lomba (Ditarik dari JSONB config_gaya) -->
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-2">Pilih Nomor Lomba</label>
+                <div id="containerNomorLomba" class="space-y-4">
+                    <p class="text-xs text-slate-400 italic">Memuat nomor lomba...</p>
+                </div>
+            </div>
+
+            <button id="btnKirimPendaftaran" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl shadow-lg transition-all mt-4">
+                Kirim Pendaftaran
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Intelijen Publik -->
+    <script type="module" src="/src/event-public.js"></script>
+</body>
+</html>

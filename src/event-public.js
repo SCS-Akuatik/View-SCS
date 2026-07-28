@@ -3,15 +3,12 @@ import { supabaseClient } from './supabase.js';
 let currentEvent = null; 
 let isKlubLoggedIn = false; 
 let loggedInClubData = null; 
-
-let dataTagihan = []; // Array keranjang lokal
-let selectedTagihanIds = new Set(); // ID yang dicentang buat dibayar
+let dataTagihan = []; 
+let selectedTagihanIds = new Set(); 
 
 document.addEventListener('DOMContentLoaded', async () => {
     const hostname = window.location.hostname;
     const subdomain = hostname.split('.')[0];
-    // const subdomain = 'preco1'; // Test lokal
-
     if (!subdomain || subdomain === 'funswimming' || subdomain === 'localhost') return; 
 
     try {
@@ -62,16 +59,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Muat Data Tagihan pas awal buka halaman
         loadTagihan();
 
     } catch (err) {
         alert(err.message);
     }
 
-    // ==========================================
-    // LOGIKA LOGIN
-    // ==========================================
+    // LOGIKA LOGIN VVIP
     document.getElementById('btnToggleLogin').addEventListener('click', () => document.getElementById('areaLogin').classList.toggle('hidden'));
 
     document.getElementById('btnProsesLogin').addEventListener('click', async () => {
@@ -96,8 +90,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data: athletes, error: athErr } = await supabaseClient.from('athletes').select('*').eq('club_id', clubData.id).order('full_name', { ascending: true });
             if (athErr) throw athErr;
 
+            // Transisi UI (Sembunyikan Area Guest yang berisi Klub Manual & WA)
             document.getElementById('areaLogin').classList.add('hidden'); 
-            document.getElementById('areaKlubManual').classList.add('hidden'); 
+            document.getElementById('areaGuestOnly').classList.add('hidden'); 
             
             const namaKlub = clubData.club_name || clubData.nama_klub || "Klub Terdaftar SCS";
             const avatarUrl = clubData.logo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(namaKlub)}&background=1e3a8a&color=fff`;
@@ -115,7 +110,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 dropdown.innerHTML += `<option value="${atlet.f1_id}" data-name="${atlet.full_name}" data-tgl="${tgl}" data-gender="${jk}" data-akta="${akta}">${atlet.full_name} (${atlet.f1_id})</option>`;
             });
 
-            // Setelah login sukses, muat ulang tagihan sesuai Klub ini
             loadTagihan();
 
         } catch (err) {
@@ -146,26 +140,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ==========================================
-    // LOGIKA PENDAFTARAN & KERANJANG LOKAL
+    // LOGIKA PENDAFTARAN (DENGAN RAJUTAN WA PIC)
     // ==========================================
     document.getElementById('btnKirimPendaftaran').addEventListener('click', async () => {
         const btn = document.getElementById('btnKirimPendaftaran');
         const inputKlubManual = document.getElementById('inputKlubManual').value.trim();
+        const inputWhatsapp = document.getElementById('inputWhatsapp').value.trim();
         const inputManualName = document.getElementById('inputCariAtlet').value.trim();
         const dropdownAtlet = document.getElementById('dropdownAtlet');
         
-        let f1_id = null; let nama_peserta = ""; let klub_asal = ""; let requiresAktaUpload = false;
+        let f1_id = null; let nama_peserta = ""; let klub_asal = ""; let nomor_wa_pic = null; let requiresAktaUpload = false;
+
+        // Validasi Anti-Robot Turnstile
+        const turnstileResp = document.querySelector('[name="cf-turnstile-response"]');
+        if (turnstileResp && !turnstileResp.value) {
+            return alert("Mohon selesaikan Captcha (centang kotak keamanan) terlebih dahulu!");
+        }
 
         if (isKlubLoggedIn) {
+            // JALUR VVIP
             if(dropdownAtlet.value === "") return alert("Pilih atlet terlebih dahulu!");
             f1_id = dropdownAtlet.value;
             nama_peserta = dropdownAtlet.options[dropdownAtlet.selectedIndex].getAttribute('data-name');
             klub_asal = loggedInClubData.club_name || loggedInClubData.nama_klub;
+            
+            // Tarik data WA otomatis dari Database Klub (Kalau kosong, kasih peringatan tapi tetep bisa lanjut)
+            nomor_wa_pic = loggedInClubData.contact_wa || "Belum Diatur di Profil Klub";
+            
             if (!document.getElementById('areaAkta').classList.contains('hidden')) requiresAktaUpload = true;
         } else {
+            // JALUR TAMU
             if(!inputKlubManual) return alert("Nama Klub/Sekolah wajib diisi!");
+            if(!inputWhatsapp) return alert("Nomor WhatsApp wajib diisi agar panitia bisa menghubungi Anda!");
             if(!inputManualName) return alert("Nama Atlet wajib diisi!");
-            klub_asal = inputKlubManual; nama_peserta = inputManualName; requiresAktaUpload = true;
+            klub_asal = inputKlubManual; 
+            nomor_wa_pic = inputWhatsapp; // WA dari ketikan tamu
+            nama_peserta = inputManualName; 
+            requiresAktaUpload = true;
         }
 
         const tanggal_lahir = document.getElementById('inputTglLahir').value;
@@ -205,23 +216,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 finalAktaUrl = dropdownAtlet.options[dropdownAtlet.selectedIndex].getAttribute('data-akta');
             }
 
-            // Insert dg status awal 'Belum Bayar' + minta ID kembalian
+            // Tembak Data Transaksi + nomor_wa_pic (Bisa punya klub, bisa punya tamu)
             const { data: insertedData, error: insertError } = await supabaseClient.from('event_registrations').insert([{
                 event_id: currentEvent.id, f1_id: f1_id, klub_asal: klub_asal, nama_peserta: nama_peserta,
                 tanggal_lahir: tanggal_lahir, gender: gender, kelompok_umur: kelompok_umur,
-                nomor_lomba: selectedNomor, akta_url: finalAktaUrl, total_biaya: totalBiaya, status_pembayaran: 'Belum Bayar'
+                nomor_lomba: selectedNomor, akta_url: finalAktaUrl, total_biaya: totalBiaya, 
+                status_pembayaran: 'Belum Bayar', whatsapp_tamu: nomor_wa_pic
             }]).select();
 
             if (insertError) throw insertError;
 
-            // KEAJAIBAN GUEST CHECKOUT: Simpan ID pendaftaran ke localStorage memori HP
+            // Reset Captcha
+            if (window.turnstile) turnstile.reset();
+
             if (!isKlubLoggedIn && insertedData && insertedData.length > 0) {
                 let guestIds = JSON.parse(localStorage.getItem(`scs_guest_${currentEvent.id}`) || '[]');
                 guestIds.push(insertedData[0].id);
                 localStorage.setItem(`scs_guest_${currentEvent.id}`, JSON.stringify(guestIds));
             }
 
-            // Bersihkan form & Muat Tagihan Instan (Tanpa Reload)
             resetFormAtlet();
             checkboxesNomor.forEach(cb => cb.checked = false);
             alert("✅ Berhasil dimasukkan ke Daftar Tagihan di bawah!");
@@ -230,7 +243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (err) {
             alert("Terjadi kesalahan sistem: " + err.message);
         } finally {
-            btn.innerHTML = "Masukan ke Daftar Tagihan"; btn.disabled = false;
+            btn.innerHTML = "Daftar, Bayar di Antrian"; btn.disabled = false;
         }
     });
 
@@ -240,20 +253,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('inputAutoKU').value = "";
         document.getElementById('inputGender').value = "";
         document.getElementById('inputAkta').value = "";
-        document.getElementById('areaAkta').classList.add('hidden'); // Sembunyiin lagi
+        document.getElementById('areaAkta').classList.add('hidden'); 
         if(isKlubLoggedIn) document.getElementById('dropdownAtlet').value = "";
         
         if(!isKlubLoggedIn) {
             document.getElementById('inputTglLahir').readOnly = false;
             document.getElementById('inputTglLahir').classList.remove('bg-slate-200', 'pointer-events-none');
             document.getElementById('inputGender').classList.remove('bg-slate-200', 'pointer-events-none');
-            document.getElementById('areaAkta').classList.remove('hidden'); // Munculin buat tamu berikutnya
+            document.getElementById('areaAkta').classList.remove('hidden'); 
         }
     }
 
-
     // ==========================================
-    // SISTEM KERANJANG LOKAL & PEMBAYARAN KOLEKTIF
+    // SISTEM KERANJANG & PEMBAYARAN KOLEKTIF
     // ==========================================
     async function loadTagihan() {
         if (!currentEvent) return;
@@ -283,7 +295,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const area = document.getElementById('areaPembayaran');
         const tbody = document.getElementById('tableTagihanBody');
         tbody.innerHTML = '';
-        selectedTagihanIds.clear(); // Reset centangan
+        selectedTagihanIds.clear(); 
         kalkulasiTotalBayar();
 
         if (dataTagihan.length === 0) {
@@ -307,7 +319,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             tbody.appendChild(tr);
         });
 
-        // Pasang event listener buat tiap checkbox
         document.querySelectorAll('.chk-tagihan').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 if(e.target.checked) selectedTagihanIds.add(e.target.value);
@@ -316,7 +327,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Master Checkbox (Pilih Semua)
         document.getElementById('checkAllTagihan').checked = false;
         document.getElementById('checkAllTagihan').addEventListener('change', (e) => {
             const isChecked = e.target.checked;
@@ -335,14 +345,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (selectedTagihanIds.has(item.id)) total += Number(item.total_biaya);
         });
         document.getElementById('teksTotalTagihan').innerText = `Rp ${total.toLocaleString('id-ID')}`;
-        
-        // Aktifkan tombol bayar kalau ada yg dicentang
         document.getElementById('btnKonfirmasiBayar').disabled = selectedTagihanIds.size === 0;
     }
 
-    // ==========================================
-    // SUBMIT PEMBAYARAN FINAL
-    // ==========================================
     document.getElementById('btnKonfirmasiBayar').addEventListener('click', async () => {
         const fileStruk = document.getElementById('inputBuktiTransfer').files[0];
         if (!fileStruk) return alert("Wajib mengunggah foto Bukti Transfer!");
@@ -351,7 +356,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.innerText = "Mengunggah Struk... ⏳"; btn.disabled = true;
 
         try {
-            // 1. Upload Struk ke Supabase Storage
             const fileExt = fileStruk.name.split('.').pop();
             const fileName = `struk_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const { error: uploadError } = await supabaseClient.storage.from('bukti-transfer').upload(fileName, fileStruk);
@@ -359,25 +363,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data: urlData } = supabaseClient.storage.from('bukti-transfer').getPublicUrl(fileName);
             const strukUrl = urlData.publicUrl;
 
-            // 2. Update status & URL struk di tabel event_registrations (Batch Update)
             const listIds = Array.from(selectedTagihanIds);
             const { error: updateError } = await supabaseClient.from('event_registrations')
-                .update({ 
-                    status_pembayaran: 'Menunggu Konfirmasi',
-                    bukti_transfer_url: strukUrl
-                })
+                .update({ status_pembayaran: 'Menunggu Konfirmasi', bukti_transfer_url: strukUrl })
                 .in('id', listIds);
 
             if (updateError) throw updateError;
 
             alert("✅ Pembayaran berhasil dikirim! Silakan tunggu konfirmasi panitia.");
             document.getElementById('inputBuktiTransfer').value = "";
-            loadTagihan(); // Tabel otomatis bersih dari yg udah dibayar
+            loadTagihan(); 
 
         } catch (err) {
             alert("Gagal mengirim pembayaran: " + err.message);
             btn.innerText = "Konfirmasi Pembayaran"; btn.disabled = false;
         }
     });
-
 });

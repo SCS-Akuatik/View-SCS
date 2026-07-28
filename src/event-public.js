@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const { data: athletes, error: athError } = await supabaseClient
                         .from('athletes')
                         .select('*')
-                        .order('nama_lengkap', { ascending: true });
+                        .order('fulm_name', { ascending: true });
 
                     if (athError) throw athError;
 
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // E. Isi Dropdown dengan daftar atlet
                     athletes.forEach(atlet => {
                         // Simpan data tgl lahir dan gender di dalam element option
-                        dropdown.innerHTML += `<option value="${atlet.f1_id}" data-tgl="${atlet.tanggal_lahir}" data-gender="${atlet.jenis_kelamin}">${atlet.nama_lengkap} (${atlet.f1_id})</option>`;
+                        dropdown.innerHTML += `<option value="${atlet.f1_id}" data-tgl="${atlet.tanggal_lahir}" data-gender="${atlet.jenis_kelamin}">${atlet.full_name} (${atlet.f1_id})</option>`;
                     });
 
                     alert(`Berhasil menarik ${athletes.length} data atlet!`);

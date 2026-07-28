@@ -73,18 +73,42 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Kolom Upload Gambar -->
-                <div class="space-y-5">
+                <div class="space-y-6">
+                    <!-- Header Banner -->
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">Upload Header Banner</label>
-                        <input type="file" id="inputHeader" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 mb-2 cursor-pointer transition-colors">
-                        <img id="previewHeader" src="" class="hidden w-full h-24 object-cover rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-end mb-1">
+                            <label class="block text-sm font-bold text-slate-700">Upload Header Banner</label>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mb-2">Rekomendasi: 1200 x 400 px (Rasio 3:1). Maks 2MB.</p>
+                        
+                        <input type="file" id="inputHeader" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 mb-3 cursor-pointer transition-colors">
+                        
+                        <!-- Preview Box (Rasio Banner 3:1) -->
+                        <div class="w-full aspect-[3/1] bg-slate-100 rounded-xl border border-dashed border-slate-300 overflow-hidden relative flex items-center justify-center">
+                            <span class="text-xs text-slate-400 font-medium absolute z-0">Area Preview Header</span>
+                            <img id="previewHeader" src="" class="hidden w-full h-full object-cover relative z-10 shadow-sm">
+                        </div>
                     </div>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Background Pattern -->
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">Background Pattern (Transparan)</label>
-                        <input type="file" id="inputBg" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 mb-2 cursor-pointer transition-colors">
-                        <img id="previewBg" src="" class="hidden w-full h-24 object-cover rounded-xl border border-slate-200 shadow-sm bg-slate-800">
+                        <div class="flex justify-between items-end mb-1">
+                            <label class="block text-sm font-bold text-slate-700">Background Pattern</label>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mb-2">Opsional. Gunakan gambar *seamless* transparan.</p>
+                        
+                        <input type="file" id="inputBg" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 mb-3 cursor-pointer transition-colors">
+                        
+                        <!-- Preview Box (Rasio 16:9 disimulasikan sebagai Background) -->
+                        <div class="w-full aspect-video bg-slate-800 rounded-xl border border-slate-200 overflow-hidden relative flex items-center justify-center">
+                            <span class="text-xs text-slate-500 font-medium absolute z-0">Preview Background</span>
+                            <img id="previewBg" src="" class="hidden w-full h-full object-cover relative z-10 shadow-sm opacity-50">
+                        </div>
                     </div>
                 </div>
+
 
                 <!-- Kolom Pricing & Toggles -->
                 <div class="space-y-5">

@@ -47,6 +47,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('infoDiskon').innerText = `🔥 Diskon spesial: Ambil minimal ${config.min_diskon} nomor, harga per nomor jadi Rp ${diskonPrice}!`;
         }
 
+        // =========================================================
+        // MANGGIL INFO PEMBAYARAN & QRIS KE KERANJANG BAWAH
+        // =========================================================
+        if (config.info_pembayaran || config.qris_url) {
+            document.getElementById('boxInfoPembayaran').classList.remove('hidden');
+            
+            if (config.info_pembayaran) {
+                document.getElementById('teksInfoPembayaran').innerText = config.info_pembayaran;
+                document.getElementById('teksInfoPembayaran').classList.remove('hidden');
+            } else {
+                document.getElementById('teksInfoPembayaran').classList.add('hidden');
+            }
+
+            if (config.qris_url) {
+                document.getElementById('boxQris').classList.remove('hidden');
+                document.getElementById('boxQris').classList.add('flex'); // Pakai flex biar posisinya ke tengah
+                document.getElementById('imgQris').src = config.qris_url;
+            }
+        }
+        // =========================================================
+
         const kuList = eventData.config_ku || [];
         document.getElementById('inputTglLahir').addEventListener('change', (e) => {
             const tahunLahir = new Date(e.target.value).getFullYear();

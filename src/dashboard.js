@@ -7,16 +7,19 @@ let allAthletes = [];
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentClubId = null; // Menyimpan ID Klub yang sedang login
+let currentClubData = null; // Menyimpan data utuh klub untuk auto-fill
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Tombol Keluar
+    // Tombol Keluar (Desktop & Mobile)
+    const logoutAction = async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = '/auth.html';
+    };
+    
     const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            await supabaseClient.auth.signOut();
-            window.location.href = '/auth.html';
-        });
-    }
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', logoutAction);
+    if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', logoutAction);
 
     // Logic Klik Tombol Pagination (Geser Kanan Kiri)
     const btnPrev = document.getElementById('btnPrevPage');
@@ -40,6 +43,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
+
+    // Logic Mobile Hamburger Menu
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    const closeMobileMenu = document.getElementById('closeMobileMenu');
+
+    function toggleMobileMenu() {
+        if (!mobileMenuPanel) return;
+        const isClosed = mobileMenuPanel.classList.contains('translate-x-full');
+        if (isClosed) {
+            mobileMenuPanel.classList.remove('translate-x-full');
+            mobileMenuOverlay.classList.remove('hidden');
+        } else {
+            mobileMenuPanel.classList.add('translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+        }
+    }
+    
+    if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+    if (closeMobileMenu) closeMobileMenu.addEventListener('click', toggleMobileMenu);
+    if (mobileMenuOverlay) mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
 
     // Jalankan fungsi tarik data utama!
     fetchDashboardData();
@@ -73,29 +98,35 @@ async function fetchDashboardData() {
         }
 
         currentClubId = clubData.id; // SET GLOBAL VARIABEL
+        currentClubData = clubData; // SIMPAN DATA KLUB UNTUK MODAL EDIT
 
-        // --- C. RENDER PROFIL KLUB DI ATAS ---
+        // --- C. RENDER PROFIL KLUB (DESKTOP & MOBILE) ---
+        const displayName = clubData.short_name || clubData.club_name;
+        
         const clubNameEl = document.getElementById('clubNameDisplay');
-        if (clubNameEl) clubNameEl.innerText = clubData.club_name;
+        const mobileClubNameEl = document.getElementById('mobileClubNameDisplay');
+        if (clubNameEl) clubNameEl.innerText = displayName;
+        if (mobileClubNameEl) mobileClubNameEl.innerText = displayName;
 
         const badgesContainer = document.getElementById('clubBadges');
+        const mobileBadgesContainer = document.getElementById('mobileClubBadges');
         let badgesHTML = '';
         if (clubData.is_verified) badgesHTML += `<span class="bg-green-100 text-green-700 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase border border-green-200">Verified</span>`;
         if (clubData.tier && clubData.tier !== 'Basic') badgesHTML += `<span class="bg-scsGold text-blue-900 text-[9px] font-extrabold px-2 py-0.5 rounded-sm tracking-wider uppercase">${clubData.tier} Tier</span>`;
+        
         if (badgesContainer) badgesContainer.innerHTML = badgesHTML;
+        if (mobileBadgesContainer) mobileBadgesContainer.innerHTML = badgesHTML;
 
         const logoEl = document.getElementById('clubLogoDisplay');
-        const tooltipEl = document.getElementById('logoTooltip');
-        if (logoEl && tooltipEl) {
-            if (clubData.logo_url) {
-                logoEl.src = clubData.logo_url;
-                tooltipEl.innerText = "Ganti Logo Klub";
-            } else {
-                const encodedName = encodeURIComponent(clubData.short_name || clubData.club_name);
-                logoEl.src = `https://ui-avatars.com/api/?name=${encodedName}&background=1e3a8a&color=fff&bold=true`;
-                tooltipEl.innerHTML = `Upload emblem/logo club <div class="absolute -top-2 right-4 w-4 h-4 bg-gray-900 transform rotate-45"></div>`;
-            }
-        }
+        const mobileLogoEl = document.getElementById('mobileClubLogoDisplay');
+        const editLogoPreview = document.getElementById('editLogoPreview'); // Preview di Modal Edit Profil
+        
+        const fallbackLogo = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=1e3a8a&color=fff&bold=true`;
+        const finalLogo = clubData.logo_url || fallbackLogo;
+
+        if (logoEl) logoEl.src = finalLogo;
+        if (mobileLogoEl) mobileLogoEl.src = finalLogo;
+        if (editLogoPreview) editLogoPreview.src = finalLogo;
 
         // --- D. TARIK DATA EVENT MILIK KLUB INI ---
         const { data: eventsData, error: eventsErr } = await supabaseClient
@@ -169,7 +200,7 @@ async function fetchDashboardData() {
 }
 
 // ==========================================
-// 3. FUNGSI RENDER TABEL & PAGINATION
+// 2. FUNGSI RENDER TABEL & PAGINATION
 // ==========================================
 function renderAthleteTable() {
     const tbody = document.getElementById('athleteTableBody');
@@ -240,6 +271,180 @@ function renderAthleteTable() {
 }
 
 // ==========================================
+// 3. LOGIC MODAL PENGATURAN KLUB & AKUN (BARU)
+// ==========================================
+const btnEditProfilKlub = document.getElementById('btnEditProfilKlub');
+const mobileBtnEditProfil = document.getElementById('mobileBtnEditProfil');
+const modalEditProfile = document.getElementById('modalEditProfile');
+const closeModalProfileBtn = document.getElementById('closeModalProfileBtn');
+
+const tabProfilKlubBtn = document.getElementById('tabProfilKlubBtn');
+const tabAkunBtn = document.getElementById('tabAkunBtn');
+const formProfilKlub = document.getElementById('formProfilKlub');
+const formAkun = document.getElementById('formAkun');
+
+function openProfileModal() {
+    if (!currentClubData) return;
+    
+    // Auto-fill form data Klub
+    document.getElementById('editClubName').value = currentClubData.club_name || '';
+    document.getElementById('editShortName').value = currentClubData.short_name || '';
+    document.getElementById('editCoachName').value = currentClubData.coach_name || '';
+    document.getElementById('editContactWa').value = currentClubData.contact_wa || '';
+    
+    // Auto-fill form Akun (Email)
+    supabaseClient.auth.getUser().then(({data}) => {
+        if(data.user) document.getElementById('editAuthEmail').value = data.user.email;
+    });
+
+    // Reset UI state
+    document.getElementById('statusProfilMsg').classList.add('hidden');
+    document.getElementById('statusAkunMsg').classList.add('hidden');
+    
+    // Tutup mobile menu jika sedang terbuka
+    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    if(mobileMenuOverlay && !mobileMenuOverlay.classList.contains('hidden')) {
+        document.getElementById('mobileMenuToggle').click(); 
+    }
+
+    modalEditProfile.classList.remove('hidden');
+    setTimeout(() => modalEditProfile.firstElementChild.classList.remove('scale-95'), 10);
+}
+
+if (btnEditProfilKlub) btnEditProfilKlub.addEventListener('click', openProfileModal);
+if (mobileBtnEditProfil) mobileBtnEditProfil.addEventListener('click', openProfileModal);
+
+if (closeModalProfileBtn) {
+    closeModalProfileBtn.addEventListener('click', () => {
+        modalEditProfile.firstElementChild.classList.add('scale-95');
+        setTimeout(() => modalEditProfile.classList.add('hidden'), 200);
+    });
+}
+
+// Logic Ganti Tab (Profil vs Akun)
+if (tabProfilKlubBtn && tabAkunBtn) {
+    tabProfilKlubBtn.addEventListener('click', () => {
+        tabProfilKlubBtn.className = "flex-1 py-3 text-sm font-bold text-blue-900 border-b-2 border-blue-900 bg-white";
+        tabAkunBtn.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent bg-gray-50 hover:bg-gray-100 transition-colors";
+        formProfilKlub.classList.remove('hidden');
+        formAkun.classList.add('hidden');
+    });
+    tabAkunBtn.addEventListener('click', () => {
+        tabAkunBtn.className = "flex-1 py-3 text-sm font-bold text-blue-900 border-b-2 border-blue-900 bg-white";
+        tabProfilKlubBtn.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent bg-gray-50 hover:bg-gray-100 transition-colors";
+        formAkun.classList.remove('hidden');
+        formProfilKlub.classList.add('hidden');
+    });
+}
+
+// SIMPAN PROFIL KLUB
+const btnSaveProfileInfo = document.getElementById('btnSaveProfileInfo');
+if (btnSaveProfileInfo) {
+    btnSaveProfileInfo.addEventListener('click', async () => {
+        const cName = document.getElementById('editClubName').value.trim();
+        const cShort = document.getElementById('editShortName').value.trim().toUpperCase();
+        const cCoach = document.getElementById('editCoachName').value.trim();
+        const cWa = document.getElementById('editContactWa').value.trim();
+        const fileLogo = document.getElementById('inputEditLogo').files[0];
+        const statusMsg = document.getElementById('statusProfilMsg');
+
+        if (!cName) {
+            statusMsg.innerText = "Nama Klub wajib diisi!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-4";
+            return;
+        }
+
+        btnSaveProfileInfo.innerText = "Menyimpan...";
+        btnSaveProfileInfo.disabled = true;
+
+        try {
+            let newLogoUrl = currentClubData.logo_url;
+
+            // Jika user memilih file logo baru
+            if (fileLogo) {
+                const fileExt = fileLogo.name.split('.').pop();
+                const fileName = `logo_${currentClubId}_${Date.now()}.${fileExt}`;
+                const { error: uploadError } = await supabaseClient.storage.from('logo-klub').upload(fileName, fileLogo);
+                if (uploadError) throw uploadError;
+                
+                const { data: urlData } = supabaseClient.storage.from('logo-klub').getPublicUrl(fileName);
+                newLogoUrl = urlData.publicUrl;
+            }
+
+            // Update Database
+            const { error: updateError } = await supabaseClient
+                .from('clubs')
+                .update({
+                    club_name: cName,
+                    short_name: cShort,
+                    coach_name: cCoach,
+                    contact_wa: cWa,
+                    logo_url: newLogoUrl
+                })
+                .eq('id', currentClubId);
+
+            if (updateError) throw updateError;
+
+            statusMsg.innerText = "✅ Profil klub berhasil diperbarui!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block mt-4";
+            
+            setTimeout(() => {
+                fetchDashboardData(); 
+                closeModalProfileBtn.click();
+                btnSaveProfileInfo.innerText = "Simpan Profil Klub";
+                btnSaveProfileInfo.disabled = false;
+            }, 1500);
+
+        } catch (err) {
+            statusMsg.innerText = "Gagal menyimpan: " + err.message;
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-4";
+            btnSaveProfileInfo.innerText = "Simpan Profil Klub";
+            btnSaveProfileInfo.disabled = false;
+        }
+    });
+}
+
+// SIMPAN KEAMANAN AKUN (EMAIL & PASSWORD)
+const btnSaveAuthInfo = document.getElementById('btnSaveAuthInfo');
+if (btnSaveAuthInfo) {
+    btnSaveAuthInfo.addEventListener('click', async () => {
+        const newEmail = document.getElementById('editAuthEmail').value.trim();
+        const newPass = document.getElementById('editAuthPassword').value.trim();
+        const statusMsg = document.getElementById('statusAkunMsg');
+
+        if (!newEmail && !newPass) return;
+
+        btnSaveAuthInfo.innerText = "Memproses...";
+        btnSaveAuthInfo.disabled = true;
+
+        try {
+            let updates = {};
+            if (newEmail) updates.email = newEmail;
+            if (newPass) updates.password = newPass;
+
+            const { data, error } = await supabaseClient.auth.updateUser(updates);
+            if (error) throw error;
+
+            statusMsg.innerHTML = "✅ <strong>Berhasil!</strong><br><span class='font-normal text-xs'>Jika Anda mengubah email, silakan cek inbox email lama dan email baru Anda untuk konfirmasi.</span>";
+            statusMsg.className = "text-sm text-center rounded-lg p-3 bg-green-100 text-green-700 block mt-4";
+            document.getElementById('editAuthPassword').value = '';
+
+            setTimeout(() => {
+                btnSaveAuthInfo.innerText = "Terapkan Perubahan Akun";
+                btnSaveAuthInfo.disabled = false;
+            }, 3000);
+
+        } catch (err) {
+            statusMsg.innerText = "Gagal mengubah: " + err.message;
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-4";
+            btnSaveAuthInfo.innerText = "Terapkan Perubahan Akun";
+            btnSaveAuthInfo.disabled = false;
+        }
+    });
+}
+
+
+// ==========================================
 // 4. LOGIC MODAL (TAMBAH, VERIFIKASI, EVENT)
 // ==========================================
 
@@ -301,7 +506,7 @@ if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
     }
 }
 
-// 1. Simpan Manual
+// 1. Simpan Manual (Dengan Handling Error 23505)
 if (btnSaveAthlete) {
     btnSaveAthlete.addEventListener('click', async () => {
         const inputNama = document.getElementById('inputNama').value.trim();
@@ -338,10 +543,16 @@ if (btnSaveAthlete) {
                     full_name: inputNama,
                     dob: inputDOB,
                     gender: inputGender,
-                    club_id: currentClubId // SEKARANG MENGGUNAKAN ID KLUB AKTIF
+                    club_id: currentClubId // MENGGUNAKAN ID KLUB AKTIF
                 }]);
 
-            if (error) throw error;
+            // MENANGKAP ERROR DUPLIKAT (CONSTRAINT UNIQUE postgres)
+            if (error) {
+                if (error.code === '23505') {
+                    throw new Error("Gagal! Atlet dengan Nama dan Tanggal Lahir tersebut sudah terdaftar di database.");
+                }
+                throw error;
+            }
 
             statusMsg.innerText = `Berhasil! F1 ID: ${generatedF1Id}`;
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block";
@@ -359,7 +570,7 @@ if (btnSaveAthlete) {
 
         } catch (err) {
             console.error(err);
-            statusMsg.innerText = "Gagal menyimpan data: " + err.message;
+            statusMsg.innerText = err.message;
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
             btnSaveAthlete.innerText = "Simpan & Generate F1 ID";
             btnSaveAthlete.disabled = false;
@@ -440,7 +651,13 @@ if (btnProsesExcel) {
                     .from('athletes')
                     .insert(athletesToInsert);
 
-                if (error) throw error;
+                if (error) {
+                    // Cek jika saat import excel ada duplikat nama & tgl lahir
+                    if (error.code === '23505') {
+                        throw new Error("Gagal! Terdapat atlet duplikat di dalam file Excel Anda.");
+                    }
+                    throw error;
+                }
 
                 statusMsg.innerText = `BOOM! Berhasil import ${athletesToInsert.length} atlet baru!`;
                 statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block mt-3";
@@ -627,73 +844,5 @@ if (btnSaveEvent) {
             btnSaveEvent.innerText = "Buat Event Sekarang";
             btnSaveEvent.disabled = false;
         }
-    });
-}
-// ==========================================
-// 5. LOGIC UPLOAD LOGO KLUB (AKAL-AKALAN DEVELOPER)
-// ==========================================
-const logoUploadContainer = document.getElementById('logoUploadContainer');
-const inputLogoKlub = document.getElementById('inputLogoKlub');
-const logoTooltip = document.getElementById('logoTooltip');
-
-if (logoUploadContainer && inputLogoKlub) {
-    // 1. Saat foto/avatar diklik, buka file picker
-    logoUploadContainer.addEventListener('click', () => {
-        if (!currentClubId) {
-            alert("Sistem belum selesai memuat ID Klub. Silakan tunggu sebentar.");
-            return;
-        }
-        inputLogoKlub.click();
-    });
-
-    // 2. Saat user selesai milih file gambar
-    inputLogoKlub.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // Ganti teks tooltip biar ada indikator loading
-        const originalTooltip = logoTooltip.innerHTML;
-        logoTooltip.innerHTML = "Mengunggah... ⏳";
-        
-        try {
-            // A. Upload ke Storage Supabase
-            const fileExt = file.name.split('.').pop();
-            const fileName = `logo_${currentClubId}_${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`; // Simpan langsung di root bucket logo-klub
-
-            const { error: uploadError } = await supabaseClient.storage
-                .from('logo-klub')
-                .upload(filePath, file);
-
-            if (uploadError) throw uploadError;
-
-            // B. Dapatkan URL Public-nya
-            const { data: urlData } = supabaseClient.storage
-                .from('logo-klub')
-                .getPublicUrl(filePath);
-
-            // C. Update kolom logo_url di tabel clubs
-            const { error: updateError } = await supabaseClient
-                .from('clubs')
-                .update({ logo_url: urlData.publicUrl })
-                .eq('id', currentClubId);
-
-            if (updateError) throw updateError;
-
-            // D. Sukses! Refresh tampilan biar logo baru langsung nongol
-            logoTooltip.innerHTML = "Berhasil! ✅";
-            setTimeout(() => {
-                fetchDashboardData(); 
-                logoTooltip.innerHTML = originalTooltip;
-            }, 1000);
-
-        } catch (error) {
-            console.error(error);
-            alert("Gagal mengunggah logo: " + error.message);
-            logoTooltip.innerHTML = originalTooltip;
-        }
-        
-        // Reset input file biar bisa upload foto yang sama lagi kalau mau
-        inputLogoKlub.value = '';
     });
 }

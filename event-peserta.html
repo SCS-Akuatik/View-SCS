@@ -12,7 +12,8 @@
     <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <a href="/" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <!-- Tombol Back ini akan diupdate via JS agar kembali ke dashboard event yang tepat -->
+                <a id="btnBack" href="/dashboard.html" class="text-slate-400 hover:text-slate-600 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </a>
                 <div>
@@ -100,6 +101,7 @@
         </div>
     </div>
 
-    <script type="module" src="/src/data-peserta.js"></script>
+    <!-- Panggil nama JS yang baru -->
+    <script type="module" src="/src/event-peserta.js"></script>
 </body>
 </html>

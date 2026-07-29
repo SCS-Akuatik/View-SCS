@@ -1,5 +1,6 @@
 import { supabaseClient } from './supabase.js';
 
+let currentEventId = null;
 let currentEvent = null;
 let allRegistrations = [];
 
@@ -7,24 +8,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. Cek User Session (Keamanan Dasar: Pastikan yang buka ini sudah login)
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if (!sessionData.session) {
-        alert("Akses ditolak. Anda harus login sebagai Panitia/Klub.");
+        alert("Akses ditolak. Anda harus login sebagai Panitia.");
         window.location.href = '/auth'; 
         return;
     }
 
-    // 2. Deteksi Event ID dari URL (Misal dari subdomain)
-    const hostname = window.location.hostname;
-    const subdomain = hostname.split('.')[0];
-    
-    // const subdomain = 'preco1'; // Buka komen ini untuk testing lokal
+    // 2. Deteksi Event ID dari URL (Bukan dari Subdomain!)
+    const urlParams = new URLSearchParams(window.location.search);
+    currentEventId = urlParams.get('id');
 
-    if (!subdomain || subdomain === 'localhost') return;
+    if (!currentEventId) {
+        alert("ID Event tidak ditemukan di URL! Kembali ke Dashboard.");
+        window.location.href = '/dashboard.html';
+        return;
+    }
+
+    // Ubah link tombol Back supaya mengarah ke dashboard event yang benar
+    document.getElementById('btnBack').href = `/event-dashboard.html?id=${currentEventId}`;
 
     try {
-        // Ambil Data Event
-        const { data: eventData, error: eventErr } = await supabaseClient.from('events').select('*').eq('subdomain', subdomain).single();
+        // Ambil Data Event berdasarkan ID
+        const { data: eventData, error: eventErr } = await supabaseClient
+            .from('events')
+            .select('*')
+            .eq('id', currentEventId)
+            .single();
+
         if (eventErr || !eventData) throw new Error("Event tidak ditemukan.");
         currentEvent = eventData;
+        
+        // Render Nama Event di Header
         document.getElementById('adminEventName').innerText = eventData.event_name;
 
         // Tarik Data Pendaftaran
@@ -39,12 +52,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('inputSearch').addEventListener('input', renderTable);
     document.getElementById('filterStatus').addEventListener('change', renderTable);
     
-    // Event Listener Modal
+    // Event Listener Tutup Modal
     document.getElementById('btnCloseModal').addEventListener('click', () => {
         document.getElementById('imageModal').classList.add('hidden');
     });
 });
 
+// FUNGSI TARIK DATA REGISTRASI
 async function fetchData() {
     document.getElementById('loadingState').classList.remove('hidden');
     document.getElementById('tableDataBody').innerHTML = '';
@@ -52,7 +66,7 @@ async function fetchData() {
     const { data, error } = await supabaseClient
         .from('event_registrations')
         .select('*')
-        .eq('event_id', currentEvent.id)
+        .eq('event_id', currentEventId)
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -68,6 +82,7 @@ async function fetchData() {
     renderTable();
 }
 
+// FUNGSI UPDATE STATISTIK KOTAK ATAS
 function updateStats() {
     const total = allRegistrations.length;
     const menunggu = allRegistrations.filter(r => r.status_pembayaran === 'Menunggu Konfirmasi').length;
@@ -83,6 +98,7 @@ function updateStats() {
     document.getElementById('statPendapatan').innerText = `Rp ${pendapatan.toLocaleString('id-ID')}`;
 }
 
+// FUNGSI RENDER TABEL
 function renderTable() {
     const tbody = document.getElementById('tableDataBody');
     tbody.innerHTML = '';
@@ -101,7 +117,7 @@ function renderTable() {
         return;
     }
 
-    filteredData.forEach((item, index) => {
+    filteredData.forEach((item) => {
         // Format Tanggal
         const dateObj = new Date(item.created_at);
         const dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -121,7 +137,6 @@ function renderTable() {
         let waLink = "#";
         let waButtonClass = "opacity-50 cursor-not-allowed grayscale";
         if (item.whatsapp_tamu) {
-            // Bersihkan nomor (hilangkan spasi, ganti 0 di depan jadi 62)
             let waClean = item.whatsapp_tamu.replace(/\D/g, '');
             if(waClean.startsWith('0')) waClean = '62' + waClean.substring(1);
             
@@ -193,7 +208,7 @@ window.verifikasiLunas = async function(id) {
         if (error) throw error;
         
         alert("✅ Status berhasil diubah menjadi Lunas!");
-        fetchData(); // Refresh tabel
+        fetchData(); // Refresh tabel setelah update
 
     } catch (err) {
         alert("Gagal update status: " + err.message);

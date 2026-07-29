@@ -43,9 +43,14 @@
                 <div class="h-4 w-px bg-slate-600"></div>
                 <h1 class="text-sm font-black tracking-widest text-emerald-400">FINA HEAT GENERATOR <span id="infoLintasan" class="text-white ml-2 bg-slate-700 px-2 py-0.5 rounded text-[10px]">8 Lintasan</span></h1>
             </div>
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-5 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
-                🖨️ Cetak PDF
-            </button>
+            <div class="flex items-center gap-2">
+                <button id="btnSimpanBuku" onclick="simpanKeDatabase()" class="bg-emerald-600 hover:bg-emerald-700 px-5 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
+                    💾 Simpan & Kunci Start List
+                </button>
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-5 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
+                    🖨️ Cetak PDF
+                </button>
+            </div>
         </div>
     </div>
 

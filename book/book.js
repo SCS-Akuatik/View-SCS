@@ -285,3 +285,101 @@ function renderKertasA4() {
         });
     });
 }
+// ==========================================
+// SIMPAN KE DATABASE (Tabel: event_heats)
+// ==========================================
+window.simpanKeDatabase = async function() {
+    if (orderOfEvents.length === 0) {
+        return alert("Belum ada acara yang ditambahkan ke Buku Acara!");
+    }
+
+    const btnSimpan = document.getElementById('btnSimpanBuku');
+    btnSimpan.innerText = "Menyimpan... ⏳";
+    btnSimpan.disabled = true;
+
+    try {
+        // 1. Hapus data heat lama untuk Event ini (biar gak dobel kalau di-save ulang)
+        await supabaseClient.from('event_heats').delete().eq('event_id', currentEventId);
+
+        let dataToInsert = [];
+        let spearheadPattern = generateSpearheadPattern(LINTASAN_MAX);
+
+        // 2. Reka ulang logika FINA Seeding untuk dijadikan array JSON
+        orderOfEvents.forEach((ev, index) => {
+            let eventNumber = index + 1;
+            
+            let swimmers = allFlattenedData.filter(s => 
+                s.nomor_lomba === ev.nomor && 
+                s.ku === ev.ku && 
+                s.gender === ev.gender
+            );
+            swimmers.sort((a, b) => a.nama.localeCompare(b.nama));
+
+            if (swimmers.length === 0) return; // Skip kalau kosong
+
+            let heatDistribution = calculateFinaHeats(swimmers.length, LINTASAN_MAX);
+            let swimmerIndex = 0;
+
+            heatDistribution.forEach((jumlahOrang, heatIdx) => {
+                let heatNumber = heatIdx + 1;
+                let lanesDataArray = [];
+
+                // Mapping perenang ke lintasan
+                let assignedLanes = {};
+                for (let k = 0; k < jumlahOrang; k++) {
+                    let targetLane = spearheadPattern[k];
+                    if (swimmers[swimmerIndex]) {
+                        assignedLanes[targetLane] = swimmers[swimmerIndex];
+                    }
+                    swimmerIndex++;
+                }
+
+                // Buat struktur JSON untuk 1 Heat (meliputi semua lintasan dari 1 sampai MAX)
+                for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
+                    if (assignedLanes[lintasan]) {
+                        const atlet = assignedLanes[lintasan];
+                        lanesDataArray.push({
+                            lane: lintasan,
+                            f1_id: atlet.f1_id,          // <--- Kita simpan F1 ID buat update personal best nanti!
+                            id_pendaftaran: atlet.id_pendaftaran,
+                            nama: atlet.nama,
+                            klub: atlet.klub,
+                            seed_time: atlet.seed_time
+                        });
+                    } else {
+                        lanesDataArray.push({
+                            lane: lintasan,
+                            nama: null // Tandanya lintasan ini kosong
+                        });
+                    }
+                }
+
+                // Siapkan baris data untuk ditembak ke Supabase
+                dataToInsert.push({
+                    event_id: currentEventId,
+                    sesi: ev.sesi,
+                    event_number: eventNumber,
+                    nomor_lomba: ev.nomor,
+                    kelompok_umur: ev.ku,
+                    gender: ev.gender,
+                    heat_number: heatNumber,
+                    total_heats: heatDistribution.length,
+                    lanes_data: lanesDataArray
+                });
+            });
+        });
+
+        // 3. Tembak masal (Bulk Insert) ke Supabase
+        const { error: insertErr } = await supabaseClient.from('event_heats').insert(dataToInsert);
+        if (insertErr) throw insertErr;
+
+        alert("✅ Start List berhasil dikunci dan disimpan ke Database! Entry Time siap digunakan.");
+
+    } catch (err) {
+        console.error("Gagal simpan:", err);
+        alert("Gagal menyimpan ke database: " + err.message);
+    } finally {
+        btnSimpan.innerText = "💾 Simpan & Kunci Start List";
+        btnSimpan.disabled = false;
+    }
+}

@@ -221,3 +221,22 @@ window.verifikasiLunas = async function(id) {
         alert("Gagal update status: " + err.message);
     }
 }
+// ==========================================
+// FUNGSI MODAL BUKU ACARA (HEAT SHEET)
+// ==========================================
+window.bukaModalBukuAcara = function() {
+    document.getElementById('modalBukuAcara').classList.remove('hidden');
+    document.getElementById('modalBukuAcara').classList.add('flex');
+}
+
+window.tutupModalBukuAcara = function() {
+    document.getElementById('modalBukuAcara').classList.add('hidden');
+    document.getElementById('modalBukuAcara').classList.remove('flex');
+}
+
+window.generateBukuAcara = function() {
+    const lintasan = document.getElementById('inputLintasan').value;
+    
+    // Redirect ke halaman Book dengan membawa ID event & Jumlah Lintasan
+    window.location.href = `/book/book.html?id=${currentEventId}&lanes=${lintasan}`;
+}

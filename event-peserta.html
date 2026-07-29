@@ -24,6 +24,9 @@
                 </div>
             </div>
             <div class="flex gap-2">
+              <button onclick="bukaModalBukuAcara()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
+                    📕 Generate Buku Acara
+                </button>
                 <button onclick="window.location.reload()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2">
                     🔄 Refresh
                 </button>
@@ -97,6 +100,38 @@
             </div>
             <div class="p-3 text-center">
                 <a id="btnDownloadImage" href="" target="_blank" class="text-xs font-bold text-blue-600 hover:underline">Buka di Tab Baru</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODAL PENGATURAN BUKU ACARA -->
+    <div id="modalBukuAcara" class="fixed inset-0 bg-slate-900/60 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6">
+            <h3 class="font-black text-slate-800 text-lg mb-1">Seting Buku Acara</h3>
+            <p class="text-xs text-slate-500 mb-5">Atur format pembagian lintasan (Heat) sebelum mencetak Start List.</p>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Lintasan Kolam</label>
+                    <select id="inputLintasan" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
+                        <option value="6">6 Lintasan</option>
+                        <option value="8" selected>8 Lintasan (Standar Nasional)</option>
+                        <option value="10">10 Lintasan (Olimpik)</option>
+                    </select>
+                </div>
+                <!-- Tempat nambahin seting lain nanti (Seed Time dll) -->
+                <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                    <p class="text-[10px] text-indigo-700 font-medium leading-relaxed">
+                        <span class="font-bold">Info:</span> Sistem otomatis melakukan pembagian Heat berdasarkan KU & Gender. Pastikan semua pembayaran lunas sebelum dicetak.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="tutupModalBukuAcara()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl text-sm transition-colors">Batal</button>
+                <button onclick="generateBukuAcara()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2">
+                    Buat Buku 🚀
+                </button>
             </div>
         </div>
     </div>

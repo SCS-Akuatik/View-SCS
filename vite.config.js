@@ -18,6 +18,8 @@ export default defineConfig({
         f1Profile: resolve(__dirname, 'f1-profile.html'), 
         eventPublic: resolve(__dirname, 'event-public.html'),
         eventPeserta: resolve(__dirname, 'event-peserta.html')
+        // MODULE BUKU ACARA & HEAT
+        eventBook: resolve(__dirname, 'book/book.html')
       }
     }
   }

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Peserta | SCS Command Center</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800">
+
+    <!-- HEADER ADMIN -->
+    <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="/" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </a>
+                <div>
+                    <h1 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                        🏆 Admin Data Peserta
+                    </h1>
+                    <p id="adminEventName" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Memuat Event...</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="window.location.reload()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2">
+                    🔄 Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Peserta</p>
+            <p id="statTotal" class="text-3xl font-black text-slate-700">0</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Menunggu Konfirmasi</p>
+            <p id="statMenunggu" class="text-3xl font-black text-amber-500">0</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sudah Lunas</p>
+            <p id="statLunas" class="text-3xl font-black text-emerald-500">0</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Estimasi Pendapatan</p>
+            <p id="statPendapatan" class="text-xl md:text-2xl font-black text-blue-600 mt-1">Rp 0</p>
+        </div>
+    </div>
+
+    <!-- MAIN TABLE CONTAINER -->
+    <div class="max-w-7xl mx-auto px-4 md:px-8 mt-8 mb-20">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-slate-50/50">
+                <input type="text" id="inputSearch" placeholder="Cari Nama Atlet atau Klub..." class="w-full sm:w-1/3 px-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="filterStatus" class="w-full sm:w-1/4 px-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-600">
+                    <option value="ALL">Semua Status</option>
+                    <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
+                    <option value="Lunas">Lunas</option>
+                    <option value="Belum Bayar">Belum Bayar (Keranjang)</option>
+                </select>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-white text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-100">
+                            <th class="p-4 font-bold">ID / WAKTU</th>
+                            <th class="p-4 font-bold">PESERTA & KLUB</th>
+                            <th class="p-4 font-bold">DATA & LOMBA</th>
+                            <th class="p-4 font-bold text-center">DOKUMEN</th>
+                            <th class="p-4 font-bold">STATUS & BIAYA</th>
+                            <th class="p-4 font-bold text-right">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableDataBody" class="text-sm divide-y divide-slate-100">
+                        <!-- Data disuntik via JS -->
+                    </tbody>
+                </table>
+                <div id="loadingState" class="p-10 text-center text-slate-400 font-bold text-sm">
+                    Memuat data peserta... ⏳
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL IMAGE VIEWER (Untuk Zoom Akta / Struk) -->
+    <div id="imageModal" class="fixed inset-0 z-50 bg-slate-900/90 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white p-2 rounded-2xl max-w-3xl w-full relative">
+            <button id="btnCloseModal" class="absolute -top-12 right-0 text-white hover:text-red-400 text-3xl font-black transition-colors">&times;</button>
+            <p id="modalTitle" class="text-center font-bold text-slate-700 py-3 border-b border-slate-100">Preview Dokumen</p>
+            <div class="p-2 overflow-auto max-h-[70vh] flex justify-center bg-slate-100 rounded-xl mt-2">
+                <img id="modalImage" src="" alt="Preview Dokumen" class="max-w-full h-auto object-contain rounded-lg">
+            </div>
+            <div class="p-3 text-center">
+                <a id="btnDownloadImage" href="" target="_blank" class="text-xs font-bold text-blue-600 hover:underline">Buka di Tab Baru</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/data-peserta.js"></script>
+</body>
+</html>

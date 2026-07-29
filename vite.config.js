@@ -23,7 +23,7 @@ export default defineConfig({
         // --- TAMBAHKAN HALAMAN LAIN DI SINI KALAU ADA ---
         // liveResult: resolve(__dirname, 'live-result.html'),
         // nomorStart: resolve(__dirname, 'nomor-start.html'),
-        // eventPeserta: resolve(__dirname, 'event-peserta.html')
+        eventPeserta: resolve(__dirname, 'data-peserta.html')
       }
     }
   }

@@ -17,7 +17,8 @@ export default defineConfig({
         promosi: resolve(__dirname, 'promosi.html'), 
         f1Profile: resolve(__dirname, 'f1-profile.html'), 
         eventPublic: resolve(__dirname, 'event-public.html'),
-        eventPeserta: resolve(__dirname, 'event-peserta.html')
+        eventPeserta: resolve(__dirname, 'event-peserta.html'), // <--- Ini yang tadi kurang koma
+        
         // MODULE BUKU ACARA & HEAT
         eventBook: resolve(__dirname, 'book/book.html')
       }

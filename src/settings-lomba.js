@@ -5,14 +5,15 @@ let dataGaya = [];
 let dataEstafet = []; 
 let currentEventId = null;
 
-// State untuk Form Desain & Pricing
+// State untuk Form Desain, Pricing & Pembayaran
 let configForm = {
     header_url: '',
     bg_url: '',
     biaya_normal: '',
     min_diskon: '',
     biaya_diskon: '',
-    info_pembayaran: '' // MENAMPUNG TEKS REKENING
+    info_pembayaran: '',
+    qris_url: '' // Menampung URL Barcode QRIS
 };
 
 async function loadDataLomba() {
@@ -38,13 +39,15 @@ async function loadDataLomba() {
         dataGaya = data?.config_gaya || [];
         dataEstafet = data?.config_estafet || [];
         
+        // Parsing data JSONB Config
         const eventConfig = data?.config || {};
         configForm.header_url = eventConfig.header_url || '';
         configForm.bg_url = eventConfig.bg_url || '';
         configForm.biaya_normal = eventConfig.biaya_normal || '';
         configForm.min_diskon = eventConfig.min_diskon || '';
         configForm.biaya_diskon = eventConfig.biaya_diskon || '';
-        configForm.info_pembayaran = eventConfig.info_pembayaran || ''; // Tarik teks rekening lama
+        configForm.info_pembayaran = eventConfig.info_pembayaran || ''; 
+        configForm.qris_url = eventConfig.qris_url || ''; // Tarik URL QRIS dari DB
 
         // Default Data jika kosong
         if (dataKU.length === 0) dataKU = [{ id: 1, nama: 'KU A', tahunMulai: 2011, tahunAkhir: 2012, aktif: true }];
@@ -63,15 +66,16 @@ async function loadDataLomba() {
 }
 
 function renderFormConfig() {
+    // Render text inputs
     document.getElementById('inputBiayaNormal').value = configForm.biaya_normal;
     document.getElementById('inputMinDiskon').value = configForm.min_diskon;
     document.getElementById('inputBiayaDiskon').value = configForm.biaya_diskon;
     
-    // Render teks rekening ke textarea
     if (document.getElementById('inputInfoPembayaran')) {
         document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
     }
 
+    // Render images
     if (configForm.header_url) {
         const imgH = document.getElementById('previewHeader');
         imgH.src = configForm.header_url;
@@ -82,6 +86,13 @@ function renderFormConfig() {
         imgB.src = configForm.bg_url;
         imgB.classList.remove('hidden');
     }
+    if (configForm.qris_url) {
+        const imgQ = document.getElementById('previewQris');
+        if (imgQ) {
+            imgQ.src = configForm.qris_url;
+            imgQ.classList.remove('hidden');
+        }
+    }
 }
 
 async function handleImageUpload(event, keyName, previewId) {
@@ -90,6 +101,7 @@ async function handleImageUpload(event, keyName, previewId) {
 
     const preview = document.getElementById(previewId);
     preview.classList.remove('hidden');
+    // Placeholder loading
     preview.src = 'https://media.tenor.com/On7kvXhzmV4AAAAj/loading-gif.gif'; 
 
     try {
@@ -118,8 +130,13 @@ async function handleImageUpload(event, keyName, previewId) {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDataLomba();
+    
+    // Listener Upload Gambar
     document.getElementById('inputHeader').addEventListener('change', (e) => handleImageUpload(e, 'header_url', 'previewHeader'));
     document.getElementById('inputBg').addEventListener('change', (e) => handleImageUpload(e, 'bg_url', 'previewBg'));
+    if (document.getElementById('inputQris')) {
+        document.getElementById('inputQris').addEventListener('change', (e) => handleImageUpload(e, 'qris_url', 'previewQris'));
+    }
 });
 
 
@@ -345,6 +362,7 @@ window.simpanKeDatabase = async function() {
     if (document.getElementById('inputInfoPembayaran')) {
         configForm.info_pembayaran = document.getElementById('inputInfoPembayaran').value;
     }
+    // configForm.qris_url sudah tersimpan otomatis via handleImageUpload!
 
     try {
         const { data: oldData } = await supabaseClient.from('events').select('config').eq('id', currentEventId).single();

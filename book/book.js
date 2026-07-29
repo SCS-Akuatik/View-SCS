@@ -2,13 +2,14 @@ import { supabaseClient } from '../src/supabase.js';
 
 let LINTASAN_MAX = 8; 
 let currentEventId = null;
-let allFlattenedData = []; // Menyimpan semua pecahan data atlet
-let orderOfEvents = []; // Menyimpan susunan acara yang dibuat panitia
+let allFlattenedData = []; 
+let orderOfEvents = []; 
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     currentEventId = urlParams.get('id');
     
+    // MENERIMA BERAPAPUN JUMLAH LINTASAN DARI INPUTAN PANITIA
     const lanesParam = urlParams.get('lanes');
     if (lanesParam) {
         LINTASAN_MAX = parseInt(lanesParam);
@@ -33,7 +34,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (error) throw error;
 
-        // Proses Flattening di awal untuk populate Dropdown
         prepareData(peserta || []);
 
     } catch (err) {
@@ -65,7 +65,6 @@ function prepareData(rawRegistrations) {
         });
     });
 
-    // Populate Dropdown Builder
     const selectNomor = document.getElementById('buildNomor');
     const selectKU = document.getElementById('buildKU');
     
@@ -79,7 +78,7 @@ function prepareData(rawRegistrations) {
 }
 
 // ==========================================
-// LOGIKA BUILDER (Menambahkan Event ke Kertas)
+// LOGIKA BUILDER (Menambahkan Event)
 // ==========================================
 window.tambahkanEventLomba = function() {
     const sesi = document.getElementById('buildSesi').value;
@@ -88,7 +87,7 @@ window.tambahkanEventLomba = function() {
     const gender = document.getElementById('buildGender').value;
 
     orderOfEvents.push({
-        id: Date.now(), // Unique ID untuk delete
+        id: Date.now(), 
         sesi: sesi,
         nomor: nomor,
         ku: ku,
@@ -128,34 +127,54 @@ function renderSidebarList() {
     });
 }
 
-
 // ==========================================
 // ALGORITMA DEWA: FINA SEEDING (Distribusi Kekosongan)
 // ==========================================
 function calculateFinaHeats(totalPeserta, jumlahLintasan) {
     if (totalPeserta === 0) return [];
     
-    // 1. Cari Total Heat (Dibulatkan ke atas)
     let totalHeats = Math.ceil(totalPeserta / jumlahLintasan);
-    
-    // 2. Isi Full semua Heat di awal (contoh: [5, 5, 5, 5])
     let heats = Array(totalHeats).fill(jumlahLintasan);
-    
-    // 3. Cari Kekosongan (Shortfall)
     let shortfall = (totalHeats * jumlahLintasan) - totalPeserta;
     
-    // 4. Distribusi Kekosongan secara adil ke Heat 1 & Heat 2
     let limitBagi = Math.min(totalHeats, 2); 
     let i = 0;
     while (shortfall > 0) {
-        heats[i % limitBagi]--; // Kurangi bergantian: Heat 1, Heat 2, Heat 1...
+        heats[i % limitBagi]--; 
         shortfall--;
         i++;
     }
     
-    return heats; // Return format array jumlah orang per heat (contoh: [3, 3, 5, 5])
+    return heats; 
 }
 
+// ==========================================
+// ALGORITMA SPEARHEADING (Pengisian dari Tengah)
+// ==========================================
+function generateSpearheadPattern(lanes) {
+    let pattern = [];
+    let start = Math.floor((lanes + 1) / 2); // Cari titik tengah
+    let toggle = true;
+    let l = start;
+    let r = start + 1;
+    
+    pattern.push(start);
+    for(let i = 1; i < lanes; i++) {
+        if(toggle && r <= lanes) {
+            pattern.push(r);
+            r++;
+        } else if (!toggle && l - 1 >= 1) {
+            l--;
+            pattern.push(l);
+        } else {
+             if(r <= lanes) { pattern.push(r); r++; }
+             else { l--; pattern.push(l); }
+        }
+        toggle = !toggle;
+    }
+    // Hasil pola misal untuk 5 lintasan: [3, 4, 2, 5, 1]
+    return pattern;
+}
 
 // ==========================================
 // RENDER DATA KE KERTAS A4
@@ -172,7 +191,9 @@ function renderKertasA4() {
         return;
     }
 
-    // Kelompokkan Event berdasarkan Sesi agar ada Judul Pemisah (Pagi/Siang) di Kertas
+    // Pola posisi lintasan (Spearheading)
+    let spearheadPattern = generateSpearheadPattern(LINTASAN_MAX);
+
     let groupedBySesi = {};
     orderOfEvents.forEach((ev, index) => {
         if (!groupedBySesi[ev.sesi]) groupedBySesi[ev.sesi] = [];
@@ -180,21 +201,18 @@ function renderKertasA4() {
     });
 
     Object.keys(groupedBySesi).forEach(namaSesi => {
-        // Cetak Banner Sesi
         container.innerHTML += `
         <div class="bg-slate-800 text-white p-2 text-center font-black uppercase tracking-widest text-sm mb-4 mt-8 print:mt-4 rounded-md print:rounded-none">
             --- ${namaSesi} ---
         </div>`;
 
         groupedBySesi[namaSesi].forEach(ev => {
-            // Filter perenang sesuai kriteria Builder
             let swimmers = allFlattenedData.filter(s => 
                 s.nomor_lomba === ev.nomor && 
                 s.ku === ev.ku && 
                 s.gender === ev.gender
             );
 
-            // Sort by Nama (Nanti bisa diganti by Seed Time)
             swimmers.sort((a, b) => a.nama.localeCompare(b.nama));
 
             if (swimmers.length === 0) {
@@ -202,9 +220,7 @@ function renderKertasA4() {
                 return;
             }
 
-            // PANGGIL ALGORITMA FINA
             let heatDistribution = calculateFinaHeats(swimmers.length, LINTASAN_MAX);
-            
             let heatHtml = '';
             let swimmerIndex = 0;
 
@@ -213,12 +229,20 @@ function renderKertasA4() {
                 let totalHeats = heatDistribution.length;
                 let tbodyHtml = '';
 
-                // Loop LINTASAN (1 sampai Max)
+                // Mapping perenang ke lintasan tengah (Spearheading)
+                let assignedLanes = {};
+                for (let k = 0; k < jumlahOrangDalamHeat; k++) {
+                    let targetLane = spearheadPattern[k];
+                    if (swimmers[swimmerIndex]) {
+                        assignedLanes[targetLane] = swimmers[swimmerIndex];
+                    }
+                    swimmerIndex++;
+                }
+
+                // Loop Cetak Baris Tabel Berdasarkan Urutan Lintasan Asli (1,2,3,4..)
                 for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
-                    // Cek apakah lintasan ini harus diisi orang atau dibiarkan kosong?
-                    // (Logika berurutan biasa dari lintasan 1)
-                    if (lintasan <= jumlahOrangDalamHeat && swimmerIndex < swimmers.length) {
-                        const swimmer = swimmers[swimmerIndex];
+                    if (assignedLanes[lintasan]) {
+                        const swimmer = assignedLanes[lintasan];
                         tbodyHtml += `
                         <tr class="border-b border-slate-200 text-xs text-slate-800">
                             <td class="py-1 px-2 text-center font-bold">${lintasan}</td>
@@ -226,9 +250,7 @@ function renderKertasA4() {
                             <td class="py-1 px-2 font-medium text-slate-600">${swimmer.klub}</td>
                             <td class="py-1 px-2 text-center font-mono text-slate-500">${swimmer.seed_time}</td>
                         </tr>`;
-                        swimmerIndex++;
                     } else {
-                        // Kosong
                         tbodyHtml += `
                         <tr class="border-b border-slate-200 text-xs text-slate-300">
                             <td class="py-1 px-2 text-center">${lintasan}</td>
@@ -239,7 +261,6 @@ function renderKertasA4() {
                     }
                 }
 
-                // Render Box per Heat
                 heatHtml += `
                 <div class="break-inside-avoid mb-4">
                     <div class="flex justify-between items-end border-b-2 border-slate-700 pb-1 mb-1 mt-3">

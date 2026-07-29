@@ -2,16 +2,17 @@ import { supabaseClient } from './supabase.js';
 
 let dataKU = [];
 let dataGaya = [];
-let dataEstafet = []; // Array Master Data Baru untuk Estafet
+let dataEstafet = []; 
 let currentEventId = null;
 
-// State untuk Form Desain
+// State untuk Form Desain & Pricing
 let configForm = {
     header_url: '',
     bg_url: '',
     biaya_normal: '',
     min_diskon: '',
-    biaya_diskon: ''
+    biaya_diskon: '',
+    info_pembayaran: '' // MENAMPUNG TEKS REKENING
 };
 
 async function loadDataLomba() {
@@ -25,7 +26,6 @@ async function loadDataLomba() {
     }
 
     try {
-        // Tambahkan config_estafet ke query select
         const { data, error } = await supabaseClient
             .from('events')
             .select('config_ku, config_gaya, config_estafet, config')
@@ -44,11 +44,11 @@ async function loadDataLomba() {
         configForm.biaya_normal = eventConfig.biaya_normal || '';
         configForm.min_diskon = eventConfig.min_diskon || '';
         configForm.biaya_diskon = eventConfig.biaya_diskon || '';
+        configForm.info_pembayaran = eventConfig.info_pembayaran || ''; // Tarik teks rekening lama
 
         // Default Data jika kosong
         if (dataKU.length === 0) dataKU = [{ id: 1, nama: 'KU A', tahunMulai: 2011, tahunAkhir: 2012, aktif: true }];
         if (dataGaya.length === 0) dataGaya = [{ id: 1, nama: 'Gaya Bebas', jarak: [{ id: 101, nama: '50m', aktif: true }] }];
-        // Default Estafet
         if (dataEstafet.length === 0) dataEstafet = [{ id: 1, nama: 'Estafet Gaya Bebas', list: [{ id: 101, jarak: '4x50m', jenis: 'Mix', aktif: true }] }];
 
         window.renderKU();
@@ -66,6 +66,11 @@ function renderFormConfig() {
     document.getElementById('inputBiayaNormal').value = configForm.biaya_normal;
     document.getElementById('inputMinDiskon').value = configForm.min_diskon;
     document.getElementById('inputBiayaDiskon').value = configForm.biaya_diskon;
+    
+    // Render teks rekening ke textarea
+    if (document.getElementById('inputInfoPembayaran')) {
+        document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
+    }
 
     if (configForm.header_url) {
         const imgH = document.getElementById('previewHeader');
@@ -181,7 +186,7 @@ window.renderGaya = function() {
 }
 
 // ==========================================
-// RENDER ESTAFET (BARU)
+// RENDER ESTAFET 
 // ==========================================
 window.renderEstafet = function() {
     const container = document.getElementById('estafetContainer');
@@ -191,7 +196,6 @@ window.renderEstafet = function() {
         let listHTML = '';
         estafet.list.forEach(item => {
             const checked = item.aktif ? 'checked' : '';
-            // Label Badge (Putra = Biru, Putri = Pink, Mix = Ungu)
             let badgeColor = 'bg-gray-100 text-gray-600';
             if(item.jenis === 'Putra') badgeColor = 'bg-blue-100 text-blue-700';
             if(item.jenis === 'Putri') badgeColor = 'bg-pink-100 text-pink-700';
@@ -281,7 +285,7 @@ window.saveJarak = () => {
 window.deleteJarak = (gayaId, jarakId) => { if(confirm('Hapus jarak ini?')) { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); dataGaya[gayaIndex].jarak = dataGaya[gayaIndex].jarak.filter(j => j.id !== jarakId); window.renderGaya(); } }
 window.toggleJarak = (gayaId, jarakId) => { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId); dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif; }
 
-// Modal Estafet (Kategori & Detail)
+// Modal Estafet
 window.openModalEstafet = () => { document.getElementById('estafetId').value = ''; document.getElementById('estafetNama').value = ''; window.openModal('modalEstafet'); }
 window.saveEstafet = () => {
     const nama = document.getElementById('estafetNama').value;
@@ -333,12 +337,19 @@ window.simpanKeDatabase = async function() {
     btnSave.innerHTML = "Menyimpan...";
     btnSave.disabled = true;
 
+    // Tarik nilai dari inputan form desain & pricing
     configForm.biaya_normal = document.getElementById('inputBiayaNormal').value;
     configForm.min_diskon = document.getElementById('inputMinDiskon').value;
     configForm.biaya_diskon = document.getElementById('inputBiayaDiskon').value;
+    
+    if (document.getElementById('inputInfoPembayaran')) {
+        configForm.info_pembayaran = document.getElementById('inputInfoPembayaran').value;
+    }
 
     try {
         const { data: oldData } = await supabaseClient.from('events').select('config').eq('id', currentEventId).single();
+        
+        // Gabungkan config lama dengan configForm baru
         const mergedConfig = { ...(oldData.config || {}), ...configForm };
 
         const { error } = await supabaseClient
@@ -346,13 +357,14 @@ window.simpanKeDatabase = async function() {
             .update({ 
                 config_ku: dataKU, 
                 config_gaya: dataGaya,
-                config_estafet: dataEstafet, // Simpan state Estafet ke kolom baru
+                config_estafet: dataEstafet, 
                 config: mergedConfig
             })
             .eq('id', currentEventId);
 
         if (error) throw error;
-        alert("Konfigurasi Lomba & Estafet berhasil disimpan!");
+        
+        alert("Konfigurasi Lomba & Informasi Pendaftaran berhasil disimpan!");
         window.location.href = `/event-dashboard.html?id=${currentEventId}`;
 
     } catch (err) {

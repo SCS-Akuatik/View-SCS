@@ -1,16 +1,18 @@
 import { supabaseClient } from '../src/supabase.js';
 
-let LINTASAN_MAX = 8; // Default, akan ditimpa oleh URL parameter
+let LINTASAN_MAX = 8; 
 let currentEventId = null;
+let allFlattenedData = []; // Menyimpan semua pecahan data atlet
+let orderOfEvents = []; // Menyimpan susunan acara yang dibuat panitia
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Ambil ID Event & Jumlah Lintasan dari URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     currentEventId = urlParams.get('id');
     
     const lanesParam = urlParams.get('lanes');
     if (lanesParam) {
         LINTASAN_MAX = parseInt(lanesParam);
+        document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
     }
 
     if (!currentEventId) {
@@ -19,171 +21,246 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // 1. Ambil Nama Event
         const { data: eventData } = await supabaseClient.from('events').select('event_name').eq('id', currentEventId).single();
         if (eventData) document.getElementById('eventName').innerText = eventData.event_name;
 
-        // 2. Ambil SEMUA data peserta yang SUDAH LUNAS (Filter aktif!)
+        // Tarik data atlet Lunas
         const { data: peserta, error } = await supabaseClient
             .from('event_registrations')
             .select('*')
             .eq('event_id', currentEventId)
-            .eq('status_pembayaran', 'Lunas'); // Memastikan hanya yang Lunas yang masuk Heat
+            .eq('status_pembayaran', 'Lunas');
 
         if (error) throw error;
 
-        // 3. JALANKAN ALGORITMA HEAT
-        const heatData = generateHeatSheet(peserta || []);
-        
-        // 4. RENDER KE HTML
-        renderHeatSheet(heatData);
+        // Proses Flattening di awal untuk populate Dropdown
+        prepareData(peserta || []);
 
     } catch (err) {
-        console.error("Gagal generate Heat:", err);
-        document.getElementById('heatContainer').innerHTML = `<p class="text-red-500 font-bold text-center">Gagal memproses data: ${err.message}</p>`;
+        console.error(err);
+        alert("Gagal memuat data: " + err.message);
     }
 });
 
-// ==========================================
-// ALGORITMA CORE: GENERATE HEAT
-// ==========================================
-function generateHeatSheet(rawRegistrations) {
-    let flattenedData = [];
+function prepareData(rawRegistrations) {
+    let uniqueNomor = new Set();
+    let uniqueKU = new Set();
 
-    // TAHAP 1: FLATTENING (Mecah 1 anak yang ikut 3 nomor, jadi 3 data terpisah)
     rawRegistrations.forEach(atlet => {
         if (!Array.isArray(atlet.nomor_lomba)) return;
         
         atlet.nomor_lomba.forEach(nomor => {
-            flattenedData.push({
+            uniqueNomor.add(nomor);
+            uniqueKU.add(atlet.kelompok_umur);
+            
+            allFlattenedData.push({
                 id_pendaftaran: atlet.id,
                 nama: atlet.nama_peserta,
                 klub: atlet.klub_asal,
                 gender: atlet.gender,
                 ku: atlet.kelompok_umur,
                 nomor_lomba: nomor,
-                seed_time: 'NT' // No Time (Belum ada waktu catatan)
+                seed_time: 'NT' 
             });
         });
     });
 
-    // TAHAP 2: GROUPING (Kelompokkan berdasarkan: Nomor Lomba -> Gender -> KU)
-    let grouped = {};
-
-    flattenedData.forEach(item => {
-        // Bikin kunci unik, misal: "Kicking Bebas 25m_Putra_KU Pemula"
-        const key = `${item.nomor_lomba}_${item.gender}_${item.ku}`;
-        
-        if (!grouped[key]) {
-            grouped[key] = {
-                title: `${item.nomor_lomba} - ${item.gender} - ${item.ku}`,
-                swimmers: []
-            };
-        }
-        grouped[key].swimmers.push(item);
+    // Populate Dropdown Builder
+    const selectNomor = document.getElementById('buildNomor');
+    const selectKU = document.getElementById('buildKU');
+    
+    Array.from(uniqueNomor).sort().forEach(n => {
+        selectNomor.innerHTML += `<option value="${n}">${n}</option>`;
     });
-
-    // TAHAP 3: SEEDING / PEMBAGIAN HEAT
-    let finalHeats = [];
-    let absoluteEventNumber = 1; // Event 1, Event 2, dst...
-
-    // Urutkan Keys biar jadwal acaranya berurutan rapi
-    const sortedKeys = Object.keys(grouped).sort();
-
-    sortedKeys.forEach(key => {
-        const group = grouped[key];
-        let swimmers = group.swimmers;
-
-        // Sementara sort berdasarkan nama (Nanti di-upgrade pakai Seed Time)
-        swimmers.sort((a, b) => a.nama.localeCompare(b.nama));
-
-        // Pecah array per LINTASAN_MAX (sesuai pilihan panitia)
-        let totalHeats = Math.ceil(swimmers.length / LINTASAN_MAX);
-        
-        let heatCounter = 1;
-        for (let i = 0; i < swimmers.length; i += LINTASAN_MAX) {
-            const chunk = swimmers.slice(i, i + LINTASAN_MAX);
-            
-            finalHeats.push({
-                eventNumber: absoluteEventNumber,
-                eventName: group.title,
-                heatNumber: heatCounter,
-                totalHeats: totalHeats,
-                lanes: chunk
-            });
-            heatCounter++;
-        }
-        absoluteEventNumber++;
+    
+    Array.from(uniqueKU).sort().forEach(ku => {
+        selectKU.innerHTML += `<option value="${ku}">${ku}</option>`;
     });
-
-    return finalHeats;
 }
 
 // ==========================================
-// RENDER KE LAYAR PDF A4
+// LOGIKA BUILDER (Menambahkan Event ke Kertas)
 // ==========================================
-function renderHeatSheet(heatData) {
-    const container = document.getElementById('heatContainer');
-    container.innerHTML = '';
+window.tambahkanEventLomba = function() {
+    const sesi = document.getElementById('buildSesi').value;
+    const nomor = document.getElementById('buildNomor').value;
+    const ku = document.getElementById('buildKU').value;
+    const gender = document.getElementById('buildGender').value;
 
-    if (heatData.length === 0) {
-        container.innerHTML = `<p class="text-center font-bold text-slate-500">Belum ada data peserta untuk diurutkan.</p>`;
+    orderOfEvents.push({
+        id: Date.now(), // Unique ID untuk delete
+        sesi: sesi,
+        nomor: nomor,
+        ku: ku,
+        gender: gender
+    });
+
+    renderSidebarList();
+    renderKertasA4();
+}
+
+window.hapusEventLomba = function(id) {
+    orderOfEvents = orderOfEvents.filter(ev => ev.id !== id);
+    renderSidebarList();
+    renderKertasA4();
+}
+
+function renderSidebarList() {
+    const listContainer = document.getElementById('listOrderEvents');
+    listContainer.innerHTML = '';
+
+    if(orderOfEvents.length === 0) {
+        listContainer.innerHTML = `<li class="text-xs text-slate-400 text-center italic mt-10">Belum ada acara ditambahkan.</li>`;
         return;
     }
 
-    heatData.forEach(heat => {
-        let tbodyHtml = '';
-        
-        // Loop lintasan 1 sampai max
-        for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
-            // Index array dimulai dari 0
-            const swimmer = heat.lanes[lintasan - 1]; 
-            
-            if (swimmer) {
-                tbodyHtml += `
-                <tr class="border-b border-slate-200 text-xs text-slate-800">
-                    <td class="py-1.5 px-2 text-center font-bold">${lintasan}</td>
-                    <td class="py-1.5 px-2 font-bold">${swimmer.nama.toUpperCase()}</td>
-                    <td class="py-1.5 px-2 font-medium text-slate-600">${swimmer.klub}</td>
-                    <td class="py-1.5 px-2 text-center font-mono text-slate-500">${swimmer.seed_time}</td>
-                </tr>`;
-            } else {
-                // Lintasan Kosong
-                tbodyHtml += `
-                <tr class="border-b border-slate-200 text-xs text-slate-300">
-                    <td class="py-1.5 px-2 text-center">${lintasan}</td>
-                    <td class="py-1.5 px-2 italic">--- Kosong ---</td>
-                    <td class="py-1.5 px-2"></td>
-                    <td class="py-1.5 px-2"></td>
-                </tr>`;
-            }
-        }
-
-        const heatBlock = `
-        <div class="break-inside-avoid mb-6 border border-slate-300 rounded-lg p-3 bg-white">
-            <div class="flex justify-between items-end border-b border-slate-800 pb-2 mb-2">
-                <div>
-                    <h3 class="font-black text-sm uppercase text-slate-900">Event #${heat.eventNumber}: ${heat.eventName}</h3>
-                </div>
-                <div class="text-right">
-                    <span class="bg-slate-800 text-white font-bold text-[10px] px-2 py-1 rounded">HEAT ${heat.heatNumber} of ${heat.totalHeats}</span>
-                </div>
+    orderOfEvents.forEach((ev, index) => {
+        listContainer.innerHTML += `
+        <li class="bg-white p-2.5 rounded border border-slate-200 shadow-sm flex justify-between items-center group">
+            <div>
+                <p class="text-[10px] font-black text-slate-800">#${index + 1}: ${ev.nomor}</p>
+                <p class="text-[9px] text-slate-500 font-bold">${ev.ku} • ${ev.gender} • <span class="text-blue-600">${ev.sesi}</span></p>
             </div>
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="text-[10px] text-slate-500 uppercase tracking-widest border-b border-slate-300">
-                        <th class="py-1 px-2 w-10 text-center font-bold">LINT</th>
-                        <th class="py-1 px-2 font-bold">NAMA ATLET</th>
-                        <th class="py-1 px-2 font-bold">KLUB / SEKOLAH</th>
-                        <th class="py-1 px-2 w-20 text-center font-bold">SEED TIME</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${tbodyHtml}
-                </tbody>
-            </table>
+            <button onclick="hapusEventLomba(${ev.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+        </li>`;
+    });
+}
+
+
+// ==========================================
+// ALGORITMA DEWA: FINA SEEDING (Distribusi Kekosongan)
+// ==========================================
+function calculateFinaHeats(totalPeserta, jumlahLintasan) {
+    if (totalPeserta === 0) return [];
+    
+    // 1. Cari Total Heat (Dibulatkan ke atas)
+    let totalHeats = Math.ceil(totalPeserta / jumlahLintasan);
+    
+    // 2. Isi Full semua Heat di awal (contoh: [5, 5, 5, 5])
+    let heats = Array(totalHeats).fill(jumlahLintasan);
+    
+    // 3. Cari Kekosongan (Shortfall)
+    let shortfall = (totalHeats * jumlahLintasan) - totalPeserta;
+    
+    // 4. Distribusi Kekosongan secara adil ke Heat 1 & Heat 2
+    let limitBagi = Math.min(totalHeats, 2); 
+    let i = 0;
+    while (shortfall > 0) {
+        heats[i % limitBagi]--; // Kurangi bergantian: Heat 1, Heat 2, Heat 1...
+        shortfall--;
+        i++;
+    }
+    
+    return heats; // Return format array jumlah orang per heat (contoh: [3, 3, 5, 5])
+}
+
+
+// ==========================================
+// RENDER DATA KE KERTAS A4
+// ==========================================
+function renderKertasA4() {
+    const container = document.getElementById('heatContainer');
+    container.innerHTML = '';
+
+    if (orderOfEvents.length === 0) {
+        container.innerHTML = `
+        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-300 rounded-xl">
+            👈 Gunakan Panel Builder di sebelah kiri untuk menyusun Buku Acara.
+        </div>`;
+        return;
+    }
+
+    // Kelompokkan Event berdasarkan Sesi agar ada Judul Pemisah (Pagi/Siang) di Kertas
+    let groupedBySesi = {};
+    orderOfEvents.forEach((ev, index) => {
+        if (!groupedBySesi[ev.sesi]) groupedBySesi[ev.sesi] = [];
+        groupedBySesi[ev.sesi].push({ ...ev, eventNumber: index + 1 });
+    });
+
+    Object.keys(groupedBySesi).forEach(namaSesi => {
+        // Cetak Banner Sesi
+        container.innerHTML += `
+        <div class="bg-slate-800 text-white p-2 text-center font-black uppercase tracking-widest text-sm mb-4 mt-8 print:mt-4 rounded-md print:rounded-none">
+            --- ${namaSesi} ---
         </div>`;
 
-        container.innerHTML += heatBlock;
+        groupedBySesi[namaSesi].forEach(ev => {
+            // Filter perenang sesuai kriteria Builder
+            let swimmers = allFlattenedData.filter(s => 
+                s.nomor_lomba === ev.nomor && 
+                s.ku === ev.ku && 
+                s.gender === ev.gender
+            );
+
+            // Sort by Nama (Nanti bisa diganti by Seed Time)
+            swimmers.sort((a, b) => a.nama.localeCompare(b.nama));
+
+            if (swimmers.length === 0) {
+                container.innerHTML += `<div class="mb-6 text-sm text-red-500 font-bold italic">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku} (Tidak ada peserta)</div>`;
+                return;
+            }
+
+            // PANGGIL ALGORITMA FINA
+            let heatDistribution = calculateFinaHeats(swimmers.length, LINTASAN_MAX);
+            
+            let heatHtml = '';
+            let swimmerIndex = 0;
+
+            heatDistribution.forEach((jumlahOrangDalamHeat, heatIdx) => {
+                let heatNumber = heatIdx + 1;
+                let totalHeats = heatDistribution.length;
+                let tbodyHtml = '';
+
+                // Loop LINTASAN (1 sampai Max)
+                for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
+                    // Cek apakah lintasan ini harus diisi orang atau dibiarkan kosong?
+                    // (Logika berurutan biasa dari lintasan 1)
+                    if (lintasan <= jumlahOrangDalamHeat && swimmerIndex < swimmers.length) {
+                        const swimmer = swimmers[swimmerIndex];
+                        tbodyHtml += `
+                        <tr class="border-b border-slate-200 text-xs text-slate-800">
+                            <td class="py-1 px-2 text-center font-bold">${lintasan}</td>
+                            <td class="py-1 px-2 font-bold">${swimmer.nama.toUpperCase()}</td>
+                            <td class="py-1 px-2 font-medium text-slate-600">${swimmer.klub}</td>
+                            <td class="py-1 px-2 text-center font-mono text-slate-500">${swimmer.seed_time}</td>
+                        </tr>`;
+                        swimmerIndex++;
+                    } else {
+                        // Kosong
+                        tbodyHtml += `
+                        <tr class="border-b border-slate-200 text-xs text-slate-300">
+                            <td class="py-1 px-2 text-center">${lintasan}</td>
+                            <td class="py-1 px-2 italic">--- Kosong ---</td>
+                            <td class="py-1 px-2"></td>
+                            <td class="py-1 px-2"></td>
+                        </tr>`;
+                    }
+                }
+
+                // Render Box per Heat
+                heatHtml += `
+                <div class="break-inside-avoid mb-4">
+                    <div class="flex justify-between items-end border-b-2 border-slate-700 pb-1 mb-1 mt-3">
+                        <h3 class="font-extrabold text-[11px] uppercase text-slate-900">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku}</h3>
+                        <span class="font-bold text-[10px] text-slate-600 uppercase">HEAT ${heatNumber} of ${totalHeats}</span>
+                    </div>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[9px] text-slate-400 uppercase tracking-widest border-b border-slate-200">
+                                <th class="py-1 px-2 w-10 text-center font-bold">LINT</th>
+                                <th class="py-1 px-2 font-bold">NAMA ATLET</th>
+                                <th class="py-1 px-2 font-bold">KLUB / SEKOLAH</th>
+                                <th class="py-1 px-2 w-20 text-center font-bold">SEED TIME</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tbodyHtml}</tbody>
+                    </table>
+                </div>`;
+            });
+
+            container.innerHTML += heatHtml;
+        });
     });
 }

@@ -22,7 +22,7 @@ export default defineConfig({
         // MODULE BUKU ACARA & HEAT
         eventBook: resolve(__dirname, 'book/book.html'),
         liveResult: resolve(__dirname, 'live-result.html'),
-        result: resolve(__driname 'result.html')
+        result: resolve(__dirname, 'result.html')
       }
     }
   }

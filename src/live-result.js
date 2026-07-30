@@ -1,8 +1,8 @@
 import { supabaseClient } from './supabase.js';
 
 let currentEventId = null;
-let allHeats = []; // Menyimpan semua data dari event_heats
-let currentSelectedHeat = null;
+let allHeats = []; 
+let currentEventHeats = []; // Menyimpan array heat untuk 1 nomor lomba yang dipilih
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -46,98 +46,90 @@ function populateEventDropdown() {
     });
 
     selectEvent.addEventListener('change', (e) => {
-        populateHeatDropdown(e.target.value);
+        renderAllHeats(e.target.value);
     });
 }
 
-function populateHeatDropdown(eventNumber) {
-    const selectHeat = document.getElementById('selectHeat');
+function renderAllHeats(eventNumber) {
+    const container = document.getElementById('allHeatsContainer');
     
     if (!eventNumber) {
-        selectHeat.innerHTML = '<option value="">Pilih Lomba Terlebih Dahulu</option>';
-        selectHeat.disabled = true;
-        document.getElementById('formContainer').classList.add('hidden');
-        return;
-    }
-
-    selectHeat.disabled = false;
-    selectHeat.innerHTML = '<option value="">-- Pilih Heat --</option>';
-
-    const heatsForEvent = allHeats.filter(h => h.event_number == eventNumber);
-    heatsForEvent.forEach(h => {
-        selectHeat.innerHTML += `<option value="${h.id}">Heat ${h.heat_number} of ${h.total_heats}</option>`;
-    });
-
-    selectHeat.addEventListener('change', (e) => {
-        renderInputForm(e.target.value);
-    });
-}
-
-function renderInputForm(heatId) {
-    const container = document.getElementById('formContainer');
-    const lanesContainer = document.getElementById('lanesContainer');
-
-    if (!heatId) {
         container.classList.add('hidden');
         return;
     }
 
-    currentSelectedHeat = allHeats.find(h => h.id == heatId);
+    // Ambil semua heat yang sesuai dengan nomor lomba yang dipilih
+    currentEventHeats = allHeats.filter(h => h.event_number == eventNumber);
     
-    document.getElementById('judulLomba').innerText = `Event #${currentSelectedHeat.event_number}: ${currentSelectedHeat.nomor_lomba} - ${currentSelectedHeat.gender}`;
-    document.getElementById('judulHeat').innerText = `HEAT ${currentSelectedHeat.heat_number} (Dari ${currentSelectedHeat.total_heats})`;
-    
-    lanesContainer.innerHTML = '';
+    container.innerHTML = ''; // Bersihkan layar
 
-    // Render kotak input per lintasan dari JSONB
-    currentSelectedHeat.lanes_data.forEach((atlet, index) => {
-        if (!atlet.nama) {
-            // Lintasan Kosong
-            lanesContainer.innerHTML += `
-            <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 opacity-50">
-                <div class="w-8 h-8 rounded bg-slate-200 text-slate-500 font-bold flex items-center justify-center shrink-0">${atlet.lane}</div>
-                <div class="flex-1"><p class="text-sm font-bold text-slate-400 italic">--- Kosong ---</p></div>
-            </div>`;
-            return;
-        }
+    currentEventHeats.forEach((heat, heatIndex) => {
+        let lanesHtml = '';
 
-        // Pecah waktu jika sudah pernah diinput sebelumnya (format mm:ss.ms)
-        let mm = '', ss = '', ms = '';
-        if (atlet.waktu_tempuh && atlet.waktu_tempuh !== 'NT' && atlet.waktu_tempuh !== 'DQ') {
-            const parts = atlet.waktu_tempuh.split(/[:.]/); // Pisah by colon or dot
-            if(parts.length === 3) {
-                mm = parts[0]; ss = parts[1]; ms = parts[2];
+        heat.lanes_data.forEach((atlet, laneIndex) => {
+            if (!atlet.nama) {
+                // Lintasan Kosong
+                lanesHtml += `
+                <div class="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200 opacity-50">
+                    <div class="w-8 h-8 rounded bg-slate-200 text-slate-500 font-bold flex items-center justify-center shrink-0">${atlet.lane}</div>
+                    <div class="flex-1"><p class="text-sm font-bold text-slate-400 italic">--- Kosong ---</p></div>
+                </div>`;
+                return;
             }
-        }
 
-        lanesContainer.innerHTML += `
-        <div class="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-red-300 transition-colors">
-            <!-- Info Atlet -->
-            <div class="flex items-center gap-3 flex-1">
-                <div class="w-8 h-8 rounded bg-slate-800 text-white font-bold flex items-center justify-center shrink-0">${atlet.lane}</div>
+            // Pecah waktu
+            let mm = '', ss = '', ms = '';
+            if (atlet.waktu_tempuh && atlet.waktu_tempuh !== 'NT' && atlet.waktu_tempuh !== 'DQ') {
+                const parts = atlet.waktu_tempuh.split(/[:.]/);
+                if(parts.length === 3) { mm = parts[0]; ss = parts[1]; ms = parts[2]; }
+            }
+
+            // Input id format: min_heatIndex_laneIndex (biar unik)
+            lanesHtml += `
+            <div class="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-red-300 transition-colors">
+                <div class="flex items-center gap-3 flex-1">
+                    <div class="w-8 h-8 rounded bg-slate-800 text-white font-bold flex items-center justify-center shrink-0">${atlet.lane}</div>
+                    <div>
+                        <p class="text-sm font-black text-slate-900 leading-tight uppercase">${atlet.nama}</p>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">${atlet.klub}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-1 shrink-0 mt-2 md:mt-0">
+                    <input type="number" id="min_${heatIndex}_${laneIndex}" value="${mm}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
+                    <span class="font-black text-slate-400">:</span>
+                    <input type="number" id="sec_${heatIndex}_${laneIndex}" value="${ss}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
+                    <span class="font-black text-slate-400">.</span>
+                    <input type="number" id="ms_${heatIndex}_${laneIndex}" value="${ms}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
+                    
+                    <button onclick="setDQ(${heatIndex}, ${laneIndex})" class="ml-2 px-2 py-2 bg-red-100 text-red-600 rounded text-xs font-bold hover:bg-red-200">DQ</button>
+                </div>
+            </div>`;
+        });
+
+        // Bungkus dalam satu card Heat
+        container.innerHTML += `
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex justify-between items-end mb-4 border-b border-slate-200 pb-4">
                 <div>
-                    <p class="text-sm font-black text-slate-900 leading-tight uppercase">${atlet.nama}</p>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase">${atlet.klub}</p>
+                    <h2 class="text-lg font-black text-slate-900 uppercase">Event #${heat.event_number}: ${heat.nomor_lomba} - ${heat.gender}</h2>
+                    <p class="text-sm font-bold text-red-600 mt-1">HEAT ${heat.heat_number} (Dari ${heat.total_heats})</p>
                 </div>
             </div>
-            
-            <!-- Kotak Input Waktu (Min : Sec . MS) -->
-            <div class="flex items-center gap-1 shrink-0 mt-2 md:mt-0">
-                <input type="number" id="min_${index}" value="${mm}" placeholder="00" min="0" max="59" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
-                <span class="font-black text-slate-400">:</span>
-                <input type="number" id="sec_${index}" value="${ss}" placeholder="00" min="0" max="59" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
-                <span class="font-black text-slate-400">.</span>
-                <input type="number" id="ms_${index}" value="${ms}" placeholder="00" min="0" max="99" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
-                
-                <!-- Tombol DQ (Diskualifikasi) opsional -->
-                <button onclick="setDQ(${index})" class="ml-2 px-2 py-2 bg-red-100 text-red-600 rounded text-xs font-bold hover:bg-red-200">DQ</button>
+            <div class="space-y-3 mb-4">
+                ${lanesHtml}
             </div>
+            <button id="btnSubmit_${heatIndex}" onclick="submitHeatData(${heatIndex}, '${heat.id}')" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-sm py-3 rounded-xl shadow transition-transform active:scale-95 flex items-center justify-center gap-2">
+                💾 Simpan Waktu Heat ${heat.heat_number}
+            </button>
         </div>`;
     });
 
     container.classList.remove('hidden');
+    setupAutoFocus();
+}
 
-    // Auto-focus logic (Pindah kotak otomatis kalau udah 2 digit)
+function setupAutoFocus() {
     document.querySelectorAll('.input-waktu').forEach(input => {
         input.addEventListener('input', function() {
             if (this.value.length >= 2) {
@@ -149,38 +141,42 @@ function renderInputForm(heatId) {
     });
 }
 
-// Fungsi tombol DQ (Diskualifikasi)
-window.setDQ = function(index) {
-    document.getElementById(`min_${index}`).value = 'DQ';
-    document.getElementById(`sec_${index}`).value = '';
-    document.getElementById(`ms_${index}`).value = '';
+window.setDQ = function(heatIndex, laneIndex) {
+    document.getElementById(`min_${heatIndex}_${laneIndex}`).value = 'DQ';
+    document.getElementById(`sec_${heatIndex}_${laneIndex}`).value = '';
+    document.getElementById(`ms_${heatIndex}_${laneIndex}`).value = '';
 }
 
 // ==========================================
-// PROSES SUBMIT & SIMPAN WAKTU
+// PROSES SUBMIT PER HEAT
 // ==========================================
-document.getElementById('btnSubmitWaktu').addEventListener('click', async () => {
-    const btn = document.getElementById('btnSubmitWaktu');
-    btn.innerText = "⏳ MENYIMPAN...";
+window.submitHeatData = async function(heatIndex, heatDatabaseId) {
+    const btn = document.getElementById(`btnSubmit_${heatIndex}`);
+    const originalText = btn.innerHTML;
+    btn.innerText = "⏳ Menyimpan...";
     btn.disabled = true;
 
-    // Duplikasi array JSONB lanes_data untuk diupdate
-    let updatedLanes = [...currentSelectedHeat.lanes_data];
+    // Cari data heat asli di array currentEventHeats
+    let targetHeat = currentEventHeats[heatIndex];
+    let updatedLanes = [...targetHeat.lanes_data];
 
-    updatedLanes.forEach((atlet, index) => {
-        if (!atlet.nama) return; // Skip kosong
+    updatedLanes.forEach((atlet, laneIndex) => {
+        if (!atlet.nama) return; 
 
-        let min = document.getElementById(`min_${index}`).value.padStart(2, '0');
-        let sec = document.getElementById(`sec_${index}`).value.padStart(2, '0');
-        let ms = document.getElementById(`ms_${index}`).value.padStart(2, '0');
+        let minEl = document.getElementById(`min_${heatIndex}_${laneIndex}`);
+        let secEl = document.getElementById(`sec_${heatIndex}_${laneIndex}`);
+        let msEl = document.getElementById(`ms_${heatIndex}_${laneIndex}`);
 
-        if (document.getElementById(`min_${index}`).value === 'DQ') {
+        let min = minEl.value.padStart(2, '0');
+        let sec = secEl.value.padStart(2, '0');
+        let ms = msEl.value.padStart(2, '0');
+
+        if (minEl.value === 'DQ') {
             atlet.waktu_tempuh = 'DQ';
-        } else if (document.getElementById(`min_${index}`).value !== '' && document.getElementById(`sec_${index}`).value !== '') {
-            // Gabung jadi format waktu
+        } else if (minEl.value !== '' && secEl.value !== '') {
             atlet.waktu_tempuh = `${min}:${sec}.${ms}`;
         } else {
-            atlet.waktu_tempuh = 'NT'; // Belum diinput
+            atlet.waktu_tempuh = 'NT'; 
         }
     });
 
@@ -188,20 +184,27 @@ document.getElementById('btnSubmitWaktu').addEventListener('click', async () => 
         const { error } = await supabaseClient
             .from('event_heats')
             .update({ lanes_data: updatedLanes })
-            .eq('id', currentSelectedHeat.id);
+            .eq('id', heatDatabaseId);
 
         if (error) throw error;
 
         // Update local memory
-        currentSelectedHeat.lanes_data = updatedLanes;
+        targetHeat.lanes_data = updatedLanes;
 
-        alert("✅ Hasil Heat berhasil disimpan! Live Result orang tua sudah terupdate.");
+        // Update UI Button jadi ijo bentar
+        btn.classList.replace('bg-slate-800', 'bg-green-600');
+        btn.classList.replace('hover:bg-slate-900', 'hover:bg-green-700');
+        btn.innerText = "✅ Tersimpan!";
+        setTimeout(() => {
+            btn.classList.replace('bg-green-600', 'bg-slate-800');
+            btn.classList.replace('hover:bg-green-700', 'hover:bg-slate-900');
+            btn.innerHTML = originalText;
+        }, 2000);
         
     } catch (err) {
         console.error(err);
         alert("Gagal menyimpan waktu!");
     } finally {
-        btn.innerText = "💾 SUBMIT HASIL HEAT INI";
         btn.disabled = false;
     }
-});
+}

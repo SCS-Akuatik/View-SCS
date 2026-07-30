@@ -1,7 +1,7 @@
 import { supabaseClient } from './supabase.js';
 
 let currentEventId = null;
-let eventConfigData = {}; // Menyimpan JSONB dari Supabase
+let eventConfigData = {}; 
 
 async function loadEventDashboard() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -22,14 +22,12 @@ async function loadEventDashboard() {
 
         if (error || !eventData) throw error;
 
-        // Ambil config JSONB (kalau null, kasih object kosong)
         eventConfigData = eventData.config || {};
 
-        // Update Text Header
         document.getElementById('headerEventName').innerText = eventData.event_name;
         document.getElementById('headerSubdomain').innerText = `${eventData.subdomain}.funswimming.my.id`;
 
-        // Update Link Input & Fitur Copy
+        // 1. LINK COPY PENDAFTARAN (Subdomain Murni)
         const publicLink = `https://${eventData.subdomain}.funswimming.my.id`;
         const linkInput = document.getElementById('publicLinkInput');
         if (linkInput) linkInput.value = publicLink;
@@ -49,9 +47,7 @@ async function loadEventDashboard() {
             });
         }
 
-        // ==========================================
-        // TAMBAHAN BARU: COPY LINK LIVE RESULT
-        // ==========================================
+        // 2. LINK COPY LIVE RESULT PUBLIC (Subdomain Murni)
         const publicResultLink = `https://${eventData.subdomain}.funswimming.my.id/result`;
         const resultLinkInput = document.getElementById('publicResultLinkInput');
         if (resultLinkInput) resultLinkInput.value = publicResultLink;
@@ -71,28 +67,16 @@ async function loadEventDashboard() {
             });
         }
 
-        // --- MENGHIDUPKAN NAVIGASI HALAMAN LAIN ---
-        // 1. Settings Lomba
-        document.getElementById('btnSettingsLomba').onclick = () => {
-            window.location.href = `/settings-lomba.html?id=${currentEventId}`;
-        };
-        // 2. Live Result
-        document.getElementById('btnLiveResult').onclick = () => {
-            window.location.href = `/live-result.html?id=${currentEventId}`;
-        };
-        // 3. Nomor Start
-        document.getElementById('btnNomorStart').onclick = () => {
-            window.location.href = `/nomor-start.html?id=${currentEventId}`;
-        };
-        // 4. Data Peserta
-        document.getElementById('btnDataPeserta').onclick = () => {
-            window.location.href = `/event-peserta.html?id=${currentEventId}`;
-        };
-
-        // --- CEK STATUS JSONB & UPDATE BADGE UI ---
-        updateConfigBadges();
+        // --- NAVIGASI HALAMAN PANITIA TETAP PAKAI ?id= ---
+        document.getElementById('btnSettingsLomba').onclick = () => window.location.href = `/settings-lomba.html?id=${currentEventId}`;
         
-        // --- LOAD STATISTIK BARU ---
+        // INI TOMBOL KASIR WAKTU (LIVE RESULT PANITIA)
+        document.getElementById('btnLiveResult').onclick = () => window.location.href = `/live-result.html?id=${currentEventId}`;
+        
+        document.getElementById('btnNomorStart').onclick = () => window.location.href = `/nomor-start.html?id=${currentEventId}`;
+        document.getElementById('btnDataPeserta').onclick = () => window.location.href = `/event-peserta.html?id=${currentEventId}`;
+
+        updateConfigBadges();
         await loadEventStats();
 
     } catch (err) {
@@ -102,22 +86,18 @@ async function loadEventDashboard() {
 }
 
 // ===============================================
-// LOAD STATISTIK (PESERTA, HEAT, KATEGORI)
+// LOAD STATISTIK
 // ===============================================
 async function loadEventStats() {
     try {
-        // 1. Hitung Total Peserta Lunas
         const { count: countPeserta, error: errPeserta } = await supabaseClient
             .from('event_registrations')
             .select('*', { count: 'exact', head: true })
             .eq('event_id', currentEventId)
             .eq('status_pembayaran', 'Lunas');
         
-        if (!errPeserta) {
-            document.getElementById('statPeserta').innerText = countPeserta || 0;
-        }
+        if (!errPeserta) document.getElementById('statPeserta').innerText = countPeserta || 0;
 
-        // 2. Hitung Total Heat & Kategori dari event_heats
         const { data: heatsData, error: errHeats } = await supabaseClient
             .from('event_heats')
             .select('event_number')
@@ -125,8 +105,6 @@ async function loadEventStats() {
 
         if (!errHeats && heatsData) {
             document.getElementById('statHeat').innerText = heatsData.length;
-            
-            // Hitung kategori unik
             const uniqueEvents = new Set(heatsData.map(h => h.event_number));
             document.getElementById('statKategori').innerText = uniqueEvents.size;
         }
@@ -135,35 +113,13 @@ async function loadEventStats() {
     }
 }
 
-// Fungsi Update Badge kalau Config sudah terisi
 function updateConfigBadges() {
     let completedCount = 0;
+    if (eventConfigData.landing_text) { setCompleteBadge('badgeLanding'); completedCount++; }
+    if (eventConfigData.entry_limit) { setCompleteBadge('badgeEntry'); completedCount++; }
+    if (eventConfigData.tiket_harga) { setCompleteBadge('badgeTiket'); completedCount++; }
+    if (eventConfigData.sponsor_name) { setCompleteBadge('badgeSponsor'); completedCount++; }
 
-    // Cek Landing Page
-    if (eventConfigData.landing_text) {
-        setCompleteBadge('badgeLanding');
-        completedCount++;
-    }
-    
-    // Cek Entry Time
-    if (eventConfigData.entry_limit) {
-        setCompleteBadge('badgeEntry');
-        completedCount++;
-    }
-
-    // Cek Tiket
-    if (eventConfigData.tiket_harga) {
-        setCompleteBadge('badgeTiket');
-        completedCount++;
-    }
-
-    // Cek Sponsor
-    if (eventConfigData.sponsor_name) {
-        setCompleteBadge('badgeSponsor');
-        completedCount++;
-    }
-
-    // Update Progress Bar
     const percent = (completedCount / 4) * 100;
     document.getElementById('statSetup').innerText = `${percent}% Selesai`;
     document.getElementById('barSetup').style.width = `${percent}%`;
@@ -178,84 +134,41 @@ function setCompleteBadge(elementId) {
 }
 
 // ===============================================
-// LOGIKA MODAL & SIMPAN KE JSONB
+// LOGIKA MODAL (TOMBOL ENTRY TIME ADA DI SINI)
 // ===============================================
+document.getElementById('btnConfigLanding').onclick = () => { document.getElementById('valLandingText').value = eventConfigData.landing_text || ""; document.getElementById('modalLanding').classList.remove('hidden'); };
+document.getElementById('btnConfigEntry').onclick = () => { document.getElementById('valEntryLimit').value = eventConfigData.entry_limit || ""; document.getElementById('modalEntry').classList.remove('hidden'); };
+document.getElementById('btnConfigTiket').onclick = () => { document.getElementById('valTiketHarga').value = eventConfigData.tiket_harga || ""; document.getElementById('valTiketWA').value = eventConfigData.tiket_wa || ""; document.getElementById('modalTiket').classList.remove('hidden'); };
+document.getElementById('btnConfigSponsor').onclick = () => { document.getElementById('valSponsorName').value = eventConfigData.sponsor_name || ""; document.getElementById('modalSponsor').classList.remove('hidden'); };
 
-// Logic Buka Modal
-document.getElementById('btnConfigLanding').onclick = () => {
-    document.getElementById('valLandingText').value = eventConfigData.landing_text || "";
-    document.getElementById('modalLanding').classList.remove('hidden');
-};
-document.getElementById('btnConfigEntry').onclick = () => {
-    document.getElementById('valEntryLimit').value = eventConfigData.entry_limit || "";
-    document.getElementById('modalEntry').classList.remove('hidden');
-};
-document.getElementById('btnConfigTiket').onclick = () => {
-    document.getElementById('valTiketHarga').value = eventConfigData.tiket_harga || "";
-    document.getElementById('valTiketWA').value = eventConfigData.tiket_wa || "";
-    document.getElementById('modalTiket').classList.remove('hidden');
-};
-document.getElementById('btnConfigSponsor').onclick = () => {
-    document.getElementById('valSponsorName').value = eventConfigData.sponsor_name || "";
-    document.getElementById('modalSponsor').classList.remove('hidden');
-};
+document.querySelectorAll('.btn-close-modal').forEach(btn => btn.onclick = (e) => e.target.closest('.fixed').classList.add('hidden'));
 
-// Logic Tutup Modal
-document.querySelectorAll('.btn-close-modal').forEach(btn => {
-    btn.onclick = (e) => {
-        e.target.closest('.fixed').classList.add('hidden');
-    }
-});
-
-// FUNGSI UTAMA SAVE KE JSONB DATABASE
 async function saveConfigToJSONB(key, valueObj, modalId, btnSaveId) {
     const btn = document.getElementById(btnSaveId);
     btn.innerText = "Menyimpan...";
     btn.disabled = true;
 
-    // Gabungkan data lama dengan data baru
     const newConfigData = { ...eventConfigData, ...valueObj };
 
     try {
-        const { error } = await supabaseClient
-            .from('events')
-            .update({ config: newConfigData })
-            .eq('id', currentEventId);
-
+        const { error } = await supabaseClient.from('events').update({ config: newConfigData }).eq('id', currentEventId);
         if (error) throw error;
-
-        // Berhasil! Update memory dan UI
+        
         eventConfigData = newConfigData;
         updateConfigBadges();
-        
         document.getElementById(modalId).classList.add('hidden');
-        btn.innerText = "Simpan";
-        btn.disabled = false;
-        
     } catch (error) {
         console.error(error);
-        alert("Gagal menyimpan pengaturan: " + error.message);
+        alert("Gagal menyimpan: " + error.message);
+    } finally {
         btn.innerText = "Simpan";
         btn.disabled = false;
     }
 }
 
-// Event Listener Simpan per Modal
-document.getElementById('btnSaveLanding').onclick = () => {
-    saveConfigToJSONB('landing', { landing_text: document.getElementById('valLandingText').value }, 'modalLanding', 'btnSaveLanding');
-};
-document.getElementById('btnSaveEntry').onclick = () => {
-    saveConfigToJSONB('entry', { entry_limit: document.getElementById('valEntryLimit').value }, 'modalEntry', 'btnSaveEntry');
-};
-document.getElementById('btnSaveTiket').onclick = () => {
-    saveConfigToJSONB('tiket', { 
-        tiket_harga: document.getElementById('valTiketHarga').value,
-        tiket_wa: document.getElementById('valTiketWA').value
-    }, 'modalTiket', 'btnSaveTiket');
-};
-document.getElementById('btnSaveSponsor').onclick = () => {
-    saveConfigToJSONB('sponsor', { sponsor_name: document.getElementById('valSponsorName').value }, 'modalSponsor', 'btnSaveSponsor');
-};
+document.getElementById('btnSaveLanding').onclick = () => saveConfigToJSONB('landing', { landing_text: document.getElementById('valLandingText').value }, 'modalLanding', 'btnSaveLanding');
+document.getElementById('btnSaveEntry').onclick = () => saveConfigToJSONB('entry', { entry_limit: document.getElementById('valEntryLimit').value }, 'modalEntry', 'btnSaveEntry');
+document.getElementById('btnSaveTiket').onclick = () => saveConfigToJSONB('tiket', { tiket_harga: document.getElementById('valTiketHarga').value, tiket_wa: document.getElementById('valTiketWA').value }, 'modalTiket', 'btnSaveTiket');
+document.getElementById('btnSaveSponsor').onclick = () => saveConfigToJSONB('sponsor', { sponsor_name: document.getElementById('valSponsorName').value }, 'modalSponsor', 'btnSaveSponsor');
 
-// Start
 loadEventDashboard();

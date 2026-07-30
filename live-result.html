@@ -26,41 +26,17 @@
 
     <div class="max-w-4xl mx-auto px-4 mt-6">
         
-        <!-- Control Panel: Pilih Lomba & Heat -->
+        <!-- Control Panel: Pilih Lomba -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">1. Pilih Nomor Lomba</label>
-                    <select id="selectEvent" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none">
-                        <option value="">Memuat Lomba...</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">2. Pilih Heat</label>
-                    <select id="selectHeat" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none disabled:opacity-50" disabled>
-                        <option value="">Pilih Lomba Terlebih Dahulu</option>
-                    </select>
-                </div>
-            </div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Pilih Nomor Lomba (Menampilkan Seluruh Heat)</label>
+            <select id="selectEvent" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-red-500 outline-none">
+                <option value="">Memuat Lomba...</option>
+            </select>
         </div>
 
-        <!-- Form Input Waktu -->
-        <div id="formContainer" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hidden">
-            <div class="flex justify-between items-end mb-4 border-b border-slate-200 pb-4">
-                <div>
-                    <h2 id="judulLomba" class="text-lg font-black text-slate-900 uppercase">GAYA BEBAS 50M</h2>
-                    <p id="judulHeat" class="text-sm font-bold text-red-600 mt-1">HEAT 1</p>
-                </div>
-            </div>
-
-            <!-- List Perenang Di-render di sini -->
-            <div id="lanesContainer" class="space-y-3 mb-6">
-                <!-- Template Baris (Akan diganti oleh JS) -->
-            </div>
-
-            <button id="btnSubmitWaktu" class="w-full bg-red-600 hover:bg-red-700 text-white font-black text-lg py-4 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2">
-                💾 SUBMIT HASIL HEAT INI
-            </button>
+        <!-- Container untuk All Heats -->
+        <div id="allHeatsContainer" class="space-y-6 hidden">
+            <!-- Heat 1, 2, 3... di-render di sini via JS -->
         </div>
 
     </div>

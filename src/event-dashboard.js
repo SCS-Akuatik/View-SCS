@@ -91,10 +91,47 @@ async function loadEventDashboard() {
 
         // --- CEK STATUS JSONB & UPDATE BADGE UI ---
         updateConfigBadges();
+        
+        // --- LOAD STATISTIK BARU ---
+        await loadEventStats();
 
     } catch (err) {
         console.error("Gagal memuat dashboard event:", err);
         alert("Gagal memuat data event.");
+    }
+}
+
+// ===============================================
+// LOAD STATISTIK (PESERTA, HEAT, KATEGORI)
+// ===============================================
+async function loadEventStats() {
+    try {
+        // 1. Hitung Total Peserta Lunas
+        const { count: countPeserta, error: errPeserta } = await supabaseClient
+            .from('event_registrations')
+            .select('*', { count: 'exact', head: true })
+            .eq('event_id', currentEventId)
+            .eq('status_pembayaran', 'Lunas');
+        
+        if (!errPeserta) {
+            document.getElementById('statPeserta').innerText = countPeserta || 0;
+        }
+
+        // 2. Hitung Total Heat & Kategori dari event_heats
+        const { data: heatsData, error: errHeats } = await supabaseClient
+            .from('event_heats')
+            .select('event_number')
+            .eq('event_id', currentEventId);
+
+        if (!errHeats && heatsData) {
+            document.getElementById('statHeat').innerText = heatsData.length;
+            
+            // Hitung kategori unik
+            const uniqueEvents = new Set(heatsData.map(h => h.event_number));
+            document.getElementById('statKategori').innerText = uniqueEvents.size;
+        }
+    } catch (error) {
+        console.error("Gagal memuat statistik:", error);
     }
 }
 

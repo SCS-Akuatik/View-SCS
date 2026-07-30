@@ -49,6 +49,28 @@ async function loadEventDashboard() {
             });
         }
 
+        // ==========================================
+        // TAMBAHAN BARU: COPY LINK LIVE RESULT
+        // ==========================================
+        const publicResultLink = `https://${eventData.subdomain}.funswimming.my.id/result`;
+        const resultLinkInput = document.getElementById('publicResultLinkInput');
+        if (resultLinkInput) resultLinkInput.value = publicResultLink;
+
+        const btnCopyResultLink = document.getElementById('btnCopyResultLink');
+        if (btnCopyResultLink) {
+            btnCopyResultLink.addEventListener('click', () => {
+                resultLinkInput.select();
+                document.execCommand('copy'); 
+                const originalText = btnCopyResultLink.innerText;
+                btnCopyResultLink.innerText = "Tersalin!";
+                btnCopyResultLink.classList.replace('bg-red-600', 'bg-green-500');
+                setTimeout(() => {
+                    btnCopyResultLink.innerText = originalText;
+                    btnCopyResultLink.classList.replace('bg-green-500', 'bg-red-600');
+                }, 2000);
+            });
+        }
+
         // --- MENGHIDUPKAN NAVIGASI HALAMAN LAIN ---
         // 1. Settings Lomba
         document.getElementById('btnSettingsLomba').onclick = () => {

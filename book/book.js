@@ -50,23 +50,39 @@ function prepareData(rawRegistrations) {
         if (!Array.isArray(atlet.nomor_lomba)) return;
         
         atlet.nomor_lomba.forEach(nomor => {
-            uniqueNomor.add(nomor);
+            // Cek apakah data nomor lomba itu bentuknya object (dari fitur baru) atau cuma string
+            let namaLomba = "";
+            let waktuSeed = 'NT';
+
+            if (typeof nomor === 'object' && nomor !== null) {
+                namaLomba = nomor.gaya;
+                waktuSeed = nomor.seed_time || 'NT';
+            } else {
+                namaLomba = nomor; // Data versi lama (cuma string)
+            }
+
+            uniqueNomor.add(namaLomba);
             uniqueKU.add(atlet.kelompok_umur);
             
             allFlattenedData.push({
                 id_pendaftaran: atlet.id,
+                f1_id: atlet.f1_id, // Biar F1 ID ikut ketarik juga
                 nama: atlet.nama_peserta,
                 klub: atlet.klub_asal,
                 gender: atlet.gender,
                 ku: atlet.kelompok_umur,
-                nomor_lomba: nomor,
-                seed_time: 'NT' 
+                nomor_lomba: namaLomba,
+                seed_time: waktuSeed 
             });
         });
     });
 
     const selectNomor = document.getElementById('buildNomor');
     const selectKU = document.getElementById('buildKU');
+    
+    // Reset isi dropdown dulu biar nggak dobel
+    selectNomor.innerHTML = '';
+    selectKU.innerHTML = '';
     
     Array.from(uniqueNomor).sort().forEach(n => {
         selectNomor.innerHTML += `<option value="${n}">${n}</option>`;
@@ -76,6 +92,7 @@ function prepareData(rawRegistrations) {
         selectKU.innerHTML += `<option value="${ku}">${ku}</option>`;
     });
 }
+
 
 // ==========================================
 // LOGIKA BUILDER (Menambahkan Event)

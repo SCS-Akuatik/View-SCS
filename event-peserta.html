@@ -12,7 +12,6 @@
     <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <!-- Tombol Back ini akan diupdate via JS agar kembali ke dashboard event yang tepat -->
                 <a id="btnBack" href="/dashboard.html" class="text-slate-400 hover:text-slate-600 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </a>
@@ -24,7 +23,11 @@
                 </div>
             </div>
             <div class="flex gap-2">
-              <button onclick="bukaModalBukuAcara()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
+                <!-- TOMBOL AUTO SYNC F1 (BARU) -->
+                <button id="btnSyncF1" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
+                    🔄 Auto-Sync F1
+                </button>
+                <button onclick="bukaModalBukuAcara()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
                     📕 Generate Buku Acara
                 </button>
                 <button onclick="window.location.reload()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2">
@@ -68,13 +71,15 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[800px]">
+                <table class="w-full text-left border-collapse min-w-[900px]">
                     <thead>
                         <tr class="bg-white text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-100">
                             <th class="p-4 font-bold">ID / WAKTU</th>
                             <th class="p-4 font-bold">PESERTA & KLUB</th>
                             <th class="p-4 font-bold">DATA & LOMBA</th>
                             <th class="p-4 font-bold text-center">DOKUMEN</th>
+                            <!-- KOLOM BARU SEED TIME -->
+                            <th class="p-4 font-bold text-center">SEED TIME</th>
                             <th class="p-4 font-bold">STATUS & BIAYA</th>
                             <th class="p-4 font-bold text-right">AKSI</th>
                         </tr>
@@ -104,6 +109,25 @@
         </div>
     </div>
     
+    <!-- MODAL EDIT SEED TIME (BARU) -->
+    <div id="modalSeedTime" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl max-w-sm w-full shadow-2xl">
+            <h3 class="font-black text-slate-800 text-lg mb-1">Edit Seed Time</h3>
+            <p id="seedTimeAthleteName" class="text-xs text-slate-500 mb-4 font-bold">Nama Atlet - Lomba</p>
+            
+            <input type="hidden" id="editRegId">
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-slate-700 mb-2">Input Waktu (Atau biarkan kosong untuk NT)</label>
+                <input type="text" id="inputSeedTime" placeholder="Contoh: 00:35.50" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm font-bold font-mono focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('modalSeedTime').classList.add('hidden')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl text-sm transition-colors">Batal</button>
+                <button id="btnSaveSeedTime" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-colors">Simpan Waktu</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL PENGATURAN BUKU ACARA -->
     <div id="modalBukuAcara" class="fixed inset-0 bg-slate-900/60 z-[100] hidden items-center justify-center px-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6">
@@ -113,7 +137,6 @@
             <div class="space-y-4 mb-6">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Lintasan Kolam</label>
-                    <!-- Ini yang diganti jadi input angka agar fleksibel (bisa diketik angka berapapun) -->
                     <input type="number" id="inputLintasan" value="8" min="2" max="15" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50" placeholder="Ketik jumlah lintasan (Contoh: 5)">
                 </div>
                 
@@ -133,18 +156,6 @@
         </div>
     </div>
 
-
-            <div class="flex gap-2">
-                <button onclick="tutupModalBukuAcara()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl text-sm transition-colors">Batal</button>
-                <button onclick="generateBukuAcara()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2">
-                    Buat Buku 🚀
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Panggil nama JS yang baru -->
     <script type="module" src="/src/event-peserta.js"></script>
 </body>
 </html>
-

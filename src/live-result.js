@@ -2,14 +2,13 @@ import { supabaseClient } from './supabase.js';
 
 let currentEventId = null;
 let allHeats = []; 
-let currentEventHeats = []; // Menyimpan array heat untuk 1 nomor lomba yang dipilih
+let currentEventHeats = []; 
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     currentEventId = urlParams.get('id');
 
     if (!currentEventId) return alert("ID Event tidak ditemukan!");
-
     await loadDataHeats();
 });
 
@@ -24,9 +23,7 @@ async function loadDataHeats() {
 
         if (error) throw error;
         allHeats = data || [];
-
         populateEventDropdown();
-
     } catch (err) {
         console.error(err);
         alert("Gagal memuat data Start List dari Database.");
@@ -37,9 +34,7 @@ function populateEventDropdown() {
     const selectEvent = document.getElementById('selectEvent');
     selectEvent.innerHTML = '<option value="">-- Pilih Nomor Lomba --</option>';
 
-    // Ekstrak event_number unik
     const uniqueEvents = [...new Map(allHeats.map(item => [item.event_number, item])).values()];
-
     uniqueEvents.forEach(ev => {
         let label = `Event #${ev.event_number}: ${ev.nomor_lomba} - ${ev.gender} - ${ev.kelompok_umur}`;
         selectEvent.innerHTML += `<option value="${ev.event_number}">${label}</option>`;
@@ -47,6 +42,12 @@ function populateEventDropdown() {
 
     selectEvent.addEventListener('change', (e) => {
         renderAllHeats(e.target.value);
+    });
+
+    // LISTENER TOMBOL UX BARU
+    document.getElementById('btnShowAll').addEventListener('click', () => {
+        selectEvent.value = ""; // Reset dropdown
+        renderAllHeats('ALL');
     });
 }
 
@@ -58,17 +59,20 @@ function renderAllHeats(eventNumber) {
         return;
     }
 
-    // Ambil semua heat yang sesuai dengan nomor lomba yang dipilih
-    currentEventHeats = allHeats.filter(h => h.event_number == eventNumber);
+    // JIKA 'ALL', TAMPILKAN SEMUA. JIKA BUKAN, FILTER.
+    if (eventNumber === 'ALL') {
+        currentEventHeats = allHeats;
+    } else {
+        currentEventHeats = allHeats.filter(h => h.event_number == eventNumber);
+    }
     
-    container.innerHTML = ''; // Bersihkan layar
+    container.innerHTML = ''; 
 
     currentEventHeats.forEach((heat, heatIndex) => {
         let lanesHtml = '';
 
         heat.lanes_data.forEach((atlet, laneIndex) => {
             if (!atlet.nama) {
-                // Lintasan Kosong
                 lanesHtml += `
                 <div class="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200 opacity-50">
                     <div class="w-8 h-8 rounded bg-slate-200 text-slate-500 font-bold flex items-center justify-center shrink-0">${atlet.lane}</div>
@@ -77,14 +81,12 @@ function renderAllHeats(eventNumber) {
                 return;
             }
 
-            // Pecah waktu
             let mm = '', ss = '', ms = '';
             if (atlet.waktu_tempuh && atlet.waktu_tempuh !== 'NT' && atlet.waktu_tempuh !== 'DQ') {
                 const parts = atlet.waktu_tempuh.split(/[:.]/);
                 if(parts.length === 3) { mm = parts[0]; ss = parts[1]; ms = parts[2]; }
             }
 
-            // Input id format: min_heatIndex_laneIndex (biar unik)
             lanesHtml += `
             <div class="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-red-300 transition-colors">
                 <div class="flex items-center gap-3 flex-1">
@@ -107,7 +109,6 @@ function renderAllHeats(eventNumber) {
             </div>`;
         });
 
-        // Bungkus dalam satu card Heat
         container.innerHTML += `
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
             <div class="flex justify-between items-end mb-4 border-b border-slate-200 pb-4">
@@ -147,16 +148,12 @@ window.setDQ = function(heatIndex, laneIndex) {
     document.getElementById(`ms_${heatIndex}_${laneIndex}`).value = '';
 }
 
-// ==========================================
-// PROSES SUBMIT PER HEAT
-// ==========================================
 window.submitHeatData = async function(heatIndex, heatDatabaseId) {
     const btn = document.getElementById(`btnSubmit_${heatIndex}`);
     const originalText = btn.innerHTML;
     btn.innerText = "⏳ Menyimpan...";
     btn.disabled = true;
 
-    // Cari data heat asli di array currentEventHeats
     let targetHeat = currentEventHeats[heatIndex];
     let updatedLanes = [...targetHeat.lanes_data];
 
@@ -181,17 +178,11 @@ window.submitHeatData = async function(heatIndex, heatDatabaseId) {
     });
 
     try {
-        const { error } = await supabaseClient
-            .from('event_heats')
-            .update({ lanes_data: updatedLanes })
-            .eq('id', heatDatabaseId);
-
+        const { error } = await supabaseClient.from('event_heats').update({ lanes_data: updatedLanes }).eq('id', heatDatabaseId);
         if (error) throw error;
 
-        // Update local memory
         targetHeat.lanes_data = updatedLanes;
 
-        // Update UI Button jadi ijo bentar
         btn.classList.replace('bg-slate-800', 'bg-green-600');
         btn.classList.replace('hover:bg-slate-900', 'hover:bg-green-700');
         btn.innerText = "✅ Tersimpan!";

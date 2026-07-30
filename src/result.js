@@ -4,8 +4,7 @@ let currentEventId = null;
 let allHeats = []; 
 let currentSelectedEventNumber = null;
 
-// Timer Auto Refresh
-let refreshInterval = 30; // 30 detik
+let refreshInterval = 30; 
 let timeLeft = refreshInterval;
 let timerId = null;
 
@@ -16,12 +15,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!currentEventId) return alert("Halaman tidak valid. ID Event tidak ditemukan!");
 
     await fetchEventName();
-    await fetchHeatsData(true); // true = First load (build dropdown)
+    await fetchHeatsData(true); 
 
     startAutoRefresh();
 });
 
-// Ambil Nama Lomba untuk Header
 async function fetchEventName() {
     try {
         const { data, error } = await supabaseClient
@@ -29,15 +27,10 @@ async function fetchEventName() {
             .select('event_name')
             .eq('id', currentEventId)
             .single();
-        if (data) {
-            document.getElementById('headerEventName').innerText = data.event_name;
-        }
-    } catch (err) {
-        console.error(err);
-    }
+        if (data) document.getElementById('headerEventName').innerText = data.event_name;
+    } catch (err) { console.error(err); }
 }
 
-// Tarik data Heat terbaru dari Supabase
 async function fetchHeatsData(isFirstLoad = false) {
     const icon = document.getElementById('iconRefresh');
     icon.classList.add('spin-anim');
@@ -56,7 +49,6 @@ async function fetchHeatsData(isFirstLoad = false) {
         if (isFirstLoad) {
             populateEventDropdown();
         } else {
-            // Jika ini dari auto-refresh, langsung update UI lomba yang sedang dibuka
             if (currentSelectedEventNumber) {
                 renderResults(currentSelectedEventNumber);
             }
@@ -64,17 +56,15 @@ async function fetchHeatsData(isFirstLoad = false) {
     } catch (err) {
         console.error("Gagal memuat data Live Result:", err);
     } finally {
-        setTimeout(() => icon.classList.remove('spin-anim'), 500); // Stop animasi muter
+        setTimeout(() => icon.classList.remove('spin-anim'), 500); 
     }
 }
 
-// Isi Dropdown Lomba
 function populateEventDropdown() {
     const selectEvent = document.getElementById('selectEvent');
     selectEvent.innerHTML = '<option value="">-- Pilih Nomor Lomba --</option>';
 
     const uniqueEvents = [...new Map(allHeats.map(item => [item.event_number, item])).values()];
-
     uniqueEvents.forEach(ev => {
         let label = `Event #${ev.event_number}: ${ev.nomor_lomba} - ${ev.gender} - ${ev.kelompok_umur}`;
         selectEvent.innerHTML += `<option value="${ev.event_number}">${label}</option>`;
@@ -84,9 +74,15 @@ function populateEventDropdown() {
         currentSelectedEventNumber = e.target.value;
         renderResults(currentSelectedEventNumber);
     });
+
+    // LISTENER TOMBOL UX BARU
+    document.getElementById('btnShowAll').addEventListener('click', () => {
+        selectEvent.value = ""; 
+        currentSelectedEventNumber = 'ALL';
+        renderResults('ALL');
+    });
 }
 
-// Render Hasil ke Layar
 function renderResults(eventNumber) {
     const container = document.getElementById('resultContainer');
     
@@ -99,25 +95,31 @@ function renderResults(eventNumber) {
         return;
     }
 
-    const heatsToShow = allHeats.filter(h => h.event_number == eventNumber);
+    // FILTER ATAU TAMPILKAN SEMUA
+    let heatsToShow = [];
+    if (eventNumber === 'ALL') {
+        heatsToShow = allHeats;
+    } else {
+        heatsToShow = allHeats.filter(h => h.event_number == eventNumber);
+    }
+    
     let htmlContent = '';
 
     heatsToShow.forEach(heat => {
         let lanesHtml = '';
 
         heat.lanes_data.forEach(atlet => {
-            if (!atlet.nama) return; // Skip lintasan kosong
+            if (!atlet.nama) return; 
 
-            // Logika Warna Status Waktu
             let timeDisplay = atlet.waktu_tempuh || 'NT';
-            let timeColorClass = "text-slate-400"; // Default (NT)
+            let timeColorClass = "text-slate-400"; 
             let timeBgClass = "bg-slate-100";
 
             if (timeDisplay !== 'NT' && timeDisplay !== 'DQ') {
-                timeColorClass = "text-emerald-700"; // Udah ada waktunya
+                timeColorClass = "text-emerald-700"; 
                 timeBgClass = "bg-emerald-50 border border-emerald-200";
             } else if (timeDisplay === 'DQ') {
-                timeColorClass = "text-red-600"; // Diskualifikasi
+                timeColorClass = "text-red-600"; 
                 timeBgClass = "bg-red-50 border border-red-200";
             }
 
@@ -144,27 +146,20 @@ function renderResults(eventNumber) {
 
         htmlContent += `
         <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
-            <!-- Pita Penanda Heat -->
             <div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-300"></div>
-            
             <div class="pl-2 mb-4 flex justify-between items-end border-b border-slate-100 pb-2">
                 <div>
-                    <h3 class="text-sm font-black text-slate-800 uppercase">HEAT ${heat.heat_number} <span class="text-[10px] text-slate-400 font-bold">(Dari ${heat.total_heats})</span></h3>
+                    <h3 class="text-sm font-black text-slate-800 uppercase">Event #${heat.event_number}: ${heat.nomor_lomba} - ${heat.gender}</h3>
+                    <p class="text-[10px] text-slate-400 font-bold mt-0.5">HEAT ${heat.heat_number} (Dari ${heat.total_heats})</p>
                 </div>
             </div>
-            
-            <div>
-                ${lanesHtml}
-            </div>
+            <div>${lanesHtml}</div>
         </div>`;
     });
 
     container.innerHTML = htmlContent;
 }
 
-// ==========================================
-// LOGIKA AUTO REFRESH & PROGRESS BAR
-// ==========================================
 function startAutoRefresh() {
     const textEl = document.getElementById('countdownText');
     const barEl = document.getElementById('refreshProgressBar');
@@ -173,7 +168,6 @@ function startAutoRefresh() {
         timeLeft--;
         textEl.innerText = `${timeLeft}s`;
         
-        // Update Progress Bar
         const percent = (timeLeft / refreshInterval) * 100;
         barEl.style.width = `${percent}%`;
 
@@ -183,15 +177,13 @@ function startAutoRefresh() {
     }, 1000);
 }
 
-// Tombol Refresh Manual
 document.getElementById('btnRefresh').addEventListener('click', () => {
     triggerManualRefresh();
 });
 
 function triggerManualRefresh() {
-    fetchHeatsData(false); // Ambil data baru di background
+    fetchHeatsData(false); 
     
-    // Reset Timer
     timeLeft = refreshInterval;
     document.getElementById('countdownText').innerText = `${timeLeft}s`;
     document.getElementById('refreshProgressBar').style.width = `100%`;

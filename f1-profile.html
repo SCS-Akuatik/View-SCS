@@ -20,17 +20,17 @@
     <div class="bg-blue-900 pt-10 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden rounded-b-[3rem] shadow-xl">
         <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519315901367-f34f927e1273?w=800&q=80')] opacity-10 bg-cover bg-center"></div>
         
-        <div class="max-w-3xl mx-auto relative z-10 flex flex-col items-center">
+        <div class="max-w-3xl mx-auto relative z-10 flex flex-col items-center text-center">
             <!-- Badge F1 ID -->
-            <span class="bg-scsGold text-blue-900 font-black px-4 py-1.5 rounded-full text-xs uppercase tracking-widest mb-4 shadow-lg flex items-center gap-1.5">
-                <span>🌊</span> F1-0802005
+            <span id="f1IdBadge" class="bg-scsGold text-blue-900 font-black px-4 py-1.5 rounded-full text-xs uppercase tracking-widest mb-4 shadow-lg flex items-center gap-1.5">
+                <span>🌊</span> Memuat...
             </span>
             
             <!-- Foto & Nama -->
-            <img src="https://ui-avatars.com/api/?name=Kevin+Riyanto&background=fff&color=1e3a8a&size=128&bold=true" class="w-24 h-24 rounded-full border-4 border-white shadow-xl mb-3 object-cover">
-            <h1 class="text-3xl font-black text-white tracking-tight">Kevin Riyanto</h1>
+            <img id="f1Avatar" src="https://ui-avatars.com/api/?name=Loading&background=fff&color=1e3a8a&size=128&bold=true" class="w-24 h-24 rounded-full border-4 border-white shadow-xl mb-3 object-cover">
+            <h1 id="f1Name" class="text-3xl font-black text-white tracking-tight">Memuat Data...</h1>
             <p class="text-blue-200 font-medium flex items-center gap-2 mt-1">
-                Jago Renang Academy <span class="bg-blue-800 text-white text-[10px] px-2 py-0.5 rounded border border-blue-700">KU 2</span>
+                <span id="f1Club">Loading Club...</span> <span id="f1Gender" class="bg-blue-800 text-white text-[10px] px-2 py-0.5 rounded border border-blue-700">-</span>
             </p>
         </div>
     </div>
@@ -42,11 +42,11 @@
         <div class="bg-white rounded-3xl p-6 shadow-lg border border-gray-100 flex justify-between items-center mb-8 divide-x divide-gray-100">
             <div class="text-center px-4 flex-1">
                 <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Event</p>
-                <p class="text-2xl font-black text-blue-900">8</p>
+                <p class="text-2xl font-black text-blue-900">0</p>
             </div>
             <div class="text-center px-4 flex-1">
                 <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Medali</p>
-                <p class="text-2xl font-black text-scsGold">3</p>
+                <p class="text-2xl font-black text-scsGold">0</p>
             </div>
             <div class="text-center px-4 flex-1">
                 <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Status</p>
@@ -63,12 +63,6 @@
                     </h2>
                     <p class="text-xs text-gray-500 mt-1">Catatan waktu (Seed Time) di ekosistem SCS.</p>
                 </div>
-                <!-- Filter Kategori Lomba -->
-                <select class="bg-gray-50 border border-gray-200 text-gray-700 text-sm font-bold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
-                    <option>50m Gaya Bebas</option>
-                    <option>50m Gaya Dada</option>
-                    <option>100m Gaya Bebas</option>
-                </select>
             </div>
             
             <!-- CANVAS UNTUK GRAFIK -->
@@ -82,112 +76,17 @@
                     <div class="w-10 h-10 bg-scsGold rounded-full flex items-center justify-center text-xl shadow-md">🔥</div>
                     <div>
                         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Personal Best (PB)</p>
-                        <p class="font-bold text-blue-900 text-sm">Jago Academy Cup 2026</p>
+                        <p class="font-bold text-blue-900 text-sm">Rekor Terbaik</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-2xl font-black text-blue-900">26.45<span class="text-sm text-gray-500 font-medium">s</span></p>
+                    <p class="text-2xl font-black text-blue-900" id="pbTime">NT</p>
                 </div>
             </div>
         </div>
-
-        <!-- RIWAYAT LOMBA TERAKHIR -->
-        <h3 class="text-lg font-extrabold text-blue-900 mb-4 px-2">Riwayat Event Terakhir</h3>
-        <div class="space-y-3">
-            <!-- Event 1 -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:border-scsGold transition">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 mb-1">15 AGU 2026</p>
-                    <p class="font-bold text-gray-800">Jago Academy Cup</p>
-                    <p class="text-xs text-gray-500">50m Gaya Bebas</p>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md">Rank #2</span>
-                    <p class="font-black text-blue-900 mt-1">26.45s</p>
-                </div>
-            </div>
-            <!-- Event 2 -->
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between hover:border-blue-300 transition">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 mb-1">20 JUL 2026</p>
-                    <p class="font-bold text-gray-800">Kejurda Jatim Sprint</p>
-                    <p class="text-xs text-gray-500">50m Gaya Bebas</p>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded-md">Rank #5</span>
-                    <p class="font-black text-gray-700 mt-1">27.12s</p>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- INISIALISASI LOGIC GRAFIK CHART.JS -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('progressChart').getContext('2d');
-
-            // Bikin efek gradient biru transparan di bawah garis grafik
-            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(30, 58, 138, 0.5)'); // scsBlue transparan
-            gradient.addColorStop(1, 'rgba(30, 58, 138, 0)');
-
-            const progressChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    // X-Axis (Nama Event)
-                    labels: ['Jan - Sby Cup', 'Mar - Walikota Cup', 'Jul - Jatim Sprint', 'Agu - Jago Cup'],
-                    datasets: [{
-                        label: 'Waktu (Detik)',
-                        // Y-Axis (Data Waktu Rekor - Makin kecil makin bagus)
-                        data: [31.50, 29.80, 27.12, 26.45], 
-                        borderColor: '#1e3a8a', // Warna garis (scsBlue)
-                        backgroundColor: gradient, // Warna isian bawah garis
-                        borderWidth: 3,
-                        pointBackgroundColor: '#f59e0b', // Titik emas (scsGold)
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        fill: true,
-                        tension: 0.4 // Ini yang bikin garisnya melengkung mulus (smooth curve)!
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }, // Sembunyikan legenda biar clean
-                        tooltip: {
-                            backgroundColor: '#1e3a8a',
-                            titleFont: { size: 13, family: "'Plus Jakarta Sans', sans-serif" },
-                            bodyFont: { size: 14, weight: 'bold', family: "'Plus Jakarta Sans', sans-serif" },
-                            padding: 12,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y + ' Detik';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            reverse: true, // PENTING: Dibalik! Karena di renang, angka (waktu) yang lebih kecil posisinya harus di atas (Lebih Cepat = Grafik Naik).
-                            grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                            ticks: {
-                                callback: function(value) { return value + 's'; },
-                                font: { size: 11, weight: 'bold' }
-                            }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { size: 10, weight: 'bold' } }
-                        }
-                    }
-                }
-            });
-        });
-    </script>
+    <!-- Panggil Script -->
+    <script type="module" src="/src/f1-profile.js"></script>
 </body>
 </html>

@@ -50,7 +50,6 @@ function prepareData(rawRegistrations) {
         if (!Array.isArray(atlet.nomor_lomba)) return;
         
         atlet.nomor_lomba.forEach(nomor => {
-            // Cek apakah data nomor lomba itu bentuknya object (dari fitur baru) atau cuma string
             let namaLomba = "";
             let waktuSeed = 'NT';
 
@@ -58,7 +57,7 @@ function prepareData(rawRegistrations) {
                 namaLomba = nomor.gaya;
                 waktuSeed = nomor.seed_time || 'NT';
             } else {
-                namaLomba = nomor; // Data versi lama (cuma string)
+                namaLomba = nomor;
             }
 
             uniqueNomor.add(namaLomba);
@@ -66,7 +65,7 @@ function prepareData(rawRegistrations) {
             
             allFlattenedData.push({
                 id_pendaftaran: atlet.id,
-                f1_id: atlet.f1_id, // Biar F1 ID ikut ketarik juga
+                f1_id: atlet.f1_id, 
                 nama: atlet.nama_peserta,
                 klub: atlet.klub_asal,
                 gender: atlet.gender,
@@ -80,7 +79,6 @@ function prepareData(rawRegistrations) {
     const selectNomor = document.getElementById('buildNomor');
     const selectKU = document.getElementById('buildKU');
     
-    // Reset isi dropdown dulu biar nggak dobel
     selectNomor.innerHTML = '';
     selectKU.innerHTML = '';
     
@@ -92,7 +90,6 @@ function prepareData(rawRegistrations) {
         selectKU.innerHTML += `<option value="${ku}">${ku}</option>`;
     });
 }
-
 
 // ==========================================
 // LOGIKA BUILDER (Menambahkan Event)
@@ -189,12 +186,11 @@ function generateSpearheadPattern(lanes) {
         }
         toggle = !toggle;
     }
-    // Hasil pola misal untuk 5 lintasan: [3, 4, 2, 5, 1]
     return pattern;
 }
 
 // ==========================================
-// RENDER DATA KE KERTAS A4
+// RENDER DATA KE KERTAS A4 (DENGAN FINA LOGIC)
 // ==========================================
 function renderKertasA4() {
     const container = document.getElementById('heatContainer');
@@ -208,7 +204,6 @@ function renderKertasA4() {
         return;
     }
 
-    // Pola posisi lintasan (Spearheading)
     let spearheadPattern = generateSpearheadPattern(LINTASAN_MAX);
 
     let groupedBySesi = {};
@@ -230,7 +225,13 @@ function renderKertasA4() {
                 s.gender === ev.gender
             );
 
-            swimmers.sort((a, b) => a.nama.localeCompare(b.nama));
+            // LOGIKA 1: Urutkan Peserta dari PALING LAMBAT (NT) ke PALING CEPAT
+            swimmers.sort((a, b) => {
+                if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
+                if (a.seed_time === 'NT') return -1; // NT taruh paling depan (paling lambat)
+                if (b.seed_time === 'NT') return 1;
+                return b.seed_time.localeCompare(a.seed_time); // Waktu lambat ke waktu cepat
+            });
 
             if (swimmers.length === 0) {
                 container.innerHTML += `<div class="mb-6 text-sm text-red-500 font-bold italic">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku} (Tidak ada peserta)</div>`;
@@ -246,17 +247,25 @@ function renderKertasA4() {
                 let totalHeats = heatDistribution.length;
                 let tbodyHtml = '';
 
-                // Mapping perenang ke lintasan tengah (Spearheading)
+                // Ambil irisan peserta untuk heat ini
+                let heatSwimmers = swimmers.slice(swimmerIndex, swimmerIndex + jumlahOrangDalamHeat);
+                swimmerIndex += jumlahOrangDalamHeat;
+
+                // LOGIKA 2: Di dalam Heat, urutkan dari PALING CEPAT ke PALING LAMBAT untuk Spearheading
+                heatSwimmers.sort((a, b) => {
+                    if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
+                    if (a.seed_time === 'NT') return 1; // NT taruh paling belakang di dalam heat
+                    if (b.seed_time === 'NT') return -1;
+                    return a.seed_time.localeCompare(b.seed_time); // Waktu cepat ke waktu lambat
+                });
+
+                // Mapping perenang ke lintasan (Superheat tercepat masuk index 0 -> Spearhead ke tengah)
                 let assignedLanes = {};
                 for (let k = 0; k < jumlahOrangDalamHeat; k++) {
                     let targetLane = spearheadPattern[k];
-                    if (swimmers[swimmerIndex]) {
-                        assignedLanes[targetLane] = swimmers[swimmerIndex];
-                    }
-                    swimmerIndex++;
+                    assignedLanes[targetLane] = heatSwimmers[k];
                 }
 
-                // Loop Cetak Baris Tabel Berdasarkan Urutan Lintasan Asli (1,2,3,4..)
                 for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
                     if (assignedLanes[lintasan]) {
                         const swimmer = assignedLanes[lintasan];
@@ -302,6 +311,7 @@ function renderKertasA4() {
         });
     });
 }
+
 // ==========================================
 // SIMPAN KE DATABASE (Tabel: event_heats)
 // ==========================================
@@ -315,13 +325,11 @@ window.simpanKeDatabase = async function() {
     btnSimpan.disabled = true;
 
     try {
-        // 1. Hapus data heat lama untuk Event ini (biar gak dobel kalau di-save ulang)
         await supabaseClient.from('event_heats').delete().eq('event_id', currentEventId);
 
         let dataToInsert = [];
         let spearheadPattern = generateSpearheadPattern(LINTASAN_MAX);
 
-        // 2. Reka ulang logika FINA Seeding untuk dijadikan array JSON
         orderOfEvents.forEach((ev, index) => {
             let eventNumber = index + 1;
             
@@ -330,9 +338,16 @@ window.simpanKeDatabase = async function() {
                 s.ku === ev.ku && 
                 s.gender === ev.gender
             );
-            swimmers.sort((a, b) => a.nama.localeCompare(b.nama));
 
-            if (swimmers.length === 0) return; // Skip kalau kosong
+            // SAMA SEPERTI RENDER: Urutkan lambat ke cepat (antar heat)
+            swimmers.sort((a, b) => {
+                if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
+                if (a.seed_time === 'NT') return -1;
+                if (b.seed_time === 'NT') return 1;
+                return b.seed_time.localeCompare(a.seed_time); 
+            });
+
+            if (swimmers.length === 0) return;
 
             let heatDistribution = calculateFinaHeats(swimmers.length, LINTASAN_MAX);
             let swimmerIndex = 0;
@@ -341,23 +356,29 @@ window.simpanKeDatabase = async function() {
                 let heatNumber = heatIdx + 1;
                 let lanesDataArray = [];
 
-                // Mapping perenang ke lintasan
+                let heatSwimmers = swimmers.slice(swimmerIndex, swimmerIndex + jumlahOrang);
+                swimmerIndex += jumlahOrang;
+
+                // SAMA SEPERTI RENDER: Urutkan cepat ke lambat (dalam heat)
+                heatSwimmers.sort((a, b) => {
+                    if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
+                    if (a.seed_time === 'NT') return 1;
+                    if (b.seed_time === 'NT') return -1;
+                    return a.seed_time.localeCompare(b.seed_time); 
+                });
+
                 let assignedLanes = {};
                 for (let k = 0; k < jumlahOrang; k++) {
                     let targetLane = spearheadPattern[k];
-                    if (swimmers[swimmerIndex]) {
-                        assignedLanes[targetLane] = swimmers[swimmerIndex];
-                    }
-                    swimmerIndex++;
+                    assignedLanes[targetLane] = heatSwimmers[k];
                 }
 
-                // Buat struktur JSON untuk 1 Heat (meliputi semua lintasan dari 1 sampai MAX)
                 for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
                     if (assignedLanes[lintasan]) {
                         const atlet = assignedLanes[lintasan];
                         lanesDataArray.push({
                             lane: lintasan,
-                            f1_id: atlet.f1_id,          // <--- Kita simpan F1 ID buat update personal best nanti!
+                            f1_id: atlet.f1_id,
                             id_pendaftaran: atlet.id_pendaftaran,
                             nama: atlet.nama,
                             klub: atlet.klub,
@@ -366,12 +387,11 @@ window.simpanKeDatabase = async function() {
                     } else {
                         lanesDataArray.push({
                             lane: lintasan,
-                            nama: null // Tandanya lintasan ini kosong
+                            nama: null
                         });
                     }
                 }
 
-                // Siapkan baris data untuk ditembak ke Supabase
                 dataToInsert.push({
                     event_id: currentEventId,
                     sesi: ev.sesi,
@@ -386,7 +406,6 @@ window.simpanKeDatabase = async function() {
             });
         });
 
-        // 3. Tembak masal (Bulk Insert) ke Supabase
         const { error: insertErr } = await supabaseClient.from('event_heats').insert(dataToInsert);
         if (insertErr) throw insertErr;
 

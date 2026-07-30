@@ -27,8 +27,10 @@ async function loadEventDashboard() {
         document.getElementById('headerEventName').innerText = eventData.event_name;
         document.getElementById('headerSubdomain').innerText = `${eventData.subdomain}.funswimming.my.id`;
 
-        // 1. LINK COPY PENDAFTARAN (Subdomain Murni)
-        const publicLink = `https://${eventData.subdomain}.funswimming.my.id`;
+        // ==========================================
+        // 1. LINK COPY PENDAFTARAN (UDAH DITAMBAH ?id=)
+        // ==========================================
+        const publicLink = `https://${eventData.subdomain}.funswimming.my.id?id=${currentEventId}`;
         const linkInput = document.getElementById('publicLinkInput');
         if (linkInput) linkInput.value = publicLink;
 
@@ -47,8 +49,10 @@ async function loadEventDashboard() {
             });
         }
 
-        // 2. LINK COPY LIVE RESULT PUBLIC (Subdomain Murni)
-        const publicResultLink = `https://${eventData.subdomain}.funswimming.my.id/result`;
+        // ==========================================
+        // 2. LINK COPY LIVE RESULT (UDAH DITAMBAH ?id=)
+        // ==========================================
+        const publicResultLink = `https://${eventData.subdomain}.funswimming.my.id/result?id=${currentEventId}`;
         const resultLinkInput = document.getElementById('publicResultLinkInput');
         if (resultLinkInput) resultLinkInput.value = publicResultLink;
 
@@ -67,12 +71,9 @@ async function loadEventDashboard() {
             });
         }
 
-        // --- NAVIGASI HALAMAN PANITIA TETAP PAKAI ?id= ---
+        // --- NAVIGASI HALAMAN PANITIA ---
         document.getElementById('btnSettingsLomba').onclick = () => window.location.href = `/settings-lomba.html?id=${currentEventId}`;
-        
-        // INI TOMBOL KASIR WAKTU (LIVE RESULT PANITIA)
         document.getElementById('btnLiveResult').onclick = () => window.location.href = `/live-result.html?id=${currentEventId}`;
-        
         document.getElementById('btnNomorStart').onclick = () => window.location.href = `/nomor-start.html?id=${currentEventId}`;
         document.getElementById('btnDataPeserta').onclick = () => window.location.href = `/event-peserta.html?id=${currentEventId}`;
 
@@ -134,7 +135,7 @@ function setCompleteBadge(elementId) {
 }
 
 // ===============================================
-// LOGIKA MODAL (TOMBOL ENTRY TIME ADA DI SINI)
+// LOGIKA MODAL
 // ===============================================
 document.getElementById('btnConfigLanding').onclick = () => { document.getElementById('valLandingText').value = eventConfigData.landing_text || ""; document.getElementById('modalLanding').classList.remove('hidden'); };
 document.getElementById('btnConfigEntry').onclick = () => { document.getElementById('valEntryLimit').value = eventConfigData.entry_limit || ""; document.getElementById('modalEntry').classList.remove('hidden'); };

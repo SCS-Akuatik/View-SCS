@@ -1,217 +1,204 @@
 import { supabaseClient } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Cek Sesi Aktif
+    
+    // 1. CEK SESSION: Lempar ke dashboard kalau udah login
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
-        window.location.href = '/dashboard.html';
+        window.location.replace('/dashboard.html');
         return;
     }
 
-    // Element Mapping
-    const formTitle = document.getElementById('formTitle');
-    const formSubtitle = document.getElementById('formSubtitle');
-    const clubInputGroup = document.getElementById('clubInputGroup');
-    const clubNameInput = document.getElementById('clubName');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const tncGroup = document.getElementById('tncGroup');
-    const promoConsent = document.getElementById('promoConsent');
-    const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    
-    const messageBox = document.getElementById('messageBox');
-    const mainBtn = document.getElementById('mainBtn');
-    const toggleText = document.getElementById('toggleText');
-    const toggleBtn = document.getElementById('toggleBtn');
-    
-    const togglePassword = document.getElementById('togglePassword');
-    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const containerLogin = document.getElementById('formLoginContainer');
+    const containerRegister = document.getElementById('formRegisterContainer');
+    const formLogin = document.getElementById('formLogin');
+    const formRegister = document.getElementById('formRegister');
+    const btnLogin = document.getElementById('btnLogin');
+    const btnRegister = document.getElementById('btnRegister');
+    const btnGoogleLogin = document.getElementById('btnGoogleLogin');
 
-    let isLoginMode = true; // Default: Mode Masuk
+    // ==========================================
+    // SWITCHER ANIMASI (LOGIN <-> REGISTER)
+    // ==========================================
+    document.getElementById('btnSwitchToRegister').addEventListener('click', () => {
+        containerLogin.classList.remove('translate-x-0', 'opacity-100');
+        containerLogin.classList.add('-translate-x-full', 'opacity-0');
+        setTimeout(() => {
+            containerLogin.classList.add('hidden');
+            containerRegister.classList.remove('hidden');
+            setTimeout(() => {
+                containerRegister.classList.remove('translate-x-full', 'opacity-0');
+                containerRegister.classList.add('translate-x-0', 'opacity-100');
+            }, 50);
+        }, 300);
+    });
 
-    // --- A. TOGGLE PASSWORD VISIBILITY ---
-    if (togglePassword) {
-        togglePassword.addEventListener('click', () => {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                togglePassword.innerText = '🙈';
-            } else {
-                passwordInput.type = 'password';
-                togglePassword.innerText = '👁️';
-            }
-        });
-    }
+    document.getElementById('btnSwitchToLogin').addEventListener('click', () => {
+        containerRegister.classList.remove('translate-x-0', 'opacity-100');
+        containerRegister.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => {
+            containerRegister.classList.add('hidden');
+            containerLogin.classList.remove('hidden');
+            setTimeout(() => {
+                containerLogin.classList.remove('-translate-x-full', 'opacity-0');
+                containerLogin.classList.add('translate-x-0', 'opacity-100');
+            }, 50);
+        }, 300);
+    });
 
-    if (toggleConfirmPassword) {
-        toggleConfirmPassword.addEventListener('click', () => {
-            if (confirmPasswordInput.type === 'password') {
-                confirmPasswordInput.type = 'text';
-                toggleConfirmPassword.innerText = '🙈';
-            } else {
-                confirmPasswordInput.type = 'password';
-                toggleConfirmPassword.innerText = '👁️';
-            }
-        });
-    }
-
-    // --- B. TOGGLE MODE (LOGIN <-> REGISTER) ---
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            isLoginMode = !isLoginMode;
-            messageBox.classList.add('hidden');
-
-            if (isLoginMode) {
-                // Mode Login
-                formTitle.innerText = "Masuk ke Portal";
-                formSubtitle.innerText = "Sistem Manajemen Kompetisi Akuatik";
-                clubInputGroup.classList.add('hidden');
-                confirmPasswordGroup.classList.add('hidden');
-                tncGroup.classList.add('hidden');
-                forgotPasswordContainer.classList.remove('hidden');
-                mainBtn.innerText = "Masuk ke Dashboard";
-                toggleText.innerText = "Belum bermitra dengan kami?";
-                toggleBtn.innerText = "Daftar sekarang";
-            } else {
-                // Mode Daftar
-                formTitle.innerText = "Pendaftaran Klub Baru";
-                formSubtitle.innerText = "Bergabunglah dengan ekosistem SCS";
-                clubInputGroup.classList.remove('hidden');
-                confirmPasswordGroup.classList.remove('hidden');
-                tncGroup.classList.remove('hidden');
-                forgotPasswordContainer.classList.add('hidden');
-                mainBtn.innerText = "Daftar Akun Sekarang";
-                toggleText.innerText = "Sudah punya akun?";
-                toggleBtn.innerText = "Masuk di sini";
-            }
-        });
-    }
-
-    // --- C. LOGIC UTAMA (SUBMIT FORM) ---
-    if (mainBtn) {
-        mainBtn.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            messageBox.classList.add('hidden');
-
-            if (!email || !password) {
-                showError("Email dan Kata Sandi wajib diisi!");
-                return;
-            }
-
-            mainBtn.innerText = "Memproses...";
-            mainBtn.disabled = true;
-            mainBtn.classList.add('opacity-70');
-
-            if (isLoginMode) {
-                // --- PROSES LOGIN ---
-                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-                if (error) {
-                    showError(error.message);
-                    resetBtn("Masuk ke Dashboard");
-                } else {
-                    showSuccess("Berhasil masuk! Mengalihkan...");
-                    setTimeout(() => window.location.href = '/dashboard.html', 800);
+    // ==========================================
+    // LOGIKA LOGIN GOOGLE
+    // ==========================================
+    if (btnGoogleLogin) {
+        btnGoogleLogin.addEventListener('click', async () => {
+            btnGoogleLogin.innerHTML = `<span class="animate-spin text-xl">↻</span> Menghubungkan...`;
+            
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/dashboard.html'
                 }
+            });
 
-            } else {
-                // --- PROSES REGISTER / PENDAFTARAN ---
-                const clubName = clubNameInput.value.trim();
-                const confirmPassword = confirmPasswordInput.value;
-
-                if (!clubName) {
-                    showError("Nama Klub wajib diisi!");
-                    resetBtn("Daftar Akun Sekarang");
-                    return;
-                }
-                if (password !== confirmPassword) {
-                    showError("Konfirmasi kata sandi tidak cocok!");
-                    resetBtn("Daftar Akun Sekarang");
-                    return;
-                }
-                if (!promoConsent.checked) {
-                    showError("Anda harus menyetujui Syarat & Ketentuan.");
-                    resetBtn("Daftar Akun Sekarang");
-                    return;
-                }
-
-                // 1. Daftarkan User ke Supabase Auth
-                const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email, password });
-
-                if (authError) {
-                    showError(authError.message);
-                    resetBtn("Daftar Akun Sekarang");
-                    return;
-                }
-
-                const userId = authData.user?.id;
-
-                if (userId) {
-                    // 2. Buat record klub baru di tabel 'clubs' dan sambungkan owner_id-nya!
-                    const shortCode = clubName.split(' ').map(w => w[0]).join('').substring(0, 4).toUpperCase();
-                    
-                    const { error: clubError } = await supabaseClient
-                        .from('clubs')
-                        .insert([{
-                            club_name: clubName,
-                            short_name: shortCode,
-                            owner_id: userId,
-                            tier: 'Basic',
-                            is_verified: false
-                        }]);
-
-                    if (clubError) {
-                        console.error("Gagal buat klub:", clubError.message);
-                    }
-                }
-
-                showSuccess("Pendaftaran Berhasil! Silakan masuk.");
-                setTimeout(() => {
-                    toggleBtn.click(); // Balikin ke mode login
-                    resetBtn("Masuk ke Dashboard");
-                    emailInput.value = '';
-                    passwordInput.value = '';
-                }, 1500);
-            }
-        });
-    }
-
-    // --- D. LUPA PASSWORD LINK ---
-    if (forgotPasswordLink) {
-        forgotPasswordLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = emailInput.value.trim();
-            if (!email) {
-                alert("Silakan masukkan email Anda terlebih dahulu pada kolom Email.");
-                return;
-            }
-
-            const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
             if (error) {
-                alert("Gagal mengirim instruksi reset: " + error.message);
-            } else {
-                alert("Link pemulihan kata sandi telah dikirim ke email Anda.");
+                alert("Gagal menghubungkan ke Google: " + error.message);
+                btnGoogleLogin.innerHTML = "Lanjutkan dengan Google";
             }
         });
     }
 
-    // Helpers UI
-    function showError(msg) {
-        messageBox.innerText = `Gagal: ${msg}`;
-        messageBox.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+    // ==========================================
+    // LOGIKA LOGIN EMAIL
+    // ==========================================
+    formLogin.addEventListener('submit', async () => {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorMsg = document.getElementById('loginErrorMsg');
+
+        btnLogin.innerHTML = `<span class="animate-spin text-xl">↻</span> Memproses...`;
+        btnLogin.disabled = true;
+        errorMsg.classList.add('hidden');
+
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                if (error.message.includes("Invalid login credentials")) {
+                    throw new Error("Email atau kata sandi salah!");
+                } else if (error.message.includes("Email not confirmed")) {
+                    throw new Error("Email belum diverifikasi. Cek kotak masuk Anda!");
+                }
+                throw error;
+            }
+            
+            window.location.replace('/dashboard.html');
+
+        } catch (err) {
+            errorMsg.innerText = err.message;
+            errorMsg.classList.remove('hidden');
+            btnLogin.innerHTML = `Masuk 🚀`;
+            btnLogin.disabled = false;
+        }
+    });
+
+    // ==========================================
+    // LOGIKA REGISTER EMAIL
+    // ==========================================
+    formRegister.addEventListener('submit', async () => {
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const alertMsg = document.getElementById('regAlertMsg');
+
+        btnRegister.innerHTML = `<span class="animate-spin text-xl">↻</span> Memproses...`;
+        btnRegister.disabled = true;
+        alertMsg.classList.add('hidden');
+
+        try {
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                if (error.message.includes("User already registered")) {
+                    throw new Error("Email ini sudah digunakan. Silakan login.");
+                }
+                throw error;
+            }
+
+            alertMsg.innerHTML = "✅ <strong>Pendaftaran Berhasil!</strong><br>Silakan periksa <strong>Kotak Masuk / Spam</strong> email Anda untuk mengklik tautan verifikasi sebelum masuk.";
+            alertMsg.className = "bg-emerald-50 text-emerald-700 text-xs font-bold p-3 rounded-lg border border-emerald-200 text-center leading-relaxed block";
+            
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+
+        } catch (err) {
+            alertMsg.innerText = "❌ " + err.message;
+            alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-100 text-center block";
+        } finally {
+            btnRegister.innerHTML = `Daftarkan Via Email`;
+            btnRegister.disabled = false;
+        }
+    });
+
+    // ==========================================
+    // LOGIKA LUPA PASSWORD (MODAL)
+    // ==========================================
+    const btnLupaSandi = document.getElementById('btnLupaSandi');
+    const modalResetPassword = document.getElementById('modalResetPassword');
+    const btnTutupReset = document.getElementById('btnTutupReset');
+    const btnKirimReset = document.getElementById('btnKirimReset');
+
+    if (btnLupaSandi) {
+        btnLupaSandi.addEventListener('click', (e) => {
+            e.preventDefault();
+            modalResetPassword.classList.remove('hidden');
+        });
     }
 
-    function showSuccess(msg) {
-        messageBox.innerText = msg;
-        messageBox.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block";
+    if (btnTutupReset) {
+        btnTutupReset.addEventListener('click', () => {
+            modalResetPassword.classList.add('hidden');
+            document.getElementById('resetAlertMsg').classList.add('hidden');
+        });
     }
 
-    function resetBtn(text) {
-        mainBtn.innerText = text;
-        mainBtn.disabled = false;
-        mainBtn.classList.remove('opacity-70');
+    if (btnKirimReset) {
+        btnKirimReset.addEventListener('click', async () => {
+            const email = document.getElementById('inputResetEmail').value.trim();
+            const alertMsg = document.getElementById('resetAlertMsg');
+
+            if (!email) {
+                alertMsg.innerText = "Masukkan email akun Anda terlebih dahulu!";
+                alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100 text-center block mb-4";
+                return;
+            }
+
+            btnKirimReset.innerHTML = `<span class="animate-spin inline-block">↻</span> Mengirim...`;
+            btnKirimReset.disabled = true;
+            alertMsg.classList.add('hidden');
+
+            try {
+                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/dashboard.html', 
+                });
+
+                if (error) throw error;
+
+                alertMsg.innerHTML = "✅ <strong>Tautan Terkirim!</strong><br>Silakan periksa kotak masuk atau folder spam email Anda.";
+                alertMsg.className = "bg-emerald-50 text-emerald-700 text-xs font-bold p-3 rounded-xl border border-emerald-200 text-center block mb-4";
+                document.getElementById('inputResetEmail').value = ''; 
+
+            } catch (err) {
+                alertMsg.innerText = "❌ Gagal: " + err.message;
+                alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100 text-center block mb-4";
+            } finally {
+                btnKirimReset.innerHTML = "Kirim Tautan";
+                btnKirimReset.disabled = false;
+            }
+        });
     }
 });

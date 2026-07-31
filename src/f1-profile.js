@@ -6,10 +6,11 @@ let currentAthleteData = null; // Buat nampung data JSONB lama
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    currentF1Id = urlParams.get('id');
+    currentF1Id = urlParams.get('id'); // Mengambil ID dari URL (?id=F1-XXXXX)
 
     if (!currentF1Id) {
-        alert("F1 ID tidak ditemukan!");
+        alert("F1 ID tidak ditemukan di URL!\nSistem butuh ID atlet. Contoh: /f1-profile?id=F1-1308207");
+        document.getElementById('f1Name').innerText = "Data Kosong";
         return;
     }
 
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAthleteProfile() {
     try {
+        // Tarik data atlet & join ke tabel clubs
         const { data: atlet, error } = await supabaseClient
             .from('athletes')
             .select(`*, clubs(club_name)`) 
@@ -29,6 +31,7 @@ async function loadAthleteProfile() {
         
         currentAthleteData = atlet; // Simpan data di global variable
 
+        // Suntik data ke HTML
         document.getElementById('f1IdBadge').innerHTML = `<span>🌊</span> ${atlet.f1_id}`;
         document.getElementById('f1Name').innerText = atlet.full_name;
         document.getElementById('f1Gender').innerText = atlet.gender;
@@ -51,6 +54,7 @@ async function loadAthleteProfile() {
         let chartData = [];
 
         if (totalEvent > 0) {
+            // Urutkan berdasarkan tanggal (terlama -> terbaru)
             history.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
             history.forEach(lomba => {
@@ -63,7 +67,7 @@ async function loadAthleteProfile() {
                 }
 
                 const tahun = new Date(lomba.tanggal).getFullYear();
-                // Tambah penanda kalau Unverified di grafik
+                // Penanda Unverified vs Verified di grafik
                 const labelStatus = lomba.verified_scs ? '✓' : '⚠';
                 chartLabels.push(`${labelStatus} ${lomba.nama_event.substring(0, 10)}...`);
                 chartData.push(lomba.waktu_detik);
@@ -79,6 +83,7 @@ async function loadAthleteProfile() {
             document.getElementById('pbTime').innerText = "NT"; 
         }
 
+        // Render Grafik Chart.js
         renderDynamicChart(chartLabels, chartData);
 
     } catch (err) {
@@ -92,7 +97,7 @@ function renderDynamicChart(labels, dataWaktu) {
     if(!ctx) return;
     
     if (chartInstance) {
-        chartInstance.destroy();
+        chartInstance.destroy(); // Hancurkan grafik lama kalau render ulang
     }
 
     if (labels.length === 0) {
@@ -142,21 +147,19 @@ function setupModalLogic() {
     const btnSimpan = document.getElementById('btnSimpanRiwayat');
     const alertModal = document.getElementById('alertModal');
 
-    // Buka Tutup Modal
     if(btnBuka) btnBuka.addEventListener('click', () => modal.classList.remove('hidden'));
     if(btnTutup) btnTutup.addEventListener('click', () => {
         modal.classList.add('hidden');
         alertModal.classList.add('hidden');
     });
 
-    // Aksi Simpan
     if(btnSimpan) btnSimpan.addEventListener('click', async () => {
         const inputNama = document.getElementById('inputNamaEvent').value;
         const inputTanggal = document.getElementById('inputTanggal').value;
         const inputGaya = document.getElementById('inputGaya').value;
         const inputWaktu = document.getElementById('inputWaktu').value;
         const inputMedali = document.getElementById('inputMedali').value;
-        const inputValidasi = document.getElementById('inputValidasi').value === 'true'; // Konversi ke boolean
+        const inputValidasi = document.getElementById('inputValidasi').value === 'true'; 
 
         if (!inputNama || !inputTanggal || !inputWaktu) {
             alertModal.innerText = "❌ Nama, Tanggal, dan Waktu wajib diisi!";
@@ -168,10 +171,8 @@ function setupModalLogic() {
         btnSimpan.disabled = true;
 
         try {
-            // 1. Ambil array JSONB lama, kalau kosong bikin array baru
             const oldHistory = currentAthleteData.history_lomba || [];
 
-            // 2. Bikin objek data baru (Format JSON)
             const newRecord = {
                 event_id: inputValidasi ? "SCS-" + Date.now() : "UNVERIFIED-" + Date.now(),
                 nama_event: inputNama,
@@ -179,13 +180,11 @@ function setupModalLogic() {
                 gaya: inputGaya,
                 waktu_detik: parseFloat(inputWaktu),
                 medali: inputMedali,
-                verified_scs: inputValidasi // Properti pembeda sakti lu!
+                verified_scs: inputValidasi
             };
 
-            // 3. Gabungin data lama sama data baru
             const updatedHistory = [...oldHistory, newRecord];
 
-            // 4. Tembak ke Supabase (Update Kolom JSONB)
             const { error } = await supabaseClient
                 .from('athletes')
                 .update({ history_lomba: updatedHistory })
@@ -193,12 +192,10 @@ function setupModalLogic() {
 
             if (error) throw error;
 
-            // 5. Sukses! Tutup modal & Refresh grafik
             modal.classList.add('hidden');
             document.getElementById('formRiwayat').reset();
             alertModal.classList.add('hidden');
             
-            // Render ulang grafik pake data terbaru tanpa perlu refresh page
             await loadAthleteProfile(); 
 
         } catch (error) {

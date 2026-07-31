@@ -26,7 +26,7 @@ export default defineConfig({
         admin: resolve(__dirname, 'admin.html'),
       }
     }
-  }
+  },
   server: {
     // Biar pas ngetik /admin di lokal langsung nembus ke admin.html tanpa error 404
     proxy: {},

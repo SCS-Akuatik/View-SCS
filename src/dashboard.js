@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
+// ==========================================
 // 1. FUNGSI TARIK DATA DASHBOARD (FULL DINAMIS)
 // ==========================================
 async function fetchDashboardData() {
@@ -84,6 +85,7 @@ async function fetchDashboardData() {
         }
 
         const userId = session.user.id; 
+        const userEmail = session.user.email;
 
         // --- B. CARI KLUB MILIK USER INI ---
         const { data: clubData, error: clubError } = await supabaseClient
@@ -92,9 +94,57 @@ async function fetchDashboardData() {
             .eq('owner_id', userId)
             .single();
 
+        // LOGIKA BARU: JIKA KLUB BELUM ADA (USER BARU LOGIN PERTAMA KALI)
         if (clubError || !clubData) {
-            document.getElementById('athleteTableBody').innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">Akun Anda belum terhubung dengan klub manapun. Hubungi Admin.</td></tr>`;
-            return;
+            const modalOnboard = document.getElementById('modalOnboarding');
+            modalOnboard.classList.remove('hidden'); // Munculkan pop-up wajib
+            
+            const btnSaveOnboard = document.getElementById('btnSaveOnboarding');
+            
+            btnSaveOnboard.onclick = async () => {
+                const cName = document.getElementById('onboardClubName').value.trim();
+                const cCoach = document.getElementById('onboardCoachName').value.trim();
+                const onboardMsg = document.getElementById('onboardMsg');
+
+                if (!cName || !cCoach) {
+                    onboardMsg.innerText = "Nama Klub dan Nama Pelatih wajib diisi!";
+                    onboardMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+                    return;
+                }
+
+                btnSaveOnboard.innerText = "Membangun Klub...";
+                btnSaveOnboard.disabled = true;
+
+                try {
+                    // INSERT DATA KLUB BARU KE SUPABASE
+                    const { error: insertErr } = await supabaseClient
+                        .from('clubs')
+                        .insert([{
+                            club_name: cName,
+                            coach_name: cCoach,
+                            owner_id: userId,
+                            admin_email: userEmail
+                        }]);
+
+                    if (insertErr) throw insertErr;
+
+                    onboardMsg.innerText = "✅ Klub berhasil dibangun! Memuat Command Center...";
+                    onboardMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block";
+                    
+                    // Hilangkan pop-up dan PANGGIL ULANG fungsi dashboard untuk memuat data baru
+                    setTimeout(() => {
+                        modalOnboard.classList.add('hidden');
+                        fetchDashboardData(); 
+                    }, 1500);
+
+                } catch (err) {
+                    onboardMsg.innerText = "Gagal: " + err.message;
+                    onboardMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
+                    btnSaveOnboard.innerText = "Buat Klub & Mulai 🚀";
+                    btnSaveOnboard.disabled = false;
+                }
+            };
+            return; // Hentikan proses render dashboard sampai form ini disubmit!
         }
 
         currentClubId = clubData.id; // SET GLOBAL VARIABEL

@@ -3,195 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCS - Administrator</title>
-    <style>
-        body {
-            background-color: #050505;
-            color: #00ff41;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 1.5rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            text-shadow: 0 0 5px #00ff41;
-            box-sizing: border-box;
-        }
-
-        .terminal-box {
-            width: 100%;
-            max-width: 650px;
-            background: rgba(0, 15, 0, 0.9);
-            border: 1px solid #00ff41;
-            padding: 2rem;
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.25);
-            border-radius: 8px;
-        }
-
-        .header-title {
-            font-size: 1.4rem;
-            font-weight: bold;
-            border-bottom: 1px dashed #00ff41;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-
-        .greeting {
-            font-size: 1.1rem;
-            margin-bottom: 25px;
-            color: #ffffff;
-            text-shadow: 0 0 5px #ffffff;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            background: rgba(0, 40, 0, 0.4);
-            padding: 10px 15px;
-            border: 1px solid #005515;
-            border-radius: 4px;
-        }
-
-        .prompt-label {
-            margin-right: 12px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        input {
-            background: transparent;
-            border: none;
-            color: #00ff41;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.1rem;
-            outline: none;
-            width: 100%;
-            text-shadow: 0 0 5px #00ff41;
-            letter-spacing: 2px;
-        }
-
-        button {
-            width: 100%;
-            background: #00ff41;
-            color: #000;
-            border: none;
-            padding: 12px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.2s;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background: #ffffff;
-            box-shadow: 0 0 15px #ffffff;
-        }
-
-        #sysMsg {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            min-height: 20px;
-        }
-
-        .hidden { display: none !important; }
-
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 1.1rem;
-            background-color: #00ff41;
-            animation: blink 1s step-end infinite;
-            vertical-align: middle;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 0.85rem;
-        }
-        th, td {
-            border: 1px solid #005515;
-            padding: 10px;
-            text-align: left;
-        }
-        th { background: #00220a; color: #fff; }
-    </style>
+    <title>Super Admin | SCS</title>
+    <link rel="stylesheet" href="/src/style.css">
 </head>
-<body>
+<body class="bg-slate-900 min-h-screen font-sans text-slate-200 pb-20">
 
-    <!-- TERMINAL LOGIN -->
-    <div id="adminLogin" class="terminal-box">
-        <div class="header-title">SCS - Administrator</div>
-        <div class="greeting">halo boss!!<br>Berikan kode aksesmu</div>
-        
-        <form id="formKodeAkses" onsubmit="event.preventDefault();">
-            <div class="input-group">
-                <span class="prompt-label">KODE:</span>
-                <input type="password" id="inputKode" placeholder="••••••••" autocomplete="off" autofocus>
+    <!-- TOP NAV ADMIN -->
+    <nav class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">👑</span>
+            <div>
+                <h1 class="text-sm md:text-lg font-black text-white tracking-widest uppercase">SCS Super Admin</h1>
+                <p class="text-[10px] text-emerald-400 font-mono">System Control Panel</p>
             </div>
-            
-            <div id="sysMsg"></div>
-            
-            <button type="submit">[ VERIFIKASI KODE ]</button>
-        </form>
-    </div>
+        </div>
+        <button id="btnAdminLogout" class="px-4 py-2 bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white rounded-lg text-xs font-bold transition-colors">Logout</button>
+    </nav>
 
-    <!-- TERMINAL DASHBOARD (DUMMY SYSTEM) -->
-    <div id="adminDashboard" class="terminal-box hidden">
-        <div class="header-title">SCS ROOT_SYSTEM // ACTIVE</div>
-        <p id="typeMsg"></p>
-
-        <div style="margin-top: 20px;">
-            <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 5px;">> RUNNING SQL QUERY:</div>
-            <div style="background: #001505; padding: 8px; border: 1px solid #004411;">SELECT club_id, club_name, coach, status FROM system_clubs;</div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        
+        <!-- SECTION 1: ANTRIAN VERIFIKASI F1 ID -->
+        <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 overflow-hidden">
+            <div class="p-5 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <span>⏳</span> F1 ID Verification Queues
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Review dokumen akta dan foto untuk aktivasi atlet.</p>
+                </div>
+                <span id="badgeQueue" class="bg-amber-500 text-slate-900 font-black px-3 py-1 rounded-full text-xs">0 Pending</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="p-4 font-bold">F1 ID & Nama</th>
+                            <th class="p-4 font-bold">Klub Asal</th>
+                            <th class="p-4 font-bold">Dokumen</th>
+                            <th class="p-4 font-bold text-center">Aksi Dewa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queueTableBody" class="divide-y divide-slate-700/50">
+                        <tr><td colspan="4" class="p-8 text-center text-slate-500">Mencari antrian verifikasi...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>KLUB</th>
-                    <th>HEAD COACH</th>
-                    <th>STATUS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>0x01</td>
-                    <td>Jago Renang Academy</td>
-                    <td>Aditya</td>
-                    <td>[ ONLINE ]</td>
-                </tr>
-                <tr>
-                    <td>0x02</td>
-                    <td>Sidoarjo Aquatic</td>
-                    <td>Amel</td>
-                    <td>[ ACTIVE ]</td>
-                </tr>
-                <tr>
-                    <td>0x03</td>
-                    <td>Hiu Selatan</td>
-                    <td>Shanti</td>
-                    <td>[ ACTIVE ]</td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- SECTION 2: FULL CLUB MANAGER -->
+        <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 overflow-hidden">
+            <div class="p-5 border-b border-slate-700 bg-slate-800/50">
+                <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                    <span>🏢</span> Full Club Manager
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Database seluruh klub yang terdaftar di ekosistem SCS.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="p-4 font-bold w-12 text-center">No</th>
+                            <th class="p-4 font-bold">Nama Klub</th>
+                            <th class="p-4 font-bold">Pelatih Kepala</th>
+                            <th class="p-4 font-bold">Asal Regional</th>
+                            <th class="p-4 font-bold text-center">Ranking</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clubTableBody" class="divide-y divide-slate-700/50">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-500">Memuat database klub...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <button id="btnLogout" style="background: #ff003c; color: #fff; margin-top: 25px;">[ KELUAR SESSION ]</button>
     </div>
 
+    <!-- Panggil JS -->
     <script type="module" src="/src/admin.js"></script>
 </body>
 </html>

@@ -2,25 +2,26 @@ import { supabaseClient } from './supabase.js';
 
 let currentF1Id = null;
 let chartInstance = null; 
-let currentAthleteData = null; // Buat nampung data JSONB lama
+let currentAthleteData = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. AUTO CAPTURE F1 ID DARI URL PARAMETER
     const urlParams = new URLSearchParams(window.location.search);
-    currentF1Id = urlParams.get('id'); // Mengambil ID dari URL (?id=F1-XXXXX)
+    currentF1Id = urlParams.get('id');
 
+    // 2. SAFETY CHECK
     if (!currentF1Id) {
-        alert("F1 ID tidak ditemukan di URL!\nSistem butuh ID atlet. Contoh: /f1-profile?id=F1-1308207");
-        document.getElementById('f1Name').innerText = "Data Kosong";
+        document.getElementById('f1Name').innerText = "Akses Tidak Valid";
+        alert("F1 ID tidak terdeteksi! Silakan buka profil melalui tombol di Dashboard Klub.");
         return;
     }
 
     await loadAthleteProfile();
-    setupModalLogic(); // Inisiasi fitur modal
+    setupModalLogic();
 });
 
 async function loadAthleteProfile() {
     try {
-        // Tarik data atlet & join ke tabel clubs
         const { data: atlet, error } = await supabaseClient
             .from('athletes')
             .select(`*, clubs(club_name)`) 
@@ -29,9 +30,9 @@ async function loadAthleteProfile() {
 
         if (error || !atlet) throw error;
         
-        currentAthleteData = atlet; // Simpan data di global variable
+        currentAthleteData = atlet; 
 
-        // Suntik data ke HTML
+        // Suntik data ke DOM HTML
         document.getElementById('f1IdBadge').innerHTML = `<span>🌊</span> ${atlet.f1_id}`;
         document.getElementById('f1Name').innerText = atlet.full_name;
         document.getElementById('f1Gender').innerText = atlet.gender;
@@ -54,7 +55,6 @@ async function loadAthleteProfile() {
         let chartData = [];
 
         if (totalEvent > 0) {
-            // Urutkan berdasarkan tanggal (terlama -> terbaru)
             history.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
             history.forEach(lomba => {
@@ -67,7 +67,6 @@ async function loadAthleteProfile() {
                 }
 
                 const tahun = new Date(lomba.tanggal).getFullYear();
-                // Penanda Unverified vs Verified di grafik
                 const labelStatus = lomba.verified_scs ? '✓' : '⚠';
                 chartLabels.push(`${labelStatus} ${lomba.nama_event.substring(0, 10)}...`);
                 chartData.push(lomba.waktu_detik);
@@ -83,7 +82,6 @@ async function loadAthleteProfile() {
             document.getElementById('pbTime').innerText = "NT"; 
         }
 
-        // Render Grafik Chart.js
         renderDynamicChart(chartLabels, chartData);
 
     } catch (err) {
@@ -97,7 +95,7 @@ function renderDynamicChart(labels, dataWaktu) {
     if(!ctx) return;
     
     if (chartInstance) {
-        chartInstance.destroy(); // Hancurkan grafik lama kalau render ulang
+        chartInstance.destroy();
     }
 
     if (labels.length === 0) {
@@ -159,10 +157,9 @@ function setupModalLogic() {
         const inputGaya = document.getElementById('inputGaya').value;
         const inputWaktu = document.getElementById('inputWaktu').value;
         const inputMedali = document.getElementById('inputMedali').value;
-        const inputValidasi = document.getElementById('inputValidasi').value === 'true'; 
 
-        if (!inputNama || !inputTanggal || !inputWaktu) {
-            alertModal.innerText = "❌ Nama, Tanggal, dan Waktu wajib diisi!";
+        if (!inputNama || !inputTanggal || !inputGaya || !inputWaktu) {
+            alertModal.innerText = "❌ Nama, Tanggal, Gaya, dan Waktu wajib diisi!";
             alertModal.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100 text-center block mt-4";
             return;
         }
@@ -174,13 +171,13 @@ function setupModalLogic() {
             const oldHistory = currentAthleteData.history_lomba || [];
 
             const newRecord = {
-                event_id: inputValidasi ? "SCS-" + Date.now() : "UNVERIFIED-" + Date.now(),
+                event_id: "MANUAL-" + Date.now(),
                 nama_event: inputNama,
                 tanggal: inputTanggal,
                 gaya: inputGaya,
                 waktu_detik: parseFloat(inputWaktu),
                 medali: inputMedali,
-                verified_scs: inputValidasi
+                verified_scs: false // HARGA MATI: Input manual = Unverified
             };
 
             const updatedHistory = [...oldHistory, newRecord];

@@ -22,8 +22,15 @@ export default defineConfig({
         // MODULE BUKU ACARA & HEAT
         eventBook: resolve(__dirname, 'book/book.html'),
         liveResult: resolve(__dirname, 'live-result.html'),
-        result: resolve(__dirname, 'result.html')
+        result: resolve(__dirname, 'result.html'),
+        admin: resolve(__dirname, 'admin.html'),
       }
     }
   }
+  server: {
+    // Biar pas ngetik /admin di lokal langsung nembus ke admin.html tanpa error 404
+    proxy: {},
+  },
+  // Plugin sederhana biar URL bersih tanpa .html di dev server
+  appType: 'mpa',
 });

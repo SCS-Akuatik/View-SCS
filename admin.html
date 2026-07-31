@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS - Administrator</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #00ff41;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-shadow: 0 0 5px #00ff41;
+            box-sizing: border-box;
+        }
+
+        .terminal-box {
+            width: 100%;
+            max-width: 650px;
+            background: rgba(0, 15, 0, 0.9);
+            border: 1px solid #00ff41;
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.25);
+            border-radius: 8px;
+        }
+
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-bottom: 1px dashed #00ff41;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .greeting {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: #ffffff;
+            text-shadow: 0 0 5px #ffffff;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background: rgba(0, 40, 0, 0.4);
+            padding: 10px 15px;
+            border: 1px solid #005515;
+            border-radius: 4px;
+        }
+
+        .prompt-label {
+            margin-right: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: #00ff41;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            outline: none;
+            width: 100%;
+            text-shadow: 0 0 5px #00ff41;
+            letter-spacing: 2px;
+        }
+
+        button {
+            width: 100%;
+            background: #00ff41;
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #ffffff;
+            box-shadow: 0 0 15px #ffffff;
+        }
+
+        #sysMsg {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+
+        .hidden { display: none !important; }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.1rem;
+            background-color: #00ff41;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.85rem;
+        }
+        th, td {
+            border: 1px solid #005515;
+            padding: 10px;
+            text-align: left;
+        }
+        th { background: #00220a; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <!-- TERMINAL LOGIN -->
+    <div id="adminLogin" class="terminal-box">
+        <div class="header-title">SCS - Administrator</div>
+        <div class="greeting">halo boss!!<br>Berikan kode aksesmu</div>
+        
+        <form id="formKodeAkses" onsubmit="event.preventDefault();">
+            <div class="input-group">
+                <span class="prompt-label">KODE:</span>
+                <input type="password" id="inputKode" placeholder="••••••••" autocomplete="off" autofocus>
+            </div>
+            
+            <div id="sysMsg"></div>
+            
+            <button type="submit">[ VERIFIKASI KODE ]</button>
+        </form>
+    </div>
+
+    <!-- TERMINAL DASHBOARD (DUMMY SYSTEM) -->
+    <div id="adminDashboard" class="terminal-box hidden">
+        <div class="header-title">SCS ROOT_SYSTEM // ACTIVE</div>
+        <p id="typeMsg"></p>
+
+        <div style="margin-top: 20px;">
+            <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 5px;">> RUNNING SQL QUERY:</div>
+            <div style="background: #001505; padding: 8px; border: 1px solid #004411;">SELECT club_id, club_name, coach, status FROM system_clubs;</div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>KLUB</th>
+                    <th>HEAD COACH</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0x01</td>
+                    <td>Jago Renang Academy</td>
+                    <td>Aditya</td>
+                    <td>[ ONLINE ]</td>
+                </tr>
+                <tr>
+                    <td>0x02</td>
+                    <td>Sidoarjo Aquatic</td>
+                    <td>Amel</td>
+                    <td>[ ACTIVE ]</td>
+                </tr>
+                <tr>
+                    <td>0x03</td>
+                    <td>Hiu Selatan</td>
+                    <td>Shanti</td>
+                    <td>[ ACTIVE ]</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button id="btnLogout" style="background: #ff003c; color: #fff; margin-top: 25px;">[ KELUAR SESSION ]</button>
+    </div>
+
+    <script type="module" src="/src/admin.js"></script>
+</body>
+</html>

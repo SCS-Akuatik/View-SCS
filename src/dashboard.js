@@ -334,6 +334,58 @@ const tabAkunBtn = document.getElementById('tabAkunBtn');
 const formProfilKlub = document.getElementById('formProfilKlub');
 const formAkun = document.getElementById('formAkun');
 
+// ==========================================
+// API WILAYAH INDONESIA (PROVINSI & KOTA)
+// ==========================================
+const elProvinsi = document.getElementById('editProvinsi');
+const elKota = document.getElementById('editKota');
+
+// 1. Tarik Data Provinsi saat halaman dimuat
+async function loadProvinsi() {
+    try {
+        const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
+        const provinces = await response.json();
+        
+        elProvinsi.innerHTML = '<option value="">-- Pilih Provinsi --</option>';
+        provinces.forEach(prov => {
+            // Simpan ID provinsi di data-id buat narik kota nanti
+            elProvinsi.innerHTML += `<option value="${prov.name}" data-id="${prov.id}">${prov.name}</option>`;
+        });
+    } catch (error) {
+        console.error("Gagal load API Provinsi", error);
+        elProvinsi.innerHTML = '<option value="">Gagal memuat API</option>';
+    }
+}
+loadProvinsi(); // Panggil fungsinya
+
+// 2. Tarik Data Kota saat Provinsi dipilih
+elProvinsi.addEventListener('change', async function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const provId = selectedOption.getAttribute('data-id');
+    
+    if (!provId) {
+        elKota.innerHTML = '<option value="">Pilih Provinsi Dulu</option>';
+        elKota.disabled = true;
+        return;
+    }
+
+    elKota.innerHTML = '<option value="">Memuat Kota...</option>';
+    elKota.disabled = true;
+
+    try {
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provId}.json`);
+        const cities = await response.json();
+        
+        elKota.innerHTML = '<option value="">-- Pilih Kota/Kab --</option>';
+        cities.forEach(city => {
+            elKota.innerHTML += `<option value="${city.name}">${city.name}</option>`;
+        });
+        elKota.disabled = false;
+    } catch (error) {
+        console.error("Gagal load API Kota", error);
+    }
+});
+
 function openProfileModal() {
     if (!currentClubData) return;
     
@@ -342,7 +394,14 @@ function openProfileModal() {
     document.getElementById('editShortName').value = currentClubData.short_name || '';
     document.getElementById('editCoachName').value = currentClubData.coach_name || '';
     document.getElementById('editContactWa').value = currentClubData.contact_wa || '';
+    document.getElementById('editProvinsi').value = currentClubData.provinsi || '';
     
+    // Pancing API kota kebuka kalau provinsi udah ada isinya
+    if(currentClubData.provinsi) {
+        // Karena ini asinkron dan butuh ID, kita buat simple: izinkan user milih ulang kotanya
+        document.getElementById('editKota').innerHTML = `<option value="${currentClubData.kota_asal}">${currentClubData.kota_asal}</option>`;
+        document.getElementById('editKota').disabled = false;
+    }
     // Auto-fill form Akun (Email)
     supabaseClient.auth.getUser().then(({data}) => {
         if(data.user) document.getElementById('editAuthEmail').value = data.user.email;
@@ -398,6 +457,8 @@ if (btnSaveProfileInfo) {
         const cWa = document.getElementById('editContactWa').value.trim();
         const fileLogo = document.getElementById('inputEditLogo').files[0];
         const statusMsg = document.getElementById('statusProfilMsg');
+        const cProv = document.getElementById('editProvinsi').value;
+    const cKota = document.getElementById('editKota').value;
 
         if (!cName) {
             statusMsg.innerText = "Nama Klub wajib diisi!";
@@ -423,14 +484,16 @@ if (btnSaveProfileInfo) {
             }
 
             // Update Database
-            const { error: updateError } = await supabaseClient
+const { error: updateError } = await supabaseClient
                 .from('clubs')
                 .update({
                     club_name: cName,
                     short_name: cShort,
                     coach_name: cCoach,
                     contact_wa: cWa,
-                    logo_url: newLogoUrl
+                    logo_url: newLogoUrl,
+                    provinsi: cProv, // SIMPAN PROVINSI
+                    kota_asal: cKota // SIMPAN KOTA
                 })
                 .eq('id', currentClubId);
 

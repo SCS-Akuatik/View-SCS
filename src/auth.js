@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => {
             containerLogin.classList.add('hidden');
             containerRegister.classList.remove('hidden');
+            containerRegister.classList.add('flex'); // Pastikan bentuknya flex
             setTimeout(() => {
                 containerRegister.classList.remove('translate-x-full', 'opacity-0');
                 containerRegister.classList.add('translate-x-0', 'opacity-100');
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         containerRegister.classList.add('translate-x-full', 'opacity-0');
         setTimeout(() => {
             containerRegister.classList.add('hidden');
+            containerRegister.classList.remove('flex');
             containerLogin.classList.remove('hidden');
             setTimeout(() => {
                 containerLogin.classList.remove('-translate-x-full', 'opacity-0');
@@ -110,7 +112,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     formRegister.addEventListener('submit', async () => {
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
+        const confirmPassword = document.getElementById('regConfirmPassword').value; // Ambil nilai ulangi sandi
         const alertMsg = document.getElementById('regAlertMsg');
+
+        // Validasi: Cek apakah kedua password sama
+        if (password !== confirmPassword) {
+            alertMsg.innerText = "❌ Kata sandi tidak cocok. Silakan periksa kembali!";
+            alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-100 text-center block";
+            alertMsg.classList.remove('hidden');
+            return;
+        }
 
         btnRegister.innerHTML = `<span class="animate-spin text-xl">↻</span> Memproses...`;
         btnRegister.disabled = true;
@@ -132,8 +143,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             alertMsg.innerHTML = "✅ <strong>Pendaftaran Berhasil!</strong><br>Silakan periksa <strong>Kotak Masuk / Spam</strong> email Anda untuk mengklik tautan verifikasi sebelum masuk.";
             alertMsg.className = "bg-emerald-50 text-emerald-700 text-xs font-bold p-3 rounded-lg border border-emerald-200 text-center leading-relaxed block";
             
+            // Kosongkan form
             document.getElementById('regEmail').value = '';
             document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
 
         } catch (err) {
             alertMsg.innerText = "❌ " + err.message;

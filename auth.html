@@ -8,7 +8,8 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4 font-sans selection:bg-blue-200">
 
-    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[550px]">
+    <!-- Container Utama: Tambah h-max & md:min-h-[550px] biar fleksibel di HP -->
+    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-max md:min-h-[550px]">
         
         <!-- BAGIAN KIRI: BRANDING -->
         <div class="md:w-5/12 bg-blue-900 p-8 md:p-12 text-white flex flex-col justify-between relative overflow-hidden">
@@ -29,10 +30,11 @@
         </div>
 
         <!-- BAGIAN KANAN: FORM AUTHENTICATION -->
-        <div class="md:w-7/12 p-8 md:p-12 relative bg-white flex flex-col justify-center">
+        <!-- Tambah overflow-hidden di container kanan biar animasi slidernya rapi -->
+        <div class="md:w-7/12 relative bg-white flex flex-col overflow-hidden min-h-[500px] md:min-h-full">
             
             <!-- FORM LOGIN -->
-            <div id="formLoginContainer" class="transition-all duration-500 ease-in-out transform translate-x-0 opacity-100">
+            <div id="formLoginContainer" class="p-8 md:p-12 transition-all duration-500 ease-in-out transform translate-x-0 opacity-100 h-full flex flex-col justify-center overflow-y-auto">
                 <h2 class="text-2xl font-black text-slate-800 mb-1">Selamat Datang! 👋</h2>
                 <p class="text-sm text-slate-500 mb-6 font-medium">Silakan masuk ke akun manajemen klub Anda.</p>
                 
@@ -75,7 +77,8 @@
             </div>
 
             <!-- FORM REGISTER -->
-            <div id="formRegisterContainer" class="hidden absolute top-0 left-0 w-full h-full p-8 md:p-12 transition-all duration-500 ease-in-out transform translate-x-full opacity-0 bg-white flex-col justify-center">
+            <!-- Tambah overflow-y-auto biar kalau layar HP kecil bisa di-scroll ke bawah -->
+            <div id="formRegisterContainer" class="hidden absolute inset-0 p-8 md:p-12 transition-all duration-500 ease-in-out transform translate-x-full opacity-0 bg-white flex-col justify-center overflow-y-auto">
                 <h2 class="text-2xl font-black text-slate-800 mb-1">Registrasi Klub 🏆</h2>
                 <p class="text-sm text-slate-500 mb-6 font-medium">Bergabung dengan ekosistem SCS.</p>
                 
@@ -87,6 +90,11 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Kata Sandi</label>
                         <input type="password" id="regPassword" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm font-bold" placeholder="Minimal 6 karakter">
+                    </div>
+                    <!-- Tambahan form Ulangi Sandi -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Ulangi Sandi</label>
+                        <input type="password" id="regConfirmPassword" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm font-bold" placeholder="Masukkan ulang sandi">
                     </div>
                     
                     <div id="regAlertMsg" class="hidden text-xs font-bold p-3 rounded-lg border text-center leading-relaxed"></div>

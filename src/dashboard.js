@@ -256,7 +256,8 @@ function renderAthleteTable() {
                 </td>
                 <td class="p-4 text-center">
                     <div class="flex items-center justify-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                        <a href="/f1-profile.html" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Lihat Profil">👁️</a>
+                        <!-- AUTO RENDER F1 ID KE URL PROFIL -->
+                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Lihat Profil">👁️</a>
                     </div>
                 </td>
             </tr>

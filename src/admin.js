@@ -43,7 +43,8 @@ async function loadAdminData() {
         const { data: clubs, error: errC } = await supabaseClient
             .from('clubs')
             .select('*')
-            .order('created_at', { ascending: false });
+            .order('id', { ascending: false }); // <--- Ganti 'created_at' jadi 'id'
+
 
         if (errC) throw errC;
 

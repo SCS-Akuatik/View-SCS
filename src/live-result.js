@@ -5,6 +5,12 @@ let allHeats = [];
 let currentEventHeats = []; 
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session }, error: authError } = await supabaseClient.auth.getSession();
+    if (authError || !session) {
+        alert("⚠️ Akses Ditolak! Anda belum login. Silakan login sebagai Kasir/Admin terlebih dahulu.");
+        window.location.replace('/auth.html'); // Arahkan ke halaman login
+        return;
+    }
     const urlParams = new URLSearchParams(window.location.search);
     currentEventId = urlParams.get('id');
 

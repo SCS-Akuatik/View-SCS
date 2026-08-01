@@ -5,12 +5,14 @@ let allHeats = [];
 let currentEventHeats = []; 
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session }, error: authError } = await supabaseClient.auth.getSession();
+    // PROTEKSI KASIR
+    const { data: { session }, error: authError } = await supabaseClient.auth.getSession();
     if (authError || !session) {
         alert("⚠️ Akses Ditolak! Anda belum login. Silakan login sebagai Kasir/Admin terlebih dahulu.");
-        window.location.replace('/auth.html'); // Arahkan ke halaman login
+        window.location.replace('/auth.html');
         return;
     }
+
     const urlParams = new URLSearchParams(window.location.search);
     currentEventId = urlParams.get('id');
 
@@ -50,9 +52,8 @@ function populateEventDropdown() {
         renderAllHeats(e.target.value);
     });
 
-    // LISTENER TOMBOL UX BARU
     document.getElementById('btnShowAll').addEventListener('click', () => {
-        selectEvent.value = ""; // Reset dropdown
+        selectEvent.value = ""; 
         renderAllHeats('ALL');
     });
 }
@@ -65,7 +66,6 @@ function renderAllHeats(eventNumber) {
         return;
     }
 
-    // JIKA 'ALL', TAMPILKAN SEMUA. JIKA BUKAN, FILTER.
     if (eventNumber === 'ALL') {
         currentEventHeats = allHeats;
     } else {
@@ -88,11 +88,18 @@ function renderAllHeats(eventNumber) {
             }
 
             let mm = '', ss = '', ms = '';
-            if (atlet.waktu_tempuh && atlet.waktu_tempuh !== 'NT' && atlet.waktu_tempuh !== 'DQ') {
-                const parts = atlet.waktu_tempuh.split(/[:.]/);
-                if(parts.length === 3) { mm = parts[0]; ss = parts[1]; ms = parts[2]; }
+            
+            // LOGIKA BARU: Tampilkan tulisan DQ atau NT
+            if (atlet.waktu_tempuh) {
+                if (atlet.waktu_tempuh === 'DQ' || atlet.waktu_tempuh === 'NT') {
+                    mm = atlet.waktu_tempuh; // Tulisan DQ/NT akan masuk ke kotak menit
+                } else {
+                    const parts = atlet.waktu_tempuh.split(/[:.]/);
+                    if(parts.length === 3) { mm = parts[0]; ss = parts[1]; ms = parts[2]; }
+                }
             }
 
+            // PERUBAHAN: type="number" diubah jadi type="text" dengan inputmode="numeric"
             lanesHtml += `
             <div class="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-red-300 transition-colors">
                 <div class="flex items-center gap-3 flex-1">
@@ -104,13 +111,13 @@ function renderAllHeats(eventNumber) {
                 </div>
                 
                 <div class="flex items-center gap-1 shrink-0 mt-2 md:mt-0">
-                    <input type="number" id="min_${heatIndex}_${laneIndex}" value="${mm}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
+                    <input type="text" inputmode="numeric" maxlength="2" id="min_${heatIndex}_${laneIndex}" value="${mm}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
                     <span class="font-black text-slate-400">:</span>
-                    <input type="number" id="sec_${heatIndex}_${laneIndex}" value="${ss}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
+                    <input type="text" inputmode="numeric" maxlength="2" id="sec_${heatIndex}_${laneIndex}" value="${ss}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
                     <span class="font-black text-slate-400">.</span>
-                    <input type="number" id="ms_${heatIndex}_${laneIndex}" value="${ms}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
+                    <input type="text" inputmode="numeric" maxlength="2" id="ms_${heatIndex}_${laneIndex}" value="${ms}" placeholder="00" class="w-12 text-center py-2 bg-slate-100 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 font-mono text-sm font-bold outline-none input-waktu">
                     
-                    <button onclick="setDQ(${heatIndex}, ${laneIndex})" class="ml-2 px-2 py-2 bg-red-100 text-red-600 rounded text-xs font-bold hover:bg-red-200">DQ</button>
+                    <button onclick="setDQ(${heatIndex}, ${laneIndex})" class="ml-2 px-2 py-2 bg-red-100 text-red-600 rounded text-xs font-bold hover:bg-red-200 transition-colors">DQ</button>
                 </div>
             </div>`;
         });
@@ -139,7 +146,8 @@ function renderAllHeats(eventNumber) {
 function setupAutoFocus() {
     document.querySelectorAll('.input-waktu').forEach(input => {
         input.addEventListener('input', function() {
-            if (this.value.length >= 2) {
+            // Biar ga lompat otomatis kalau isinya tulisan DQ atau NT
+            if (this.value.length >= 2 && this.value.toUpperCase() !== 'DQ' && this.value.toUpperCase() !== 'NT') {
                 let next = this.nextElementSibling;
                 while (next && next.tagName !== 'INPUT') next = next.nextElementSibling;
                 if (next) next.focus();
@@ -170,13 +178,16 @@ window.submitHeatData = async function(heatIndex, heatDatabaseId) {
         let secEl = document.getElementById(`sec_${heatIndex}_${laneIndex}`);
         let msEl = document.getElementById(`ms_${heatIndex}_${laneIndex}`);
 
-        let min = minEl.value.padStart(2, '0');
-        let sec = secEl.value.padStart(2, '0');
-        let ms = msEl.value.padStart(2, '0');
+        let rawMin = minEl.value.trim().toUpperCase();
 
-        if (minEl.value === 'DQ') {
+        if (rawMin === 'DQ') {
             atlet.waktu_tempuh = 'DQ';
-        } else if (minEl.value !== '' && secEl.value !== '') {
+        } else if (rawMin === 'NT') {
+            atlet.waktu_tempuh = 'NT';
+        } else if (rawMin !== '' && secEl.value.trim() !== '') {
+            let min = rawMin.padStart(2, '0');
+            let sec = secEl.value.trim().padStart(2, '0');
+            let ms = msEl.value.trim().padStart(2, '0');
             atlet.waktu_tempuh = `${min}:${sec}.${ms}`;
         } else {
             atlet.waktu_tempuh = 'NT'; 
@@ -184,8 +195,19 @@ window.submitHeatData = async function(heatIndex, heatDatabaseId) {
     });
 
     try {
-        const { error } = await supabaseClient.from('event_heats').update({ lanes_data: updatedLanes }).eq('id', heatDatabaseId);
+        // PERUBAHAN: Tambah .select() buat deteksi 'silent error' akibat RLS
+        const { data, error } = await supabaseClient
+            .from('event_heats')
+            .update({ lanes_data: updatedLanes })
+            .eq('id', heatDatabaseId)
+            .select();
+
         if (error) throw error;
+        
+        // Peringatan keras kalau data nggak benar-benar masuk!
+        if (!data || data.length === 0) {
+            throw new Error("Gagal menyimpan! Anda tidak memiliki Hak Akses (RLS) di tabel ini.");
+        }
 
         targetHeat.lanes_data = updatedLanes;
 
@@ -200,7 +222,7 @@ window.submitHeatData = async function(heatIndex, heatDatabaseId) {
         
     } catch (err) {
         console.error(err);
-        alert("Gagal menyimpan waktu!");
+        alert(err.message || "Gagal menyimpan waktu!");
     } finally {
         btn.disabled = false;
     }

@@ -5,17 +5,15 @@ let allHeats = [];
 let currentEventHeats = []; 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // PROTEKSI KASIR
     const { data: { session }, error: authError } = await supabaseClient.auth.getSession();
     if (authError || !session) {
-        alert("⚠️ Akses Ditolak! Anda belum login. Silakan login sebagai Kasir/Admin terlebih dahulu.");
+        alert("⚠️ Akses Ditolak! Anda belum login.");
         window.location.replace('/auth.html');
         return;
     }
 
     const urlParams = new URLSearchParams(window.location.search);
     currentEventId = urlParams.get('id');
-
     if (!currentEventId) return alert("ID Event tidak ditemukan!");
     await loadDataHeats();
 });
@@ -34,7 +32,7 @@ async function loadDataHeats() {
         populateEventDropdown();
     } catch (err) {
         console.error(err);
-        alert("Gagal memuat data Start List dari Database.");
+        alert("Gagal memuat data Start List.");
     }
 }
 
@@ -60,18 +58,12 @@ function populateEventDropdown() {
 
 function renderAllHeats(eventNumber) {
     const container = document.getElementById('allHeatsContainer');
-    
     if (!eventNumber) {
         container.classList.add('hidden');
         return;
     }
 
-    if (eventNumber === 'ALL') {
-        currentEventHeats = allHeats;
-    } else {
-        currentEventHeats = allHeats.filter(h => h.event_number == eventNumber);
-    }
-    
+    currentEventHeats = eventNumber === 'ALL' ? allHeats : allHeats.filter(h => h.event_number == eventNumber);
     container.innerHTML = ''; 
 
     currentEventHeats.forEach((heat, heatIndex) => {
@@ -89,17 +81,16 @@ function renderAllHeats(eventNumber) {
 
             let mm = '', ss = '', ms = '';
             
-            // LOGIKA BARU: Tampilkan tulisan DQ atau NT
+            // LOGIKA BARU: Tampilkan DQ aja. Kalau NT biarkan kotaknya kosong biar gampang diketik
             if (atlet.waktu_tempuh) {
-                if (atlet.waktu_tempuh === 'DQ' || atlet.waktu_tempuh === 'NT') {
-                    mm = atlet.waktu_tempuh; // Tulisan DQ/NT akan masuk ke kotak menit
-                } else {
+                if (atlet.waktu_tempuh === 'DQ') {
+                    mm = 'DQ';
+                } else if (atlet.waktu_tempuh !== 'NT') {
                     const parts = atlet.waktu_tempuh.split(/[:.]/);
                     if(parts.length === 3) { mm = parts[0]; ss = parts[1]; ms = parts[2]; }
                 }
             }
 
-            // PERUBAHAN: type="number" diubah jadi type="text" dengan inputmode="numeric"
             lanesHtml += `
             <div class="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-red-300 transition-colors">
                 <div class="flex items-center gap-3 flex-1">
@@ -146,8 +137,7 @@ function renderAllHeats(eventNumber) {
 function setupAutoFocus() {
     document.querySelectorAll('.input-waktu').forEach(input => {
         input.addEventListener('input', function() {
-            // Biar ga lompat otomatis kalau isinya tulisan DQ atau NT
-            if (this.value.length >= 2 && this.value.toUpperCase() !== 'DQ' && this.value.toUpperCase() !== 'NT') {
+            if (this.value.length >= 2 && this.value.toUpperCase() !== 'DQ') {
                 let next = this.nextElementSibling;
                 while (next && next.tagName !== 'INPUT') next = next.nextElementSibling;
                 if (next) next.focus();
@@ -179,23 +169,26 @@ window.submitHeatData = async function(heatIndex, heatDatabaseId) {
         let msEl = document.getElementById(`ms_${heatIndex}_${laneIndex}`);
 
         let rawMin = minEl.value.trim().toUpperCase();
+        let rawSec = secEl.value.trim();
+        let rawMs = msEl.value.trim();
+
+        // Cek apakah semua kotak bener-bener kosong
+        let isAllEmpty = (rawMin === '' && rawSec === '' && rawMs === '');
 
         if (rawMin === 'DQ') {
             atlet.waktu_tempuh = 'DQ';
-        } else if (rawMin === 'NT') {
-            atlet.waktu_tempuh = 'NT';
-        } else if (rawMin !== '' && secEl.value.trim() !== '') {
-            let min = rawMin.padStart(2, '0');
-            let sec = secEl.value.trim().padStart(2, '0');
-            let ms = msEl.value.trim().padStart(2, '0');
-            atlet.waktu_tempuh = `${min}:${sec}.${ms}`;
-        } else {
+        } else if (rawMin === 'NT' || isAllEmpty) {
             atlet.waktu_tempuh = 'NT'; 
+        } else {
+            // LOGIKA BARU: Kalau kosong, otomatis diubah jadi '00'
+            let min = rawMin === '' ? '00' : rawMin.padStart(2, '0');
+            let sec = rawSec === '' ? '00' : rawSec.padStart(2, '0');
+            let ms = rawMs === '' ? '00' : rawMs.padStart(2, '0');
+            atlet.waktu_tempuh = `${min}:${sec}.${ms}`;
         }
     });
 
     try {
-        // PERUBAHAN: Tambah .select() buat deteksi 'silent error' akibat RLS
         const { data, error } = await supabaseClient
             .from('event_heats')
             .update({ lanes_data: updatedLanes })
@@ -203,20 +196,13 @@ window.submitHeatData = async function(heatIndex, heatDatabaseId) {
             .select();
 
         if (error) throw error;
-        
-        // Peringatan keras kalau data nggak benar-benar masuk!
-        if (!data || data.length === 0) {
-            throw new Error("Gagal menyimpan! Anda tidak memiliki Hak Akses (RLS) di tabel ini.");
-        }
+        if (!data || data.length === 0) throw new Error("Gagal menyimpan! Anda tidak memiliki Hak Akses (RLS).");
 
         targetHeat.lanes_data = updatedLanes;
-
         btn.classList.replace('bg-slate-800', 'bg-green-600');
-        btn.classList.replace('hover:bg-slate-900', 'hover:bg-green-700');
         btn.innerText = "✅ Tersimpan!";
         setTimeout(() => {
             btn.classList.replace('bg-green-600', 'bg-slate-800');
-            btn.classList.replace('hover:bg-green-700', 'hover:bg-slate-900');
             btn.innerHTML = originalText;
         }, 2000);
         

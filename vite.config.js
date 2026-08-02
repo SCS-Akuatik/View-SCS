@@ -19,8 +19,10 @@ export default defineConfig({
         eventPublic: resolve(__dirname, 'event-public.html'),
         eventPeserta: resolve(__dirname, 'event-peserta.html'),
         
-        // MODULE BUKU ACARA & HEAT
+        // MODULE BUKU ACARA & HASIL LOMBA
         eventBook: resolve(__dirname, 'book/book.html'),
+        eventResult: resolve(__dirname, 'book/event-result.html'),
+        
         liveResult: resolve(__dirname, 'live-result.html'),
         result: resolve(__dirname, 'result.html'),
         admin: resolve(__dirname, 'admin.html'),
@@ -28,9 +30,7 @@ export default defineConfig({
     }
   },
   server: {
-    // Biar pas ngetik /admin di lokal langsung nembus ke admin.html tanpa error 404
     proxy: {},
   },
-  // Plugin sederhana biar URL bersih tanpa .html di dev server
   appType: 'mpa',
 });

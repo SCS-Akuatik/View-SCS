@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Hasil Lomba | SCS</title>
+    <!-- Pastikan path CSS ini bener ngarah ke folder src lu -->
+    <link rel="stylesheet" href="../src/style.css"> 
+    <style>
+        /* CSS KHUSUS PRINTER */
+        @media print {
+            @page { 
+                size: A4 portrait; 
+                margin: 15mm; 
+            }
+            body { 
+                background: white; 
+                color: black; 
+                -webkit-print-color-adjust: exact; 
+            }
+            /* Sembunyikan elemen yang gak perlu dicetak */
+            .no-print { display: none !important; }
+            
+            /* Reset padding/margin biar pas di kertas */
+            #printArea { padding: 0 !important; margin: 0 !important; border: none !important; box-shadow: none !important; }
+            
+            /* Styling Tabel Kertas */
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            th, td { border: 1px solid #000; padding: 6px 8px; text-align: left; font-size: 12px; }
+            th { background-color: #f3f4f6 !important; }
+        }
+
+        /* CSS KHUSUS LAYAR (Buat Preview) */
+        .screen-table { width: 100%; border-collapse: collapse; }
+        .screen-table th, .screen-table td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+        .screen-table th { background-color: #f8fafc; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 pb-20">
+
+    <!-- PANEL KONTROL (Disembunyikan saat dicetak) -->
+    <div class="no-print max-w-4xl mx-auto p-5 mt-5 bg-white rounded-xl shadow border border-slate-200">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+            <div>
+                <h1 class="text-xl font-black text-slate-900 uppercase">Sekretariat: Hasil Akhir</h1>
+                <p class="text-xs text-slate-500">Gabungkan semua heat dan cetak klasemen juara.</p>
+            </div>
+            
+            <!-- TOMBOL CETAK -->
+            <button onclick="window.print()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Cetak Dokumen A4
+            </button>
+        </div>
+        
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Pilih Nomor Lomba</label>
+            <select id="selectEvent" class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                <option value="">Memuat Lomba...</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- AREA KERTAS CETAK -->
+    <div id="printArea" class="max-w-4xl mx-auto p-8 mt-6 bg-white shadow border border-slate-200 min-h-[500px]">
+        <div id="emptyState" class="text-center opacity-40 py-20 no-print">
+            <h3 class="text-lg font-bold text-slate-600">Pilih lomba di atas untuk melihat pratinjau hasil cetak.</h3>
+        </div>
+        <!-- Tabel klasemen akan di-inject ke dalam div ini lewat JS -->
+        <div id="resultTableContainer"></div>
+    </div>
+
+    <script type="module" src="./event-result.js"></script>
+</body>
+</html>

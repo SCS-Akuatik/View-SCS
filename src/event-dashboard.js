@@ -20,7 +20,7 @@ async function loadEventDashboard() {
             .eq('id', currentEventId)
             .single();
 
-        if (error || !eventData) throw error;
+        if (error || !eventData) throw new Error("Gagal memuat dari database.");
 
         eventConfigData = eventData.config || {};
 
@@ -28,7 +28,7 @@ async function loadEventDashboard() {
         document.getElementById('headerSubdomain').innerText = `${eventData.subdomain}.funswimming.my.id`;
 
         // ==========================================
-        // 1. LINK COPY PENDAFTARAN (UDAH DITAMBAH ?id=)
+        // 1. LINK COPY PENDAFTARAN
         // ==========================================
         const publicLink = `https://${eventData.subdomain}.funswimming.my.id?id=${currentEventId}`;
         const linkInput = document.getElementById('publicLinkInput');
@@ -50,7 +50,7 @@ async function loadEventDashboard() {
         }
 
         // ==========================================
-        // 2. LINK COPY LIVE RESULT (UDAH DITAMBAH ?id=)
+        // 2. LINK COPY LIVE RESULT
         // ==========================================
         const publicResultLink = `https://${eventData.subdomain}.funswimming.my.id/result?id=${currentEventId}`;
         const resultLinkInput = document.getElementById('publicResultLinkInput');
@@ -74,14 +74,32 @@ async function loadEventDashboard() {
         // --- NAVIGASI HALAMAN PANITIA ---
         document.getElementById('btnSettingsLomba').onclick = () => window.location.href = `/settings-lomba.html?id=${currentEventId}`;
         document.getElementById('btnLiveResult').onclick = () => window.location.href = `/live-result.html?id=${currentEventId}`;
-        document.getElementById('btnNomorStart').onclick = () => window.location.href = `/nomor-start.html?id=${currentEventId}`;
         document.getElementById('btnDataPeserta').onclick = () => window.location.href = `/event-peserta.html?id=${currentEventId}`;
+
+        // --- LOGIKA MODAL PUSAT CETAK ---
+        document.getElementById('btnPusatCetak').onclick = () => {
+            document.getElementById('modalPusatCetak').classList.remove('hidden');
+        };
+
+        document.getElementById('btnCloseCetak').onclick = () => {
+            document.getElementById('modalPusatCetak').classList.add('hidden');
+        };
+
+        document.getElementById('btnMenuBukuAcara').onclick = () => {
+            let lanes = prompt("Berapa jumlah lintasan kolam yang digunakan?", "8");
+            if (lanes) {
+                window.location.href = `/book/book.html?id=${currentEventId}&lanes=${lanes}`;
+            }
+        };
+
+        document.getElementById('btnMenuHasilLomba').onclick = () => {
+            window.location.href = `/book/event-result.html?id=${currentEventId}`;
+        };
 
         updateConfigBadges();
         await loadEventStats();
 
     } catch (err) {
-        console.error("Gagal memuat dashboard event:", err);
         alert("Gagal memuat data event.");
     }
 }
@@ -110,7 +128,7 @@ async function loadEventStats() {
             document.getElementById('statKategori').innerText = uniqueEvents.size;
         }
     } catch (error) {
-        console.error("Gagal memuat statistik:", error);
+        // Silent catch untuk UX yang lebih bersih
     }
 }
 
@@ -135,7 +153,7 @@ function setCompleteBadge(elementId) {
 }
 
 // ===============================================
-// LOGIKA MODAL
+// LOGIKA MODAL CONFIG LAINNYA
 // ===============================================
 document.getElementById('btnConfigLanding').onclick = () => { document.getElementById('valLandingText').value = eventConfigData.landing_text || ""; document.getElementById('modalLanding').classList.remove('hidden'); };
 document.getElementById('btnConfigEntry').onclick = () => { document.getElementById('valEntryLimit').value = eventConfigData.entry_limit || ""; document.getElementById('modalEntry').classList.remove('hidden'); };
@@ -159,8 +177,7 @@ async function saveConfigToJSONB(key, valueObj, modalId, btnSaveId) {
         updateConfigBadges();
         document.getElementById(modalId).classList.add('hidden');
     } catch (error) {
-        console.error(error);
-        alert("Gagal menyimpan: " + error.message);
+        alert("Gagal menyimpan: Cek koneksi Anda.");
     } finally {
         btn.innerText = "Simpan";
         btn.disabled = false;

@@ -123,11 +123,11 @@
                     </div>
                 </button>
 
-                <button id="btnNomorStart" class="group bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:border-indigo-300 transition-all text-left flex items-start gap-4">
-                    <div class="w-12 h-12 shrink-0 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 text-xl">🎟️</div>
+                <button id="btnPusatCetak" class="group bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:-translate-y-1 hover:border-indigo-300 transition-all text-left flex items-start gap-4">
+                    <div class="w-12 h-12 shrink-0 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 text-xl">🖨️</div>
                     <div>
-                        <h3 class="font-bold text-slate-800 text-sm md:text-base mb-1">Nomor Start</h3>
-                        <p class="text-xs text-slate-500">Generate ID & PDF lintasan otomatis.</p>
+                        <h3 class="font-bold text-slate-800 text-sm md:text-base mb-1">Pusat Cetak</h3>
+                        <p class="text-xs text-slate-500">Buku Acara (Heat) & Hasil Akhir.</p>
                     </div>
                 </button>
 
@@ -239,6 +239,37 @@
             <div class="flex gap-2 mt-4">
                 <button class="btn-close-modal flex-1 bg-slate-200 py-3 rounded-xl font-bold">Batal</button>
                 <button id="btnSaveSponsor" class="flex-1 bg-amber-600 text-white py-3 rounded-xl font-bold">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PUSAT CETAK -->
+    <div id="modalPusatCetak" class="fixed inset-0 z-[80] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-6">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+                <h3 class="font-black text-slate-800 text-lg">Pusat Cetak</h3>
+                <button id="btnCloseCetak" class="text-slate-400 hover:text-red-500 font-bold text-2xl transition-colors">&times;</button>
+            </div>
+            <p class="text-xs text-slate-500 mb-5">Pilih dokumen perlombaan yang ingin Anda buat dan cetak (A4).</p>
+            
+            <div class="space-y-3">
+                <!-- Pilihan 1: Buku Acara -->
+                <button id="btnMenuBukuAcara" class="w-full bg-slate-50 border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 rounded-xl p-4 text-left transition-colors flex items-center gap-4 group">
+                    <div class="text-2xl group-hover:scale-110 transition-transform">📖</div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 group-hover:text-indigo-700 text-sm">Buku Acara (Start List)</h4>
+                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Daftar perenang, urutan heat & lintasan.</p>
+                    </div>
+                </button>
+                
+                <!-- Pilihan 2: Hasil Lomba -->
+                <button id="btnMenuHasilLomba" class="w-full bg-slate-50 border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 rounded-xl p-4 text-left transition-colors flex items-center gap-4 group">
+                    <div class="text-2xl group-hover:scale-110 transition-transform">🏅</div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 group-hover:text-emerald-700 text-sm">Hasil Lomba (Official)</h4>
+                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Klasemen juara dari gabungan heat.</p>
+                    </div>
+                </button>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-import { supabaseClient } from './supabase.js';
+import { supabaseClient } from '../src/supabase.js';
 
 let currentEventId = null;
 let currentHeatsData = [];

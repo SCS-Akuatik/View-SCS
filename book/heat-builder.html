@@ -4,49 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Heat Builder (PRO) | SCS</title>
-    <!-- Path disesuaikan karena file ini ada di dalam folder /book/ -->
-    <link rel="stylesheet" href="../src/style.css">
+    <!-- Path absolut untuk Vercel -->
+    <link rel="stylesheet" href="/src/style.css">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         .ghost-drop { opacity: 0.4; background-color: #e0e7ff; border: 2px dashed #6366f1; }
+        .event-header { position: sticky; top: 70px; z-index: 30; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 pb-20 p-4 md:p-6">
 
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         
         <!-- HEADER & NAV -->
-        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4 sticky top-0 bg-slate-50 z-40 pt-2">
             <div>
-                <a id="btnBack" href="#" class="text-sm font-bold text-slate-400 hover:text-indigo-600 mb-2 inline-block transition-colors">&laquo; Kembali ke Dashboard</a>
+                <a id="btnBack" href="#" class="text-sm font-bold text-slate-400 hover:text-indigo-600 mb-1 inline-block transition-colors">&laquo; Kembali ke Dashboard</a>
                 <h1 class="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2">
                     🛠️ Heat Builder 
                     <span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-black tracking-widest border border-amber-200 uppercase mt-1">PRO</span>
                 </h1>
-                <p class="text-xs text-slate-500 mt-1">Susun ulang lintasan (Lane) & Heat secara manual. 100% Drag & Drop.</p>
+                <p class="text-xs text-slate-500 mt-1">Susun ulang lintasan (Lane) & Heat secara massal. 100% Drag & Drop.</p>
             </div>
             
             <button id="btnSaveFormasi" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-6 rounded-xl shadow-lg transition-transform transform hover:-translate-y-1 flex items-center justify-center gap-2">
-                <span>💾</span> Simpan Formasi
+                <span>💾</span> Simpan Semua Formasi
             </button>
         </div>
 
         <!-- CONTROL PANEL -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5 mb-6 flex flex-col md:flex-row gap-4 items-end">
             <div class="w-full md:flex-1">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Pilih Nomor Lomba</label>
-                <select id="selectEventNumber" class="w-full px-4 py-3 border border-slate-300 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
-                    <option value="">Memuat data lomba...</option>
-                </select>
+                <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-xl flex items-start gap-3">
+                    <span class="text-indigo-500 text-lg">💡</span>
+                    <p class="text-[11px] text-indigo-800 font-bold leading-relaxed mt-0.5">
+                        Klik tombol <strong>Load Formasi</strong> untuk menarik semua data yang sudah di-generate dari halaman Buku Acara. Tarik blok "KOSONG" ke dalam Heat jika ingin mengosongkan lintasan tertentu. Nomor Lane otomatis menyesuaikan.
+                    </p>
+                </div>
             </div>
             
             <div class="w-full md:w-32 shrink-0">
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">2. Max Lintasan</label>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Max Lintasan</label>
                 <input type="number" id="inputMaxLanes" value="8" min="2" max="15" class="w-full px-4 py-3 border border-slate-300 rounded-xl font-bold text-slate-800 text-center focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
             </div>
 
-            <button id="btnLoadHeat" class="w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
-                Load Data 🔄
+            <button id="btnLoadHeat" class="w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                Load Semua Formasi 🔄
             </button>
         </div>
 
@@ -54,58 +57,46 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
             
             <!-- KOLOM KIRI: GUDANG / CADANGAN -->
-            <div class="md:col-span-4 flex flex-col gap-4">
-                
-                <!-- Info Painkiller -->
-                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
-                    <p class="text-[11px] text-indigo-800 font-bold leading-relaxed">
-                        <span class="text-sm">💡</span> <strong>TIPS:</strong> Tarik blok "KOSONG" ke dalam Heat jika ingin mengosongkan lintasan tertentu (Misal: L4 kosong). Nomor Lane akan otomatis menyesuaikan posisi.
-                    </p>
-                </div>
-
-                <!-- Gudang KOSONG (Infinite) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-dashed border-slate-300 p-4">
-                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <span>📦</span> Gudang Blok Kosong
-                    </h2>
-                    <div id="gudangKosong" class="sortable-list min-h-[50px] space-y-2">
-                        <!-- Sengaja disiapin beberapa buat ditarik -->
-                        <div class="item border border-slate-200 bg-slate-100 rounded-xl p-3 flex items-center gap-3 cursor-move" data-f1="EMPTY">
-                            <div class="text-slate-300 font-black">⣿</div>
-                            <span class="text-xs font-bold text-slate-400">[ LINTASAN KOSONG ]</span>
-                        </div>
-                        <div class="item border border-slate-200 bg-slate-100 rounded-xl p-3 flex items-center gap-3 cursor-move" data-f1="EMPTY">
-                            <div class="text-slate-300 font-black">⣿</div>
-                            <span class="text-xs font-bold text-slate-400">[ LINTASAN KOSONG ]</span>
+            <div class="md:col-span-4 flex flex-col gap-4 relative">
+                <div class="sticky top-32 space-y-4">
+                    <!-- Gudang KOSONG (Infinite) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-dashed border-slate-300 p-4">
+                        <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span>📦</span> Gudang Blok Kosong
+                        </h2>
+                        <div id="gudangKosong" class="sortable-list min-h-[50px] space-y-2">
+                            <!-- Template KOSONG (Digandakan otomatis oleh JS) -->
+                            <div class="item border border-slate-200 bg-slate-100 rounded-xl p-3 flex items-center gap-3 cursor-move" data-f1="EMPTY">
+                                <div class="text-slate-300 font-black">⣿</div>
+                                <span class="text-xs font-bold text-slate-400">[ LINTASAN KOSONG ]</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Gudang Atlet (Buat yg dicoret/pindah) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-4 sticky top-24">
-                    <h2 class="text-xs font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <span>🗑️</span> Penampungan Atlet
-                    </h2>
-                    <p class="text-[10px] text-slate-400 mb-3">Tarik atlet ke sini jika batal tanding (Scratch).</p>
-                    <div id="gudangAtlet" class="sortable-list min-h-[100px] bg-red-50/50 rounded-xl border border-dashed border-red-200 p-2 space-y-2">
-                        <!-- Atlet yang di-drop ke sini akan nongkrong di sini -->
+                    <!-- Gudang Atlet (Buat yg dicoret/pindah) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-4">
+                        <h2 class="text-xs font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span>🗑️</span> Penampungan Atlet (Scratch)
+                        </h2>
+                        <p class="text-[10px] text-slate-400 mb-3">Tarik atlet ke sini jika batal tanding.</p>
+                        <div id="gudangAtlet" class="sortable-list min-h-[150px] bg-red-50/50 rounded-xl border border-dashed border-red-200 p-2 space-y-2">
+                            <!-- Atlet yang di-drop ke sini akan nongkrong di sini -->
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- KOLOM KANAN: DYNAMIC HEATS -->
             <div class="md:col-span-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-black text-slate-800">Daftar Heat</h2>
-                    <button id="btnAddHeat" class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-50 transition shadow-sm">+ Tambah Heat</button>
+                <div id="loadingState" class="text-center p-10 text-slate-400 font-bold hidden bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-2xl block mb-2 animate-spin">⏳</span>
+                    Menarik Seluruh Formasi Lomba...
                 </div>
                 
-                <div id="loadingState" class="text-center p-10 text-slate-400 font-bold hidden">Memuat Formasi Heat... ⏳</div>
-                
-                <!-- Container tempat ember-ember dirender -->
-                <div id="heatContainerMain" class="space-y-6">
-                    <div class="text-center p-10 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-2xl">
-                        Pilih Nomor Lomba lalu klik "Load Data"
+                <!-- Container tempat SEMUA EVENT & ember-ember dirender -->
+                <div id="heatContainerMain" class="space-y-10">
+                    <div class="text-center p-10 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-2xl bg-white/50">
+                        Klik "Load Semua Formasi" untuk mulai mengatur lintasan.
                     </div>
                 </div>
             </div>
@@ -113,7 +104,7 @@
         </div>
     </div>
 
-    <!-- Panggil Script Builder -->
+    <!-- Panggil Script Builder dari folder book/ -->
     <script type="module" src="/book/heat-builder.js"></script>
 
 </body>

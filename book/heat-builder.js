@@ -29,14 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btnSaveFormasi').addEventListener('click', saveSemuaFormasiToSupabase);
 
     // 5. Init Sortable buat Gudang Kosong & Gudang Atlet
-    // Gudang Kosong: pull='clone' (bisa ditarik berkali-kali tanpa habis), put=false (gak bisa nerima masuk)
     Sortable.create(document.getElementById('gudangKosong'), {
         group: { name: 'shared-heats', pull: 'clone', put: false },
         animation: 200,
         sort: false
     });
 
-    // Gudang Penampungan Atlet (Scratch): Bisa nerima dan ngeluarin atlet
     Sortable.create(document.getElementById('gudangAtlet'), {
         group: { name: 'shared-heats', pull: true, put: true },
         animation: 200,
@@ -48,7 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 // FUNGSI UTAMA: LOAD SEMUA DATA
 // ==========================================
 async function renderAllDynamicHeats() {
-    const maxLanes = parseInt(document.getElementById('inputMaxLanes').value) || 8;
     const container = document.getElementById('heatContainerMain');
     const loading = document.getElementById('loadingState');
 
@@ -70,6 +67,12 @@ async function renderAllDynamicHeats() {
             container.innerHTML = `<p class="text-slate-500 p-5 text-center bg-white rounded-xl shadow-sm border border-slate-200">Belum ada heat yang di-generate. Silakan 'Simpan & Kunci Start List' dari halaman Buku Acara terlebih dahulu.</p>`;
             loading.classList.add('hidden');
             return;
+        }
+
+        // OTOMATIS DETEKSI MAX LINTASAN DARI DATABASE (TIDAK PERLU INPUT MANUAL)
+        let autoMaxLanes = 8; // Default jaga-jaga
+        if (data[0] && data[0].lanes_data) {
+            autoMaxLanes = data[0].lanes_data.length; 
         }
 
         // Kelompokkan berdasarkan event_number (Nomor Lomba)
@@ -102,9 +105,9 @@ async function renderAllDynamicHeats() {
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
             `;
 
-            // Render ember (Heats) di dalam lomba tersebut
+            // Render ember (Heats) di dalam lomba tersebut dengan Max Lintasan yang terdeteksi otomatis
             heatsInEvent.forEach(heat => {
-                html += generateHeatHTML(heat.id, heat.heat_number, heat.lanes_data, maxLanes);
+                html += generateHeatHTML(heat.id, heat.heat_number, heat.lanes_data, autoMaxLanes);
             });
 
             html += `</div></div>`; // Tutup grid & event-group
@@ -118,7 +121,7 @@ async function renderAllDynamicHeats() {
                 group: 'shared-heats', // Kunci universal, bisa drag kemana aja
                 animation: 200,
                 ghostClass: 'ghost-drop', 
-                delay: 150, // Delay touch HP biar bisa scroll halaman tanpa salah tarik
+                delay: 150, // Delay touch HP
                 delayOnTouchOnly: true,
                 onEnd: function () {
                     recalculateLanes(); // Recalculate setiap kali geser
@@ -145,11 +148,11 @@ function generateHeatHTML(dbId, heatNum, lanesDataArr, maxLanes) {
     // Pastikan terurut by lane asli
     lanesDataArr.sort((a, b) => a.lane - b.lane);
 
-    // Bikin slot sebanyak inputan maxLanes
+    // Bikin slot sebanyak maxLanes hasil deteksi otomatis
     for (let i = 1; i <= maxLanes; i++) {
         let athlete = lanesDataArr.find(a => a.lane == i);
 
-        if (athlete && athlete.f1_id && athlete.nama) { // Pastikan datanya ada (bukan slot kosong)
+        if (athlete && athlete.f1_id && athlete.nama) { // Pastikan datanya ada
             let st = athlete.seed_time ? athlete.seed_time : 'NT';
             let stClass = athlete.seed_time !== 'NT' ? 'text-indigo-600 bg-indigo-50 border-indigo-200' : 'text-slate-400 bg-slate-100 border-slate-200';
 
@@ -171,7 +174,7 @@ function generateHeatHTML(dbId, heatNum, lanesDataArr, maxLanes) {
                 <span class="text-[10px] font-mono font-bold px-2 py-1 rounded border shrink-0 ml-2 ${stClass}">${st}</span>
             </div>`;
         } else {
-            // Render Blok Kosong buat tambalan jika lintasan belum penuh
+            // Render Blok Kosong buat tambalan jika lintasan kosong
             listHTML += `
             <div class="item border border-dashed border-slate-300 bg-slate-50/50 rounded-xl p-3 flex items-center gap-3 cursor-move mb-2" data-f1="EMPTY">
                 <div class="text-slate-300 font-black cursor-grab">⣿</div>
@@ -212,11 +215,11 @@ function recalculateLanes() {
 }
 
 // ==========================================
-// BULK SAVE KE SUPABASE (PROMISE.ALL)
+// BULK SAVE KE SUPABASE
 // ==========================================
 async function saveSemuaFormasiToSupabase() {
     const btn = document.getElementById('btnSaveFormasi');
-    const heatContainers = document.querySelectorAll('#heatContainerMain > div > div > div[data-db-id]'); // Selektor menembus grid
+    const heatContainers = document.querySelectorAll('#heatContainerMain > div > div > div[data-db-id]'); 
     
     if (heatContainers.length === 0) return alert("Belum ada data yang di-load.");
     if (!confirm("Peringatan: Aksi ini akan menimpa SELURUH formasi lomba di Database. Lanjutkan?")) return;
@@ -259,7 +262,7 @@ async function saveSemuaFormasiToSupabase() {
             );
         });
 
-        // EKSEKUSI MASAL! (Super ngebut ketimbang update satu-satu)
+        // EKSEKUSI MASAL!
         await Promise.all(updatePromises);
 
         alert("🔥 BOOM! Seluruh Formasi Lomba Berhasil Disimpan Massal! Siap Cetak!");

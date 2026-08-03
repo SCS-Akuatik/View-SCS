@@ -4,143 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Heat Builder (PRO) | SCS</title>
-    <!-- Asumsi file style.css Tailwind lu ada di luar folder book -->
+    <!-- Path disesuaikan karena file ini ada di dalam folder /book/ -->
     <link rel="stylesheet" href="../src/style.css">
-    
-    <!-- SENJATA RAHASIA: SortableJS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        .ghost-drop { opacity: 0.4; background-color: #e0e7ff; border: 2px dashed #6366f1; }
+    </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 pb-20 p-4 md:p-8">
+<body class="bg-slate-50 font-sans text-slate-800 pb-20 p-4 md:p-6">
 
-    <div class="max-w-3xl mx-auto">
-        <!-- Header -->
-        <div class="mb-6 flex justify-between items-center">
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- HEADER & NAV -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
-                <h1 class="text-2xl font-black text-slate-900 flex items-center gap-2">
-                    🛠️ Heat Builder <span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded font-black tracking-widest border border-amber-200">PRO</span>
+                <a id="btnBack" href="#" class="text-sm font-bold text-slate-400 hover:text-indigo-600 mb-2 inline-block transition-colors">&laquo; Kembali ke Dashboard</a>
+                <h1 class="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-2">
+                    🛠️ Heat Builder 
+                    <span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-1 rounded font-black tracking-widest border border-amber-200 uppercase mt-1">PRO</span>
                 </h1>
-                <p class="text-xs text-slate-500 mt-1">Tahan (Long-press) dan geser nama atlet untuk memindahkan lintasan atau antar heat.</p>
+                <p class="text-xs text-slate-500 mt-1">Susun ulang lintasan (Lane) & Heat secara manual. 100% Drag & Drop.</p>
             </div>
-            <button onclick="simpanKeDatabase()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm text-sm transition-colors">
-                💾 Simpan Formasi
+            
+            <button id="btnSaveFormasi" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-6 rounded-xl shadow-lg transition-transform transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                <span>💾</span> Simpan Formasi
             </button>
         </div>
 
-        <!-- EMBER HEAT 1 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
-            <h2 class="text-sm font-black text-slate-700 border-b border-slate-100 pb-2 mb-3">🔥 HEAT 1</h2>
-            
-            <!-- Area Sortable (Kotak Penampung) -->
-            <div id="heat1Container" class="sortable-list space-y-2 min-h-[50px]">
-                
-                <!-- Item Atlet (Dragable) -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-move hover:border-indigo-300 hover:shadow-sm transition-all" data-id="atlet-1">
-                    <div class="flex items-center gap-3">
-                        <div class="text-slate-400">⣿</div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-800 uppercase">Azel Davira Aljabbar</p>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase">Jago Renang Academy</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">00:50.00</span>
-                </div>
-
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-move hover:border-indigo-300 hover:shadow-sm transition-all" data-id="atlet-2">
-                    <div class="flex items-center gap-3">
-                        <div class="text-slate-400">⣿</div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-800 uppercase">Hayyin Nuruddin Zanki</p>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase">Jago Renang Academy</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">01:02.68</span>
-                </div>
-
+        <!-- CONTROL PANEL -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-5 mb-6 flex flex-col md:flex-row gap-4 items-end">
+            <div class="w-full md:flex-1">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Pilih Nomor Lomba</label>
+                <select id="selectEventNumber" class="w-full px-4 py-3 border border-slate-300 rounded-xl font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
+                    <option value="">Memuat data lomba...</option>
+                </select>
             </div>
+            
+            <div class="w-full md:w-32 shrink-0">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">2. Max Lintasan</label>
+                <input type="number" id="inputMaxLanes" value="8" min="2" max="15" class="w-full px-4 py-3 border border-slate-300 rounded-xl font-bold text-slate-800 text-center focus:ring-2 focus:ring-indigo-500 outline-none bg-slate-50">
+            </div>
+
+            <button id="btnLoadHeat" class="w-full md:w-auto bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                Load Data 🔄
+            </button>
         </div>
 
-        <!-- EMBER HEAT 2 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
-            <h2 class="text-sm font-black text-slate-700 border-b border-slate-100 pb-2 mb-3">🔥 HEAT 2</h2>
+        <!-- LAYOUT BUILDER UTAMA (2 Kolom di Desktop) -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 relative">
             
-            <!-- Area Sortable (Kotak Penampung) -->
-            <div id="heat2Container" class="sortable-list space-y-2 min-h-[50px]">
+            <!-- KOLOM KIRI: GUDANG / CADANGAN -->
+            <div class="md:col-span-4 flex flex-col gap-4">
                 
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-move hover:border-indigo-300 hover:shadow-sm transition-all" data-id="atlet-3">
-                    <div class="flex items-center gap-3">
-                        <div class="text-slate-400">⣿</div>
-                        <div>
-                            <p class="text-sm font-bold text-slate-800 uppercase">Nick</p>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase">Jago Renang Academy</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-mono font-bold text-slate-400 bg-white px-2 py-1 rounded border border-slate-200">NT</span>
+                <!-- Info Painkiller -->
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
+                    <p class="text-[11px] text-indigo-800 font-bold leading-relaxed">
+                        <span class="text-sm">💡</span> <strong>TIPS:</strong> Tarik blok "KOSONG" ke dalam Heat jika ingin mengosongkan lintasan tertentu (Misal: L4 kosong). Nomor Lane akan otomatis menyesuaikan posisi.
+                    </p>
                 </div>
 
+                <!-- Gudang KOSONG (Infinite) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-dashed border-slate-300 p-4">
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span>📦</span> Gudang Blok Kosong
+                    </h2>
+                    <div id="gudangKosong" class="sortable-list min-h-[50px] space-y-2">
+                        <!-- Sengaja disiapin beberapa buat ditarik -->
+                        <div class="item border border-slate-200 bg-slate-100 rounded-xl p-3 flex items-center gap-3 cursor-move" data-f1="EMPTY">
+                            <div class="text-slate-300 font-black">⣿</div>
+                            <span class="text-xs font-bold text-slate-400">[ LINTASAN KOSONG ]</span>
+                        </div>
+                        <div class="item border border-slate-200 bg-slate-100 rounded-xl p-3 flex items-center gap-3 cursor-move" data-f1="EMPTY">
+                            <div class="text-slate-300 font-black">⣿</div>
+                            <span class="text-xs font-bold text-slate-400">[ LINTASAN KOSONG ]</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gudang Atlet (Buat yg dicoret/pindah) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-red-200 p-4 sticky top-24">
+                    <h2 class="text-xs font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span>🗑️</span> Penampungan Atlet
+                    </h2>
+                    <p class="text-[10px] text-slate-400 mb-3">Tarik atlet ke sini jika batal tanding (Scratch).</p>
+                    <div id="gudangAtlet" class="sortable-list min-h-[100px] bg-red-50/50 rounded-xl border border-dashed border-red-200 p-2 space-y-2">
+                        <!-- Atlet yang di-drop ke sini akan nongkrong di sini -->
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Log Area untuk Pembuktian Auto-Save -->
-        <div class="bg-slate-900 rounded-xl p-4 text-emerald-400 font-mono text-xs overflow-auto h-32 hidden md:block">
-            <p class="text-slate-500 mb-2">// SISTEM AUTO-DETECT (BACKGROUND PROCESS)</p>
-            <div id="systemLog">Menunggu pergerakan panitia...</div>
-        </div>
+            <!-- KOLOM KANAN: DYNAMIC HEATS -->
+            <div class="md:col-span-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-black text-slate-800">Daftar Heat</h2>
+                    <button id="btnAddHeat" class="bg-white border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-slate-50 transition shadow-sm">+ Tambah Heat</button>
+                </div>
+                
+                <div id="loadingState" class="text-center p-10 text-slate-400 font-bold hidden">Memuat Formasi Heat... ⏳</div>
+                
+                <!-- Container tempat ember-ember dirender -->
+                <div id="heatContainerMain" class="space-y-6">
+                    <div class="text-center p-10 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-2xl">
+                        Pilih Nomor Lomba lalu klik "Load Data"
+                    </div>
+                </div>
+            </div>
 
+        </div>
     </div>
 
-    <script>
-        // FUNGSI INISIALISASI DRAG AND DROP
-        document.addEventListener('DOMContentLoaded', function () {
-            
-            // Konfigurasi Standar buat Ember
-            const sortableOptions = {
-                group: 'shared-heats', // KUNCI: Biar atlet bisa lompat antar ember
-                animation: 150, // Bikin efek gesernya mulus
-                ghostClass: 'bg-indigo-100', // Warna pas item lagi ditarik
-                
-                // KUNCI MOBILE FRIENDLY: 
-                // Di PC langsung jalan. Di HP harus ditahan 150ms biar gak nabrak pas nge-scroll
-                delay: 150, 
-                delayOnTouchOnly: true, 
-
-                // Event pas item dilepas (Drop)
-                onEnd: function (evt) {
-                    const itemEl = evt.item;  // Elemen yang dipindah
-                    const toEmber = evt.to;   // Kotak tujuan
-                    
-                    // Logika Paradox: UI Berubah, Sistem mencatat di background
-                    mencatatPerubahan(evt);
-                },
-            };
-
-            // Aktifkan Sortable di Ember 1
-            Sortable.create(document.getElementById('heat1Container'), sortableOptions);
-            
-            // Aktifkan Sortable di Ember 2
-            Sortable.create(document.getElementById('heat2Container'), sortableOptions);
-        });
-
-        // FUNGSI UNTUK MENANGKAP PERUBAHAN
-        function mencatatPerubahan(evt) {
-            const logBox = document.getElementById('systemLog');
-            
-            // Kita bisa langsung ngebaca urutan baru dari Ember lewat DOM
-            const urutanHeat1 = Array.from(document.getElementById('heat1Container').children).map(el => el.getAttribute('data-id'));
-            const urutanHeat2 = Array.from(document.getElementById('heat2Container').children).map(el => el.getAttribute('data-id'));
-            
-            let logText = `> PERUBAHAN DETECTED!<br>`;
-            logText += `> Heat 1 Baru: [${urutanHeat1.join(', ')}]<br>`;
-            logText += `> Heat 2 Baru: [${urutanHeat2.join(', ')}]<br><br>`;
-            
-            logBox.innerHTML = logText + logBox.innerHTML;
-
-            // Nanti di sinilah kita taruh fungsi untuk nulis (update) ulang JSONB ke Supabase
-        }
-
-        // FUNGSI SIMPAN MANUAL (Tombol)
-        function simpanKeDatabase() {
-            alert("Boom! Formasi baru berhasil dikunci dan siap di-generate jadi Buku Acara!");
-        }
-    </script>
+    <!-- Panggil Script Builder -->
+    <script type="module" src="../src/heat-builder.js"></script>
 </body>
 </html>

@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCS - Club Command Center</title>
     <link rel="stylesheet" href="/src/style.css">
-    <!-- Pustaka Ajaib pembaca Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -19,7 +18,6 @@
 
     <!-- TOP NAV -->
     <nav class="bg-white shadow-sm p-4 flex justify-between items-center border-b sticky top-0 z-50">
-        <!-- Kiri: Logo -->
         <div class="flex items-center gap-3">
             <a href="/" class="hover:scale-105 transition-transform duration-200 shrink-0">
                 <img src="/images/logo.png" alt="SCS Logo" class="h-8 md:h-10">
@@ -29,7 +27,6 @@
             </div>
         </div>
         
-        <!-- Kanan: Desktop Menu -->
         <div class="hidden md:flex items-center gap-4">
             <div class="relative group cursor-pointer">
                 <div class="flex items-center gap-3">
@@ -39,8 +36,6 @@
                     </div>
                     <img src="" id="clubLogoDisplay" alt="Club Logo" class="w-11 h-11 rounded-full border-2 border-scsGold shadow-sm object-cover bg-white">
                 </div>
-
-                <!-- Isi Dropdown -->
                 <div class="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden transform origin-top-right group-hover:scale-100 scale-95">
                     <div class="p-3 border-b border-gray-50 bg-gray-50/50">
                         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Manajemen Klub</p>
@@ -53,7 +48,6 @@
             </div>
         </div>
 
-        <!-- Kanan: Mobile Hamburger Button -->
         <div class="md:hidden flex items-center">
             <button id="mobileMenuToggle" class="text-gray-700 p-2 focus:outline-none bg-gray-50 rounded-lg border border-gray-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -74,13 +68,11 @@
             </div>
             <button id="closeMobileMenu" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
         </div>
-        
         <div class="flex flex-col flex-grow overflow-y-auto p-4 space-y-2">
             <button id="mobileBtnEditProfil" class="w-full text-left p-4 rounded-xl text-sm text-gray-700 hover:bg-blue-50 font-bold border border-gray-100 shadow-sm flex items-center gap-3"><span>⚙️</span> Pengaturan Klub</button>
             <button class="w-full text-left p-4 rounded-xl text-sm text-gray-700 hover:bg-blue-50 font-bold border border-gray-100 shadow-sm flex items-center gap-3"><span>🏆</span> Rank Atlet</button>
             <button class="w-full text-left p-4 rounded-xl text-sm text-scsGold bg-blue-900 hover:bg-blue-800 font-bold shadow-md flex items-center gap-3"><span>🚀</span> Upgrade SCS Pro</button>
         </div>
-        
         <div class="p-4 border-t border-gray-100">
             <button id="mobileLogoutBtn" class="w-full text-center p-4 rounded-xl text-sm text-red-600 bg-red-50 font-bold border border-red-100 shadow-sm">Keluar Sistem</button>
         </div>
@@ -133,11 +125,11 @@
                 </div>
             </button>
             
-            <button id="btnVerify" class="bg-amber-500 text-white p-5 rounded-2xl text-left shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+            <button id="btnQuickVerify" class="bg-amber-500 text-white p-5 rounded-2xl text-left shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
                 <div class="relative z-10">
                     <span class="text-3xl block mb-2">✅</span>
                     <h3 class="font-bold text-lg">Verifikasi F1 ID</h3>
-                    <p class="text-amber-100 text-xs md:text-sm mt-1">Review kelengkapan akta kelahiran untuk aktivasi.</p>
+                    <p class="text-amber-100 text-xs md:text-sm mt-1">Upload foto & akta atlet yang masih pending.</p>
                 </div>
             </button>
             
@@ -177,6 +169,16 @@
                 </div>
             </div>
 
+            <!-- SEARCH BAR ATLET KLUB -->
+            <div class="p-4 border-b border-gray-100 bg-white">
+                <div class="relative w-full shadow-sm rounded-xl">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="searchKlubAtlet" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-3 outline-none font-bold shadow-sm" placeholder="🔍 Cari nama atlet atau F1 ID...">
+                </div>
+            </div>
+
             <div class="w-full overflow-x-auto hide-scrollbar">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
@@ -200,7 +202,7 @@
     <!-- ==============================================================
          AREA MODAL
          ============================================================== -->
-    <!-- MODAL ONBOARDING (Wajib isi untuk user baru) -->
+    <!-- MODAL ONBOARDING -->
     <div id="modalOnboarding" class="fixed inset-0 bg-blue-900/95 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
             <div class="p-6 border-b border-gray-100 bg-blue-50 text-center">
@@ -235,18 +237,12 @@
                 </div>
                 <button id="closeModalProfileBtn" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
             </div>
-            
-            <!-- Tabs -->
             <div class="flex border-b border-gray-100 shrink-0">
                 <button id="tabProfilKlubBtn" class="flex-1 py-3 text-sm font-bold text-blue-900 border-b-2 border-blue-900 bg-white">Profil Klub</button>
                 <button id="tabAkunBtn" class="flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent bg-gray-50 hover:bg-gray-100 transition-colors">Keamanan Akun</button>
             </div>
-
             <div class="p-6 overflow-y-auto hide-scrollbar flex-1">
-                
-                <!-- TAB 1: FORM PROFIL KLUB -->
                 <div id="formProfilKlub" class="space-y-4">
-                    <!-- Upload Logo -->
                     <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
                         <img src="" id="editLogoPreview" class="w-14 h-14 rounded-full border-2 border-gray-300 object-cover bg-white">
                         <div class="flex-1">
@@ -254,7 +250,6 @@
                             <input type="file" id="inputEditLogo" accept="image/*" class="w-full text-xs file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
                         </div>
                     </div>
-                    
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Nama Klub</label>
                         <input type="text" id="editClubName" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
@@ -267,35 +262,27 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1">Nama Pelatih (Head Coach)</label>
                         <input type="text" id="editCoachName" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-                                        <!-- DROPDOWN WILAYAH (TAMBAHKAN INI) -->
                     <div class="grid grid-cols-2 gap-3 pt-2">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Provinsi</label>
-                            <select id="editProvinsi" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white">
-                                <option value="">Memuat...</option>
-                            </select>
+                            <select id="editProvinsi" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"></select>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Kota / Kab</label>
-                            <select id="editKota" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white" disabled>
-                                <option value="">Pilih Provinsi Dulu</option>
-                            </select>
+                            <select id="editKota" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white" disabled><option value="">Pilih Provinsi Dulu</option></select>
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">No WhatsApp Kontak</label>
                         <input type="text" id="editContactWa" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0812xxxxxx">
                     </div>
-
                     <button id="btnSaveProfileInfo" class="w-full bg-blue-900 text-white font-bold py-3 rounded-xl hover:bg-blue-800 transition shadow-md mt-4">Simpan Profil Klub</button>
                     <div id="statusProfilMsg" class="hidden text-sm font-bold text-center rounded-lg p-3"></div>
                 </div>
                 
-                <!-- TAB 2: FORM KEAMANAN AKUN -->
                 <div id="formAkun" class="space-y-4 hidden">
                     <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs leading-relaxed mb-2">
-                        <strong>Perhatian:</strong> Jika Anda mengubah Email, sistem Supabase akan mengirimkan link verifikasi ke email lama dan email baru Anda.
+                        <strong>Perhatian:</strong> Jika Anda mengubah Email, sistem akan mengirimkan link verifikasi ke email lama dan email baru Anda.
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Ubah Alamat Email</label>
@@ -306,7 +293,6 @@
                         <input type="password" id="editAuthPassword" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan password baru...">
                         <p class="text-[10px] text-gray-500 mt-1">*Kosongkan jika tidak ingin mengubah password.</p>
                     </div>
-
                     <button id="btnSaveAuthInfo" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition shadow-md mt-4">Terapkan Perubahan Akun</button>
                     <div id="statusAkunMsg" class="hidden text-sm font-bold text-center rounded-lg p-3"></div>
                 </div>
@@ -317,7 +303,6 @@
     <!-- 2. MODAL TAMBAH ATLET -->
     <div id="modalAddAthlete" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
-            <!-- (Isi Modal Tambah Atlet Sama seperti versi sebelumnya, tidak ada yang dipotong) -->
             <div class="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                 <h3 class="font-extrabold text-blue-900 text-lg">Tambah Atlet Baru</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
@@ -327,7 +312,6 @@
                     <button id="tabManualBtn" class="flex-1 py-1.5 bg-white shadow-sm rounded-md text-sm font-bold text-blue-900 transition-all">Manual Input</button>
                     <button id="tabExcelBtn" class="flex-1 py-1.5 text-gray-500 text-sm font-bold hover:text-blue-900 transition-all">Import Excel</button>
                 </div>
-
                 <div id="sectionManual" class="space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Nama Lengkap Atlet</label>
@@ -347,10 +331,9 @@
                         </div>
                     </div>
                 </div>
-
                 <div id="sectionExcel" class="hidden space-y-4">
                     <div class="p-3 bg-blue-50 border border-blue-100 rounded-xl text-justify">
-                        <p class="text-[10px] text-blue-600 leading-relaxed">Baris pertama (header) wajib:<br><strong>A: Nama Lengkap<br>B: Tanggal Lahir (YYYY-MM-DD)<br>C: Gender (Putra/Putri)</strong></p>
+                        <p class="text-[10px] text-blue-600 leading-relaxed">Baris pertama wajib:<br><strong>A: Nama Lengkap<br>B: Tanggal Lahir (YYYY-MM-DD)<br>C: Gender (Putra/Putri)</strong></p>
                     </div>
                     <div>
                         <input type="file" id="inputExcel" accept=".csv, .xlsx" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
@@ -365,10 +348,63 @@
         </div>
     </div>
 
+    <!-- 3. MODAL UNIFIED: EDIT & VERIFIKASI (IDE JENIUS!) -->
+    <div id="modalEditVerify" class="fixed inset-0 bg-black/60 z-[65] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 max-h-[95vh] flex flex-col">
+            <div class="p-5 border-b border-gray-100 bg-blue-50 flex justify-between items-center shrink-0">
+                <h3 class="font-extrabold text-blue-900 text-lg flex items-center gap-2"><span>✏️</span> Verifikasi & Edit Data</h3>
+                <button id="closeModalEditVerifyBtn" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
+            </div>
+            
+            <div class="p-6 space-y-4 overflow-y-auto hide-scrollbar flex-1">
+                <!-- Pesan Peringatan Administrator -->
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                    <span class="text-amber-500 text-lg mt-0.5">⚠️</span>
+                    <p class="text-[10px] md:text-xs font-bold text-amber-800 leading-relaxed">
+                        Mengubah data (Nama/Tgl Lahir) akan <strong class="text-red-600">mereset status verifikasi</strong> menjadi PENDING. Wajib upload ulang Akta jika melakukan perubahan data.
+                    </p>
+                </div>
 
-    <!-- 3. MODAL BUAT EVENT -->
+                <input type="hidden" id="evF1Id">
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nama Lengkap Atlet</label>
+                    <input type="text" id="evName" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-bold text-gray-900">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Tanggal Lahir</label>
+                        <input type="date" id="evDOB" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-900 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Jenis Kelamin</label>
+                        <select id="evGender" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white font-bold text-gray-900">
+                            <option value="Putra">Putra</option>
+                            <option value="Putri">Putri</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 mt-2">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Pas Foto Atlet (Opsional jika sudah ada)</label>
+                    <input type="file" id="evFoto" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm file:bg-blue-100 file:text-blue-700 file:border-0 file:rounded file:px-2 file:py-1 file:font-bold hover:file:bg-blue-200">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Scan Akta Kelahiran (Wajib untuk Verif/Edit)</label>
+                    <input type="file" id="evAkta" accept="image/*,.pdf" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm file:bg-amber-100 file:text-amber-800 file:border-0 file:rounded file:px-2 file:py-1 file:font-bold hover:file:bg-amber-200">
+                </div>
+
+                <div id="evStatusMsg" class="hidden text-sm font-bold text-center rounded-lg p-3"></div>
+            </div>
+            <div class="p-5 bg-gray-50 border-t border-gray-100 shrink-0">
+                <button id="btnSaveEditVerify" class="w-full bg-blue-900 text-white font-bold py-3.5 rounded-xl hover:bg-blue-800 transition shadow-lg">Kirim Pengajuan ke Admin</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 4. MODAL BUAT EVENT -->
     <div id="modalCreateEvent" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <!-- (Isi Modal Buat Event Sama seperti sebelumnya) -->
         <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
             <div class="p-5 border-b border-gray-100 bg-emerald-50 flex justify-between items-center">
                 <div class="flex items-center gap-2">
@@ -377,7 +413,6 @@
                 </div>
                 <button id="closeModalEventBtn" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
             </div>
-            
             <div class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Nama Lomba / Kejuaraan</label>
@@ -401,39 +436,6 @@
             </div>
             <div class="p-5 bg-gray-50 border-t border-gray-100">
                 <button id="btnSaveEvent" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition">Buat Event Sekarang</button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- 4. MODAL VERIFIKASI F1 ID -->
-    <div id="modalVerifyAthlete" class="fixed inset-0 bg-black/60 z-[75] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
-            <!-- (Isi Modal Verifikasi Sama seperti sebelumnya) -->
-             <div class="p-5 border-b border-gray-100 bg-amber-50 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <span class="text-xl">✅</span>
-                    <h3 class="font-extrabold text-amber-900 text-lg">Verifikasi Dokumen</h3>
-                </div>
-                <button id="closeModalVerifyBtn" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">&times;</button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Pilih Atlet (Pending)</label>
-                    <select id="inputVerifyAthlete" class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-sm"></select>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Pas Foto Atlet</label>
-                    <input type="file" id="inputFoto" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm file:bg-amber-100">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Scan / Foto Akta Kelahiran</label>
-                    <input type="file" id="inputAkta" accept="image/*,.pdf" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm file:bg-amber-100">
-                </div>
-                <div id="verifyStatusMsg" class="hidden"></div>
-            </div>
-            <div class="p-5 bg-gray-50 border-t border-gray-100">
-                <button id="btnSubmitVerify" class="w-full bg-amber-500 text-white font-bold py-3.5 rounded-xl hover:bg-amber-600 transition shadow-lg">Kirim Dokumen Verifikasi</button>
             </div>
         </div>
     </div>

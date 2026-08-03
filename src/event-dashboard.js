@@ -85,6 +85,7 @@ async function loadEventDashboard() {
             document.getElementById('modalPusatCetak').classList.add('hidden');
         };
 
+        // Navigasi Cetak Buku Acara
         document.getElementById('btnMenuBukuAcara').onclick = () => {
             let lanes = prompt("Berapa jumlah lintasan kolam yang digunakan?", "8");
             if (lanes) {
@@ -92,6 +93,12 @@ async function loadEventDashboard() {
             }
         };
 
+        // Navigasi Heat Builder (Drag & Drop)
+        document.getElementById('btnMenuHeatBuilder').onclick = () => {
+            window.location.href = `/book/heat-builder.html?id=${currentEventId}`;
+        };
+
+        // Navigasi Cetak Hasil Lomba
         document.getElementById('btnMenuHasilLomba').onclick = () => {
             window.location.href = `/book/event-result.html?id=${currentEventId}`;
         };

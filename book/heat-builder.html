@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Builder (PRO) | SCS</title>
+    <!-- Asumsi file style.css Tailwind lu ada di luar folder book -->
+    <link rel="stylesheet" href="../src/style.css">
+    
+    <!-- SENJATA RAHASIA: SortableJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 pb-20 p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 flex items-center gap-2">
+                    🛠️ Heat Builder <span class="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded font-black tracking-widest border border-amber-200">PRO</span>
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">Tahan (Long-press) dan geser nama atlet untuk memindahkan lintasan atau antar heat.</p>
+            </div>
+            <button onclick="simpanKeDatabase()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm text-sm transition-colors">
+                💾 Simpan Formasi
+            </button>
+        </div>
+
+        <!-- EMBER HEAT 1 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
+            <h2 class="text-sm font-black text-slate-700 border-b border-slate-100 pb-2 mb-3">🔥 HEAT 1</h2>
+            
+            <!-- Area Sortable (Kotak Penampung) -->
+            <div id="heat1Container" class="sortable-list space-y-2 min-h-[50px]">
+                
+                <!-- Item Atlet (Dragable) -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-move hover:border-indigo-300 hover:shadow-sm transition-all" data-id="atlet-1">
+                    <div class="flex items-center gap-3">
+                        <div class="text-slate-400">⣿</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800 uppercase">Azel Davira Aljabbar</p>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase">Jago Renang Academy</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">00:50.00</span>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-move hover:border-indigo-300 hover:shadow-sm transition-all" data-id="atlet-2">
+                    <div class="flex items-center gap-3">
+                        <div class="text-slate-400">⣿</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800 uppercase">Hayyin Nuruddin Zanki</p>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase">Jago Renang Academy</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">01:02.68</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- EMBER HEAT 2 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
+            <h2 class="text-sm font-black text-slate-700 border-b border-slate-100 pb-2 mb-3">🔥 HEAT 2</h2>
+            
+            <!-- Area Sortable (Kotak Penampung) -->
+            <div id="heat2Container" class="sortable-list space-y-2 min-h-[50px]">
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-move hover:border-indigo-300 hover:shadow-sm transition-all" data-id="atlet-3">
+                    <div class="flex items-center gap-3">
+                        <div class="text-slate-400">⣿</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800 uppercase">Nick</p>
+                            <p class="text-[10px] font-bold text-slate-500 uppercase">Jago Renang Academy</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-400 bg-white px-2 py-1 rounded border border-slate-200">NT</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Log Area untuk Pembuktian Auto-Save -->
+        <div class="bg-slate-900 rounded-xl p-4 text-emerald-400 font-mono text-xs overflow-auto h-32 hidden md:block">
+            <p class="text-slate-500 mb-2">// SISTEM AUTO-DETECT (BACKGROUND PROCESS)</p>
+            <div id="systemLog">Menunggu pergerakan panitia...</div>
+        </div>
+
+    </div>
+
+    <script>
+        // FUNGSI INISIALISASI DRAG AND DROP
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // Konfigurasi Standar buat Ember
+            const sortableOptions = {
+                group: 'shared-heats', // KUNCI: Biar atlet bisa lompat antar ember
+                animation: 150, // Bikin efek gesernya mulus
+                ghostClass: 'bg-indigo-100', // Warna pas item lagi ditarik
+                
+                // KUNCI MOBILE FRIENDLY: 
+                // Di PC langsung jalan. Di HP harus ditahan 150ms biar gak nabrak pas nge-scroll
+                delay: 150, 
+                delayOnTouchOnly: true, 
+
+                // Event pas item dilepas (Drop)
+                onEnd: function (evt) {
+                    const itemEl = evt.item;  // Elemen yang dipindah
+                    const toEmber = evt.to;   // Kotak tujuan
+                    
+                    // Logika Paradox: UI Berubah, Sistem mencatat di background
+                    mencatatPerubahan(evt);
+                },
+            };
+
+            // Aktifkan Sortable di Ember 1
+            Sortable.create(document.getElementById('heat1Container'), sortableOptions);
+            
+            // Aktifkan Sortable di Ember 2
+            Sortable.create(document.getElementById('heat2Container'), sortableOptions);
+        });
+
+        // FUNGSI UNTUK MENANGKAP PERUBAHAN
+        function mencatatPerubahan(evt) {
+            const logBox = document.getElementById('systemLog');
+            
+            // Kita bisa langsung ngebaca urutan baru dari Ember lewat DOM
+            const urutanHeat1 = Array.from(document.getElementById('heat1Container').children).map(el => el.getAttribute('data-id'));
+            const urutanHeat2 = Array.from(document.getElementById('heat2Container').children).map(el => el.getAttribute('data-id'));
+            
+            let logText = `> PERUBAHAN DETECTED!<br>`;
+            logText += `> Heat 1 Baru: [${urutanHeat1.join(', ')}]<br>`;
+            logText += `> Heat 2 Baru: [${urutanHeat2.join(', ')}]<br><br>`;
+            
+            logBox.innerHTML = logText + logBox.innerHTML;
+
+            // Nanti di sinilah kita taruh fungsi untuk nulis (update) ulang JSONB ke Supabase
+        }
+
+        // FUNGSI SIMPAN MANUAL (Tombol)
+        function simpanKeDatabase() {
+            alert("Boom! Formasi baru berhasil dikunci dan siap di-generate jadi Buku Acara!");
+        }
+    </script>
+</body>
+</html>

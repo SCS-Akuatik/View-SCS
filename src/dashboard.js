@@ -4,13 +4,13 @@ import { supabaseClient } from './supabase.js';
 // STATE GLOBAL UNTUK APLIKASI
 // ==========================================
 let allAthletes = [];
+let filteredAthletes = []; 
 let currentPage = 1;
 const itemsPerPage = 10;
-let currentClubId = null; // Menyimpan ID Klub yang sedang login
-let currentClubData = null; // Menyimpan data utuh klub untuk auto-fill
+let currentClubId = null; 
+let currentClubData = null; 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Tombol Keluar (Desktop & Mobile)
     const logoutAction = async () => {
         await supabaseClient.auth.signOut();
         window.location.href = '/auth.html';
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (logoutBtn) logoutBtn.addEventListener('click', logoutAction);
     if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', logoutAction);
 
-    // Logic Klik Tombol Pagination (Geser Kanan Kiri)
     const btnPrev = document.getElementById('btnPrevPage');
     const btnNext = document.getElementById('btnNextPage');
     
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if(btnNext) {
         btnNext.addEventListener('click', () => {
-            const totalPages = Math.ceil(allAthletes.length / itemsPerPage);
+            const totalPages = Math.ceil(filteredAthletes.length / itemsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
                 renderAthleteTable();
@@ -44,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Logic Mobile Hamburger Menu
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const mobileMenuPanel = document.getElementById('mobileMenuPanel');
     const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
@@ -66,17 +64,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (closeMobileMenu) closeMobileMenu.addEventListener('click', toggleMobileMenu);
     if (mobileMenuOverlay) mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
 
-    // Jalankan fungsi tarik data utama!
+    const searchInput = document.getElementById('searchKlubAtlet');
+    if(searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            filteredAthletes = allAthletes.filter(atlet => 
+                atlet.full_name.toLowerCase().includes(query) || 
+                atlet.f1_id.toLowerCase().includes(query)
+            );
+            currentPage = 1;
+            renderAthleteTable();
+        });
+    }
+
     fetchDashboardData();
 });
 
 // ==========================================
-// ==========================================
-// 1. FUNGSI TARIK DATA DASHBOARD (FULL DINAMIS)
+// 1. FUNGSI TARIK DATA DASHBOARD
 // ==========================================
 async function fetchDashboardData() {
     try {
-        // --- A. CEK SESI LOGIN ---
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
         
         if (sessionError || !session) {
@@ -87,17 +95,15 @@ async function fetchDashboardData() {
         const userId = session.user.id; 
         const userEmail = session.user.email;
 
-        // --- B. CARI KLUB MILIK USER INI ---
         const { data: clubData, error: clubError } = await supabaseClient
             .from('clubs')
             .select('*')
             .eq('owner_id', userId)
             .single();
 
-        // LOGIKA BARU: JIKA KLUB BELUM ADA (USER BARU LOGIN PERTAMA KALI)
         if (clubError || !clubData) {
             const modalOnboard = document.getElementById('modalOnboarding');
-            modalOnboard.classList.remove('hidden'); // Munculkan pop-up wajib
+            modalOnboard.classList.remove('hidden'); 
             
             const btnSaveOnboard = document.getElementById('btnSaveOnboarding');
             
@@ -116,7 +122,6 @@ async function fetchDashboardData() {
                 btnSaveOnboard.disabled = true;
 
                 try {
-                    // INSERT DATA KLUB BARU KE SUPABASE
                     const { error: insertErr } = await supabaseClient
                         .from('clubs')
                         .insert([{
@@ -131,7 +136,6 @@ async function fetchDashboardData() {
                     onboardMsg.innerText = "✅ Klub berhasil dibangun! Memuat Command Center...";
                     onboardMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-600 block";
                     
-                    // Hilangkan pop-up dan PANGGIL ULANG fungsi dashboard untuk memuat data baru
                     setTimeout(() => {
                         modalOnboard.classList.add('hidden');
                         fetchDashboardData(); 
@@ -144,13 +148,13 @@ async function fetchDashboardData() {
                     btnSaveOnboard.disabled = false;
                 }
             };
-            return; // Hentikan proses render dashboard sampai form ini disubmit!
+            return; 
         }
 
-        currentClubId = clubData.id; // SET GLOBAL VARIABEL
-        currentClubData = clubData; // SIMPAN DATA KLUB UNTUK MODAL EDIT
+        currentClubId = clubData.id; 
+        currentClubData = clubData; 
 
-        // --- C. RENDER PROFIL KLUB (DESKTOP & MOBILE) ---
+        // RENDER PROFIL KLUB
         const displayName = clubData.short_name || clubData.club_name;
         
         const clubNameEl = document.getElementById('clubNameDisplay');
@@ -169,7 +173,7 @@ async function fetchDashboardData() {
 
         const logoEl = document.getElementById('clubLogoDisplay');
         const mobileLogoEl = document.getElementById('mobileClubLogoDisplay');
-        const editLogoPreview = document.getElementById('editLogoPreview'); // Preview di Modal Edit Profil
+        const editLogoPreview = document.getElementById('editLogoPreview'); 
         
         const fallbackLogo = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=1e3a8a&color=fff&bold=true`;
         const finalLogo = clubData.logo_url || fallbackLogo;
@@ -178,7 +182,7 @@ async function fetchDashboardData() {
         if (mobileLogoEl) mobileLogoEl.src = finalLogo;
         if (editLogoPreview) editLogoPreview.src = finalLogo;
 
-        // --- D. TARIK DATA EVENT MILIK KLUB INI ---
+        // TARIK DATA EVENT
         const { data: eventsData, error: eventsErr } = await supabaseClient
             .from('events')
             .select('*')
@@ -187,7 +191,6 @@ async function fetchDashboardData() {
         const totalEventEl = document.getElementById('valEventAktif');
         if (totalEventEl) totalEventEl.innerText = eventsData ? eventsData.length : 0;
 
-        // Render Card Event Lomba
         const eventContainer = document.getElementById('eventListContainer');
         if (eventContainer) {
             if (!eventsData || eventsData.length === 0) {
@@ -210,7 +213,7 @@ async function fetchDashboardData() {
             }
         }
 
-        // --- E. TARIK DATA ATLET MILIK KLUB INI ---
+        // TARIK DATA ATLET
         const { data: athletesData, error: athletesError } = await supabaseClient
             .from('athletes')
             .select('*')
@@ -221,23 +224,14 @@ async function fetchDashboardData() {
         const totalAtletEl = document.getElementById('valTotalAtlet');
         if (totalAtletEl) totalAtletEl.innerText = athletesData.length;
 
-        // Render Dropdown Verifikasi
-        const selectVerify = document.getElementById('inputVerifyAthlete');
-        if (selectVerify) {
-            selectVerify.innerHTML = '<option value="">-- Pilih Atlet (Hanya yang belum lengkap) --</option>';
-            let pendingCount = 0;
-            athletesData.forEach(atlet => {
-                if (!atlet.foto_url || !atlet.akta_url) {
-                    selectVerify.innerHTML += `<option value="${atlet.f1_id}">${atlet.full_name} (${atlet.f1_id})</option>`;
-                    pendingCount++;
-                }
-            });
-            const pendingEl = document.getElementById('valF1Pending');
-            if (pendingEl) pendingEl.innerText = pendingCount;
-        }
+        // Hitung Pending F1 ID (Belum diverifikasi Admin Pusat)
+        let pendingCount = athletesData.filter(a => a.is_verified === false).length;
+        const pendingEl = document.getElementById('valF1Pending');
+        if (pendingEl) pendingEl.innerText = pendingCount;
 
-        // F. URUTKAN ALFABET, SIMPAN KE MEMORI, LALU RENDER HALAMAN 1
+        // URUTKAN ALFABET DAN RESET FILTER
         allAthletes = athletesData.sort((a, b) => a.full_name.localeCompare(b.full_name));
+        filteredAthletes = [...allAthletes]; 
         currentPage = 1;
         renderAthleteTable();
 
@@ -261,25 +255,24 @@ function renderAthleteTable() {
     if (!tbody) return;
     tbody.innerHTML = ''; 
 
-    if (allAthletes.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Belum ada atlet yang terdaftar di klub ini.</td></tr>`;
+    if (filteredAthletes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Tidak ada atlet yang cocok dengan pencarian.</td></tr>`;
         if(pageInd) pageInd.innerText = `Hal 1 / 1`;
         if(btnPrev) btnPrev.disabled = true;
         if(btnNext) btnNext.disabled = true;
         return;
     }
 
-    // Hitung Slice per Halaman
-    const totalPages = Math.ceil(allAthletes.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredAthletes.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const athletesToShow = allAthletes.slice(startIndex, endIndex);
+    const athletesToShow = filteredAthletes.slice(startIndex, endIndex);
 
     athletesToShow.forEach((atlet, idx) => {
-        const actualIndex = startIndex + idx + 1; // Nomor urut lanjut terus
+        const actualIndex = startIndex + idx + 1; 
         const genderIcon = atlet.gender === 'Putra' ? '👦 Putra' : '👧 Putri';
         const avatarUrl = atlet.foto_url ? atlet.foto_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(atlet.full_name)}&background=f3f4f6&color=374151`;
-        const statusDokumen = (atlet.foto_url && atlet.akta_url) ? '<span class="text-green-500 text-xs ml-1" title="Terverifikasi">✅</span>' : '';
+        const statusDokumen = atlet.is_verified ? '<span class="text-green-500 text-xs ml-1" title="Terverifikasi">✅</span>' : '<span class="text-amber-500 text-xs ml-1" title="Menunggu Verifikasi Pusat">⏳</span>';
 
         const row = `
             <tr class="hover:bg-blue-50/50 transition-colors group border-b border-gray-50">
@@ -305,9 +298,10 @@ function renderAthleteTable() {
                     <p class="font-bold text-gray-700">${atlet.dob}</p>
                 </td>
                 <td class="p-4 text-center">
-                    <div class="flex items-center justify-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                        <!-- AUTO RENDER F1 ID KE URL PROFIL -->
-                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Lihat Profil">👁️</a>
+                    <div class="flex items-center justify-center gap-4">
+                        <button onclick="window.openEditVerify('${atlet.f1_id}')" class="text-blue-600 font-bold text-xs hover:underline flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+                            ✏️ Edit / Verif
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -315,14 +309,172 @@ function renderAthleteTable() {
         tbody.innerHTML += row;
     });
 
-    // Update Tombol Kiri Kanan
     if(pageInd) pageInd.innerText = `Hal ${currentPage} / ${totalPages}`;
     if(btnPrev) btnPrev.disabled = currentPage === 1;
     if(btnNext) btnNext.disabled = currentPage === totalPages;
 }
 
+
 // ==========================================
-// 3. LOGIC MODAL PENGATURAN KLUB & AKUN (BARU)
+// 2.5 LOGIKA UNIFIED: EDIT & VERIFIKASI (IDE JENIUS!)
+// ==========================================
+const modalEditVerify = document.getElementById('modalEditVerify');
+const closeModalEditVerifyBtn = document.getElementById('closeModalEditVerifyBtn');
+const btnSaveEditVerify = document.getElementById('btnSaveEditVerify');
+const btnQuickVerify = document.getElementById('btnQuickVerify');
+
+// Fungsi pemicu Quick Action "Verifikasi F1 ID" -> Langsung filter dan scroll ke tabel
+if (btnQuickVerify) {
+    btnQuickVerify.addEventListener('click', () => {
+        // Filter array hanya untuk yang is_verified == false
+        filteredAthletes = allAthletes.filter(a => a.is_verified === false);
+        currentPage = 1;
+        renderAthleteTable();
+        
+        // Scroll layar ke tabel otomatis
+        document.getElementById('searchKlubAtlet').scrollIntoView({ behavior: 'smooth' });
+        
+        // Kasih tahu user
+        alert(`Ditemukan ${filteredAthletes.length} atlet yang belum diverifikasi. Silakan klik tombol 'Edit / Verif' di tabel.`);
+    });
+}
+
+window.openEditVerify = function(f1_id) {
+    const atlet = allAthletes.find(a => a.f1_id === f1_id);
+    if (!atlet) return;
+
+    // Isi modal dengan data saat ini
+    document.getElementById('evF1Id').value = atlet.f1_id;
+    document.getElementById('evName').value = atlet.full_name;
+    document.getElementById('evDOB').value = atlet.dob;
+    document.getElementById('evGender').value = atlet.gender;
+    
+    // Kosongkan input file bekas sebelumnya
+    document.getElementById('evFoto').value = '';
+    document.getElementById('evAkta').value = '';
+    
+    document.getElementById('evStatusMsg').classList.add('hidden');
+
+    // Tampilkan Modal
+    modalEditVerify.classList.remove('hidden');
+    setTimeout(() => modalEditVerify.firstElementChild.classList.remove('scale-95'), 10);
+};
+
+if(closeModalEditVerifyBtn) {
+    closeModalEditVerifyBtn.addEventListener('click', () => {
+        modalEditVerify.firstElementChild.classList.add('scale-95');
+        setTimeout(() => modalEditVerify.classList.add('hidden'), 200);
+    });
+}
+
+if(btnSaveEditVerify) {
+    btnSaveEditVerify.addEventListener('click', async () => {
+        const f1Id = document.getElementById('evF1Id').value;
+        const newName = document.getElementById('evName').value.trim();
+        const newDOB = document.getElementById('evDOB').value;
+        const newGender = document.getElementById('evGender').value;
+        
+        const fotoFile = document.getElementById('evFoto').files[0];
+        const aktaFile = document.getElementById('evAkta').files[0];
+        
+        const statusMsg = document.getElementById('evStatusMsg');
+
+        // Cari data atlet lama
+        const atlet = allAthletes.find(a => a.f1_id === f1Id);
+
+        // Validasi Text
+        if (!newName || !newDOB || !newGender) {
+            statusMsg.innerText = "Nama, Tanggal Lahir, dan Gender wajib diisi!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-2";
+            return;
+        }
+
+        // Validasi Akta: Wajib jika atlet belum pernah upload akta, ATAU jika dia ngubah data nama/umur
+        const dataBerubah = (newName !== atlet.full_name) || (newDOB !== atlet.dob) || (newGender !== atlet.gender);
+        if ((!atlet.akta_url && !aktaFile) || (dataBerubah && !aktaFile && !atlet.akta_url)) {
+            statusMsg.innerText = "Wajib upload Akta Kelahiran untuk pengajuan verifikasi / perubahan data!";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-2";
+            return;
+        }
+
+        btnSaveEditVerify.innerText = "Mengunggah Data...";
+        btnSaveEditVerify.disabled = true;
+        btnSaveEditVerify.classList.add('opacity-70');
+        
+        statusMsg.innerText = "Mohon tunggu, sedang mengirim berkas ke server pusat...";
+        statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-blue-50 text-blue-600 block mt-2";
+
+        try {
+            const timeStamp = Date.now();
+            let finalFotoUrl = atlet.foto_url;
+            let finalAktaUrl = atlet.akta_url;
+
+            // Upload Foto jika ada
+            if (fotoFile) {
+                const fotoExt = fotoFile.name.split('.').pop();
+                const fotoPath = `foto/${f1Id}_${timeStamp}.${fotoExt}`;
+                const { error: fotoError } = await supabaseClient.storage.from('berkas-atlet').upload(fotoPath, fotoFile);
+                if (fotoError) throw fotoError;
+                const { data: fotoUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(fotoPath);
+                finalFotoUrl = fotoUrlData.publicUrl;
+            }
+
+            // Upload Akta jika ada
+            if (aktaFile) {
+                const aktaExt = aktaFile.name.split('.').pop();
+                const aktaPath = `akta/${f1Id}_${timeStamp}.${aktaExt}`;
+                const { error: aktaError } = await supabaseClient.storage.from('berkas-atlet').upload(aktaPath, aktaFile);
+                if (aktaError) throw aktaError;
+                const { data: aktaUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(aktaPath);
+                finalAktaUrl = aktaUrlData.publicUrl;
+            }
+
+            // Update Database: Selalu set is_verified = false supaya Admin ngecek ulang!
+            const { error: updateError } = await supabaseClient
+                .from('athletes')
+                .update({ 
+                    full_name: newName, 
+                    dob: newDOB, 
+                    gender: newGender,
+                    foto_url: finalFotoUrl,
+                    akta_url: finalAktaUrl,
+                    is_verified: false // IDE JENIUS: Selalu reset status verifikasi
+                })
+                .eq('f1_id', f1Id);
+
+            if (updateError) {
+                if (updateError.code === '23505') throw new Error("Gagal! Data sudah dipakai atlet lain.");
+                throw updateError;
+            }
+
+            statusMsg.innerHTML = "✅ <strong>Berkas & Pengajuan berhasil dikirim!</strong><br><span class='text-xs font-normal'>Menunggu persetujuan Admin Pusat untuk penerbitan/pengaktifan kembali F1 ID.</span>";
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-700 block mt-2";
+
+            // Tutup modal dan refresh data
+            setTimeout(() => {
+                closeModalEditVerifyBtn.click();
+                btnSaveEditVerify.innerText = "Kirim Pengajuan ke Admin";
+                btnSaveEditVerify.disabled = false;
+                btnSaveEditVerify.classList.remove('opacity-70');
+                
+                document.getElementById('searchKlubAtlet').value = '';
+                fetchDashboardData();
+            }, 2500);
+
+        } catch (err) {
+            console.error(err);
+            statusMsg.innerText = "Gagal memproses: " + err.message;
+            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-2";
+            btnSaveEditVerify.innerText = "Kirim Pengajuan ke Admin";
+            btnSaveEditVerify.disabled = false;
+            btnSaveEditVerify.classList.remove('opacity-70');
+        }
+    });
+}
+
+
+// ==========================================
+// 3. LOGIC MODAL PENGATURAN KLUB & AKUN
 // ==========================================
 const btnEditProfilKlub = document.getElementById('btnEditProfilKlub');
 const mobileBtnEditProfil = document.getElementById('mobileBtnEditProfil');
@@ -334,13 +486,9 @@ const tabAkunBtn = document.getElementById('tabAkunBtn');
 const formProfilKlub = document.getElementById('formProfilKlub');
 const formAkun = document.getElementById('formAkun');
 
-// ==========================================
-// API WILAYAH INDONESIA (PROVINSI & KOTA)
-// ==========================================
 const elProvinsi = document.getElementById('editProvinsi');
 const elKota = document.getElementById('editKota');
 
-// 1. Tarik Data Provinsi saat halaman dimuat
 async function loadProvinsi() {
     try {
         const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
@@ -348,17 +496,14 @@ async function loadProvinsi() {
         
         elProvinsi.innerHTML = '<option value="">-- Pilih Provinsi --</option>';
         provinces.forEach(prov => {
-            // Simpan ID provinsi di data-id buat narik kota nanti
             elProvinsi.innerHTML += `<option value="${prov.name}" data-id="${prov.id}">${prov.name}</option>`;
         });
     } catch (error) {
-        console.error("Gagal load API Provinsi", error);
         elProvinsi.innerHTML = '<option value="">Gagal memuat API</option>';
     }
 }
-loadProvinsi(); // Panggil fungsinya
+loadProvinsi(); 
 
-// 2. Tarik Data Kota saat Provinsi dipilih
 elProvinsi.addEventListener('change', async function() {
     const selectedOption = this.options[this.selectedIndex];
     const provId = selectedOption.getAttribute('data-id');
@@ -382,36 +527,31 @@ elProvinsi.addEventListener('change', async function() {
         });
         elKota.disabled = false;
     } catch (error) {
-        console.error("Gagal load API Kota", error);
+        console.error("Gagal load API Kota");
     }
 });
 
 function openProfileModal() {
     if (!currentClubData) return;
     
-    // Auto-fill form data Klub
     document.getElementById('editClubName').value = currentClubData.club_name || '';
     document.getElementById('editShortName').value = currentClubData.short_name || '';
     document.getElementById('editCoachName').value = currentClubData.coach_name || '';
     document.getElementById('editContactWa').value = currentClubData.contact_wa || '';
     document.getElementById('editProvinsi').value = currentClubData.provinsi || '';
     
-    // Pancing API kota kebuka kalau provinsi udah ada isinya
     if(currentClubData.provinsi) {
-        // Karena ini asinkron dan butuh ID, kita buat simple: izinkan user milih ulang kotanya
         document.getElementById('editKota').innerHTML = `<option value="${currentClubData.kota_asal}">${currentClubData.kota_asal}</option>`;
         document.getElementById('editKota').disabled = false;
     }
-    // Auto-fill form Akun (Email)
+    
     supabaseClient.auth.getUser().then(({data}) => {
         if(data.user) document.getElementById('editAuthEmail').value = data.user.email;
     });
 
-    // Reset UI state
     document.getElementById('statusProfilMsg').classList.add('hidden');
     document.getElementById('statusAkunMsg').classList.add('hidden');
     
-    // Tutup mobile menu jika sedang terbuka
     const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
     if(mobileMenuOverlay && !mobileMenuOverlay.classList.contains('hidden')) {
         document.getElementById('mobileMenuToggle').click(); 
@@ -431,7 +571,6 @@ if (closeModalProfileBtn) {
     });
 }
 
-// Logic Ganti Tab (Profil vs Akun)
 if (tabProfilKlubBtn && tabAkunBtn) {
     tabProfilKlubBtn.addEventListener('click', () => {
         tabProfilKlubBtn.className = "flex-1 py-3 text-sm font-bold text-blue-900 border-b-2 border-blue-900 bg-white";
@@ -447,7 +586,6 @@ if (tabProfilKlubBtn && tabAkunBtn) {
     });
 }
 
-// SIMPAN PROFIL KLUB
 const btnSaveProfileInfo = document.getElementById('btnSaveProfileInfo');
 if (btnSaveProfileInfo) {
     btnSaveProfileInfo.addEventListener('click', async () => {
@@ -458,7 +596,7 @@ if (btnSaveProfileInfo) {
         const fileLogo = document.getElementById('inputEditLogo').files[0];
         const statusMsg = document.getElementById('statusProfilMsg');
         const cProv = document.getElementById('editProvinsi').value;
-    const cKota = document.getElementById('editKota').value;
+        const cKota = document.getElementById('editKota').value;
 
         if (!cName) {
             statusMsg.innerText = "Nama Klub wajib diisi!";
@@ -472,7 +610,6 @@ if (btnSaveProfileInfo) {
         try {
             let newLogoUrl = currentClubData.logo_url;
 
-            // Jika user memilih file logo baru
             if (fileLogo) {
                 const fileExt = fileLogo.name.split('.').pop();
                 const fileName = `logo_${currentClubId}_${Date.now()}.${fileExt}`;
@@ -483,8 +620,7 @@ if (btnSaveProfileInfo) {
                 newLogoUrl = urlData.publicUrl;
             }
 
-            // Update Database
-const { error: updateError } = await supabaseClient
+            const { error: updateError } = await supabaseClient
                 .from('clubs')
                 .update({
                     club_name: cName,
@@ -492,8 +628,8 @@ const { error: updateError } = await supabaseClient
                     coach_name: cCoach,
                     contact_wa: cWa,
                     logo_url: newLogoUrl,
-                    provinsi: cProv, // SIMPAN PROVINSI
-                    kota_asal: cKota // SIMPAN KOTA
+                    provinsi: cProv, 
+                    kota_asal: cKota 
                 })
                 .eq('id', currentClubId);
 
@@ -518,7 +654,6 @@ const { error: updateError } = await supabaseClient
     });
 }
 
-// SIMPAN KEAMANAN AKUN (EMAIL & PASSWORD)
 const btnSaveAuthInfo = document.getElementById('btnSaveAuthInfo');
 if (btnSaveAuthInfo) {
     btnSaveAuthInfo.addEventListener('click', async () => {
@@ -557,28 +692,20 @@ if (btnSaveAuthInfo) {
     });
 }
 
-
 // ==========================================
-// 4. LOGIC MODAL (TAMBAH, VERIFIKASI, EVENT)
+// 4. LOGIC MODAL TAMBAH ATLET & BUAT EVENT
 // ==========================================
-
 const btnAddAthlete = document.getElementById('btnAddAthlete');
 const modalAddAthlete = document.getElementById('modalAddAthlete');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const btnSaveAthlete = document.getElementById('btnSaveAthlete');
 const btnProsesExcel = document.getElementById('btnProsesExcel');
 
-const btnVerify = document.getElementById('btnVerify');
-const modalVerifyAthlete = document.getElementById('modalVerifyAthlete');
-const closeModalVerifyBtn = document.getElementById('closeModalVerifyBtn');
-const btnSubmitVerify = document.getElementById('btnSubmitVerify');
-
 const btnCreateEvent = document.getElementById('btnCreateEvent');
 const modalCreateEvent = document.getElementById('modalCreateEvent');
 const closeModalEventBtn = document.getElementById('closeModalEventBtn');
 const btnSaveEvent = document.getElementById('btnSaveEvent');
 
-// --- A. LOGIC TAMBAH ATLET (Tab Switcher & Upload) ---
 if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
     btnAddAthlete.addEventListener('click', () => {
         modalAddAthlete.classList.remove('hidden');
@@ -620,7 +747,6 @@ if (btnAddAthlete && modalAddAthlete && closeModalBtn) {
     }
 }
 
-// 1. Simpan Manual (Dengan Handling Error 23505)
 if (btnSaveAthlete) {
     btnSaveAthlete.addEventListener('click', async () => {
         const inputNama = document.getElementById('inputNama').value.trim();
@@ -634,11 +760,7 @@ if (btnSaveAthlete) {
             return;
         }
 
-        if (!currentClubId) {
-            statusMsg.innerText = "Kesalahan Sistem: ID Klub tidak ditemukan.";
-            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
-            return;
-        }
+        if (!currentClubId) return;
 
         btnSaveAthlete.innerText = "Memproses...";
         btnSaveAthlete.disabled = true;
@@ -657,14 +779,11 @@ if (btnSaveAthlete) {
                     full_name: inputNama,
                     dob: inputDOB,
                     gender: inputGender,
-                    club_id: currentClubId // MENGGUNAKAN ID KLUB AKTIF
+                    club_id: currentClubId 
                 }]);
 
-            // MENANGKAP ERROR DUPLIKAT (CONSTRAINT UNIQUE postgres)
             if (error) {
-                if (error.code === '23505') {
-                    throw new Error("Gagal! Atlet dengan Nama dan Tanggal Lahir tersebut sudah terdaftar di database.");
-                }
+                if (error.code === '23505') throw new Error("Gagal! Atlet dengan Nama dan Tanggal Lahir tersebut sudah terdaftar di database.");
                 throw error;
             }
 
@@ -683,7 +802,6 @@ if (btnSaveAthlete) {
             }, 1500);
 
         } catch (err) {
-            console.error(err);
             statusMsg.innerText = err.message;
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
             btnSaveAthlete.innerText = "Simpan & Generate F1 ID";
@@ -692,7 +810,6 @@ if (btnSaveAthlete) {
     });
 }
 
-// 2. Import Excel
 if (btnProsesExcel) {
     btnProsesExcel.addEventListener('click', async () => {
         const fileInput = document.getElementById('inputExcel');
@@ -704,11 +821,7 @@ if (btnProsesExcel) {
             return;
         }
 
-        if (!currentClubId) {
-            statusMsg.innerText = "Kesalahan Sistem: ID Klub tidak ditemukan.";
-            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-3";
-            return;
-        }
+        if (!currentClubId) return;
 
         const file = fileInput.files[0];
         btnProsesExcel.innerHTML = "Membaca data file...";
@@ -751,7 +864,7 @@ if (btnProsesExcel) {
                                 full_name: nama,
                                 dob: dob,
                                 gender: gender,
-                                club_id: currentClubId // MENGGUNAKAN ID KLUB AKTIF
+                                club_id: currentClubId 
                             });
                         }
                     }
@@ -766,10 +879,7 @@ if (btnProsesExcel) {
                     .insert(athletesToInsert);
 
                 if (error) {
-                    // Cek jika saat import excel ada duplikat nama & tgl lahir
-                    if (error.code === '23505') {
-                        throw new Error("Gagal! Terdapat atlet duplikat di dalam file Excel Anda.");
-                    }
+                    if (error.code === '23505') throw new Error("Gagal! Terdapat atlet duplikat di dalam file Excel Anda.");
                     throw error;
                 }
 
@@ -788,7 +898,6 @@ if (btnProsesExcel) {
                 }, 2000);
 
             } catch (err) {
-                console.error(err);
                 statusMsg.innerText = "Gagal import: " + err.message;
                 statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-3";
                 btnProsesExcel.innerHTML = "Mulai Import Data";
@@ -800,92 +909,6 @@ if (btnProsesExcel) {
     });
 }
 
-// --- B. LOGIC VERIFIKASI ---
-if (btnVerify && modalVerifyAthlete && closeModalVerifyBtn) {
-    btnVerify.addEventListener('click', () => {
-        modalVerifyAthlete.classList.remove('hidden');
-        setTimeout(() => modalVerifyAthlete.firstElementChild.classList.remove('scale-95'), 10);
-    });
-
-    closeModalVerifyBtn.addEventListener('click', () => {
-        modalVerifyAthlete.firstElementChild.classList.add('scale-95');
-        setTimeout(() => modalVerifyAthlete.classList.add('hidden'), 200);
-    });
-}
-
-if (btnSubmitVerify) {
-    btnSubmitVerify.addEventListener('click', async () => {
-        const f1Id = document.getElementById('inputVerifyAthlete').value;
-        const fotoFile = document.getElementById('inputFoto').files[0];
-        const aktaFile = document.getElementById('inputAkta').files[0];
-        const statusMsg = document.getElementById('verifyStatusMsg');
-
-        if (!f1Id || !fotoFile || !aktaFile) {
-            statusMsg.innerText = "Atlet, Foto, dan Akta Kelahiran wajib dilengkapi!";
-            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
-            return;
-        }
-
-        btnSubmitVerify.innerText = "Mengunggah Dokumen...";
-        btnSubmitVerify.disabled = true;
-        btnSubmitVerify.classList.add('opacity-70');
-        statusMsg.innerText = "Mohon tunggu, sedang mengirim berkas ke server...";
-        statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-blue-50 text-blue-600 block";
-
-        try {
-            const timeStamp = Date.now();
-
-            const fotoExt = fotoFile.name.split('.').pop();
-            const fotoPath = `foto/${f1Id}_${timeStamp}.${fotoExt}`;
-            const { error: fotoError } = await supabaseClient.storage.from('berkas-atlet').upload(fotoPath, fotoFile);
-            if (fotoError) throw fotoError;
-            const { data: fotoUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(fotoPath);
-
-            const aktaExt = aktaFile.name.split('.').pop();
-            const aktaPath = `akta/${f1Id}_${timeStamp}.${aktaExt}`;
-            const { error: aktaError } = await supabaseClient.storage.from('berkas-atlet').upload(aktaPath, aktaFile);
-            if (aktaError) throw aktaError;
-            const { data: aktaUrlData } = supabaseClient.storage.from('berkas-atlet').getPublicUrl(aktaPath);
-
-            const { error: updateError } = await supabaseClient
-                .from('athletes')
-                .update({ foto_url: fotoUrlData.publicUrl, akta_url: aktaUrlData.publicUrl })
-                .eq('f1_id', f1Id);
-
-            if (updateError) throw updateError;
-
-            statusMsg.innerHTML = "✅ <strong>Berkas berhasil diunggah!</strong><br><br><span class='font-normal text-[11px] leading-relaxed block mt-1'>Tim Verifikator akan melakukan peninjauan. Status atlet akan otomatis aktif setelah disetujui.</span>";
-            statusMsg.className = "text-sm text-center rounded-lg p-4 bg-amber-50 border border-amber-200 text-amber-800 block";
-
-            document.getElementById('inputVerifyAthlete').value = '';
-            document.getElementById('inputFoto').value = '';
-            document.getElementById('inputAkta').value = '';
-
-            fetchDashboardData();
-
-            setTimeout(() => {
-                modalVerifyAthlete.firstElementChild.classList.add('scale-95');
-                setTimeout(() => {
-                    modalVerifyAthlete.classList.add('hidden');
-                    btnSubmitVerify.innerText = "Kirim Dokumen Verifikasi";
-                    btnSubmitVerify.disabled = false;
-                    btnSubmitVerify.classList.remove('opacity-70');
-                    statusMsg.classList.add('hidden');
-                }, 200);
-            }, 5000);
-
-        } catch (err) {
-            console.error(err);
-            statusMsg.innerText = "Gagal mengunggah dokumen: " + err.message;
-            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
-            btnSubmitVerify.innerText = "Kirim Dokumen Verifikasi";
-            btnSubmitVerify.disabled = false;
-            btnSubmitVerify.classList.remove('opacity-70');
-        }
-    });
-}
-
-// --- C. LOGIC BUAT EVENT ---
 if (btnCreateEvent && modalCreateEvent && closeModalEventBtn) {
     btnCreateEvent.addEventListener('click', () => {
         modalCreateEvent.classList.remove('hidden');
@@ -914,11 +937,7 @@ if (btnSaveEvent) {
             return;
         }
 
-        if (!currentClubId) {
-            statusMsg.innerText = "Kesalahan Sistem: ID Klub tidak ditemukan.";
-            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
-            return;
-        }
+        if (!currentClubId) return;
 
         if (new Date(inputEventEndDate) < new Date(inputEventStartDate)) {
             statusMsg.innerText = "Tanggal Selesai tidak boleh mendahului Tanggal Mulai!";
@@ -937,7 +956,7 @@ if (btnSaveEvent) {
                     subdomain: inputSubdomain,
                     event_date: inputEventStartDate,
                     end_date: inputEventEndDate,
-                    club_id: currentClubId // MENGGUNAKAN ID KLUB AKTIF
+                    club_id: currentClubId 
                 }])
                 .select()
                 .single();
@@ -952,7 +971,6 @@ if (btnSaveEvent) {
             }, 1500);
 
         } catch (err) {
-            console.error(err);
             statusMsg.innerText = "Gagal membuat event: " + err.message;
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
             btnSaveEvent.innerText = "Buat Event Sekarang";

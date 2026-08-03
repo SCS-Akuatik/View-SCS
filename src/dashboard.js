@@ -288,10 +288,11 @@ function renderAthleteTable() {
                 </td>
                 <td class="p-4">
                     <div class="flex flex-col items-start gap-1">
-                        <span class="inline-flex items-center gap-1 bg-blue-50 text-scsBlue border border-blue-200 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                            <span class="text-blue-500">🌊</span> F1 ID
-                        </span>
-                        <span class="font-mono font-bold text-gray-700 text-xs">${atlet.f1_id}</span>
+                        <!-- INI BAGIAN YANG DIUBAH: DIBIKIN BISA DI-KLIK! -->
+                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 hover:border-blue-300 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-sm transition-colors cursor-pointer group" title="Lihat Profil">
+                            <span class="text-blue-500 group-hover:scale-110 transition-transform">🌊</span> F1 ID
+                        </a>
+                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="font-mono font-bold text-gray-700 text-xs hover:text-blue-600 transition-colors cursor-pointer" title="Lihat Profil">${atlet.f1_id}</a>
                     </div>
                 </td>
                 <td class="p-4">
@@ -316,25 +317,19 @@ function renderAthleteTable() {
 
 
 // ==========================================
-// 2.5 LOGIKA UNIFIED: EDIT & VERIFIKASI (IDE JENIUS!)
+// 2.5 LOGIKA UNIFIED: EDIT & VERIFIKASI
 // ==========================================
 const modalEditVerify = document.getElementById('modalEditVerify');
 const closeModalEditVerifyBtn = document.getElementById('closeModalEditVerifyBtn');
 const btnSaveEditVerify = document.getElementById('btnSaveEditVerify');
 const btnQuickVerify = document.getElementById('btnQuickVerify');
 
-// Fungsi pemicu Quick Action "Verifikasi F1 ID" -> Langsung filter dan scroll ke tabel
 if (btnQuickVerify) {
     btnQuickVerify.addEventListener('click', () => {
-        // Filter array hanya untuk yang is_verified == false
         filteredAthletes = allAthletes.filter(a => a.is_verified === false);
         currentPage = 1;
         renderAthleteTable();
-        
-        // Scroll layar ke tabel otomatis
         document.getElementById('searchKlubAtlet').scrollIntoView({ behavior: 'smooth' });
-        
-        // Kasih tahu user
         alert(`Ditemukan ${filteredAthletes.length} atlet yang belum diverifikasi. Silakan klik tombol 'Edit / Verif' di tabel.`);
     });
 }
@@ -343,19 +338,16 @@ window.openEditVerify = function(f1_id) {
     const atlet = allAthletes.find(a => a.f1_id === f1_id);
     if (!atlet) return;
 
-    // Isi modal dengan data saat ini
     document.getElementById('evF1Id').value = atlet.f1_id;
     document.getElementById('evName').value = atlet.full_name;
     document.getElementById('evDOB').value = atlet.dob;
     document.getElementById('evGender').value = atlet.gender;
     
-    // Kosongkan input file bekas sebelumnya
     document.getElementById('evFoto').value = '';
     document.getElementById('evAkta').value = '';
     
     document.getElementById('evStatusMsg').classList.add('hidden');
 
-    // Tampilkan Modal
     modalEditVerify.classList.remove('hidden');
     setTimeout(() => modalEditVerify.firstElementChild.classList.remove('scale-95'), 10);
 };
@@ -378,18 +370,14 @@ if(btnSaveEditVerify) {
         const aktaFile = document.getElementById('evAkta').files[0];
         
         const statusMsg = document.getElementById('evStatusMsg');
-
-        // Cari data atlet lama
         const atlet = allAthletes.find(a => a.f1_id === f1Id);
 
-        // Validasi Text
         if (!newName || !newDOB || !newGender) {
             statusMsg.innerText = "Nama, Tanggal Lahir, dan Gender wajib diisi!";
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-2";
             return;
         }
 
-        // Validasi Akta: Wajib jika atlet belum pernah upload akta, ATAU jika dia ngubah data nama/umur
         const dataBerubah = (newName !== atlet.full_name) || (newDOB !== atlet.dob) || (newGender !== atlet.gender);
         if ((!atlet.akta_url && !aktaFile) || (dataBerubah && !aktaFile && !atlet.akta_url)) {
             statusMsg.innerText = "Wajib upload Akta Kelahiran untuk pengajuan verifikasi / perubahan data!";
@@ -409,7 +397,6 @@ if(btnSaveEditVerify) {
             let finalFotoUrl = atlet.foto_url;
             let finalAktaUrl = atlet.akta_url;
 
-            // Upload Foto jika ada
             if (fotoFile) {
                 const fotoExt = fotoFile.name.split('.').pop();
                 const fotoPath = `foto/${f1Id}_${timeStamp}.${fotoExt}`;
@@ -419,7 +406,6 @@ if(btnSaveEditVerify) {
                 finalFotoUrl = fotoUrlData.publicUrl;
             }
 
-            // Upload Akta jika ada
             if (aktaFile) {
                 const aktaExt = aktaFile.name.split('.').pop();
                 const aktaPath = `akta/${f1Id}_${timeStamp}.${aktaExt}`;
@@ -429,7 +415,6 @@ if(btnSaveEditVerify) {
                 finalAktaUrl = aktaUrlData.publicUrl;
             }
 
-            // Update Database: Selalu set is_verified = false supaya Admin ngecek ulang!
             const { error: updateError } = await supabaseClient
                 .from('athletes')
                 .update({ 
@@ -438,7 +423,7 @@ if(btnSaveEditVerify) {
                     gender: newGender,
                     foto_url: finalFotoUrl,
                     akta_url: finalAktaUrl,
-                    is_verified: false // IDE JENIUS: Selalu reset status verifikasi
+                    is_verified: false 
                 })
                 .eq('f1_id', f1Id);
 
@@ -450,7 +435,6 @@ if(btnSaveEditVerify) {
             statusMsg.innerHTML = "✅ <strong>Berkas & Pengajuan berhasil dikirim!</strong><br><span class='text-xs font-normal'>Menunggu persetujuan Admin Pusat untuk penerbitan/pengaktifan kembali F1 ID.</span>";
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-700 block mt-2";
 
-            // Tutup modal dan refresh data
             setTimeout(() => {
                 closeModalEditVerifyBtn.click();
                 btnSaveEditVerify.innerText = "Kirim Pengajuan ke Admin";

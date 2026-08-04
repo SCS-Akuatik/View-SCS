@@ -224,7 +224,7 @@ async function fetchDashboardData() {
         const totalAtletEl = document.getElementById('valTotalAtlet');
         if (totalAtletEl) totalAtletEl.innerText = athletesData.length;
 
-        // Hitung Pending F1 ID (Belum diverifikasi Admin Pusat)
+        // Hitung Pending F1 ID
         let pendingCount = athletesData.filter(a => a.is_verified === false).length;
         const pendingEl = document.getElementById('valF1Pending');
         if (pendingEl) pendingEl.innerText = pendingCount;
@@ -244,7 +244,7 @@ async function fetchDashboardData() {
 }
 
 // ==========================================
-// 2. FUNGSI RENDER TABEL & PAGINATION
+// 2. FUNGSI RENDER TABEL & PAGINATION (LOGIKA F1 ID EMAS)
 // ==========================================
 function renderAthleteTable() {
     const tbody = document.getElementById('athleteTableBody');
@@ -272,7 +272,25 @@ function renderAthleteTable() {
         const actualIndex = startIndex + idx + 1; 
         const genderIcon = atlet.gender === 'Putra' ? '👦 Putra' : '👧 Putri';
         const avatarUrl = atlet.foto_url ? atlet.foto_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(atlet.full_name)}&background=f3f4f6&color=374151`;
-        const statusDokumen = atlet.is_verified ? '<span class="text-green-500 text-xs ml-1" title="Terverifikasi">✅</span>' : '<span class="text-amber-500 text-xs ml-1" title="Menunggu Verifikasi Pusat">⏳</span>';
+        
+        // ✨ LOGIKA EMAS UNTUK F1 ID & STATUS
+        const isEmas = atlet.is_verified;
+        
+        const statusDokumen = isEmas 
+            ? '<span class="text-amber-500 text-xs ml-1 drop-shadow-sm" title="Terverifikasi">✅</span>' 
+            : '<span class="text-gray-400 text-xs ml-1" title="Menunggu Verifikasi Pusat">⏳</span>';
+        
+        const f1BadgeClass = isEmas
+            ? "inline-flex items-center gap-1 bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-300 text-amber-700 hover:from-amber-200 hover:to-amber-100 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest shadow-sm transition-colors cursor-pointer group"
+            : "inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 hover:border-blue-300 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-sm transition-colors cursor-pointer group";
+
+        const f1Icon = isEmas 
+            ? '<span class="text-amber-500 group-hover:scale-110 transition-transform">👑</span>' 
+            : '<span class="text-blue-500 group-hover:scale-110 transition-transform">🌊</span>';
+
+        const f1TextClass = isEmas
+            ? "font-mono font-black text-amber-500 hover:text-amber-400 transition-colors cursor-pointer drop-shadow-[0_0_2px_rgba(245,158,11,0.3)]"
+            : "font-mono font-bold text-gray-700 hover:text-blue-600 transition-colors cursor-pointer";
 
         const row = `
             <tr class="hover:bg-blue-50/50 transition-colors group border-b border-gray-50">
@@ -288,11 +306,10 @@ function renderAthleteTable() {
                 </td>
                 <td class="p-4">
                     <div class="flex flex-col items-start gap-1">
-                        <!-- INI BAGIAN YANG DIUBAH: DIBIKIN BISA DI-KLIK! -->
-                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 hover:border-blue-300 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest shadow-sm transition-colors cursor-pointer group" title="Lihat Profil">
-                            <span class="text-blue-500 group-hover:scale-110 transition-transform">🌊</span> F1 ID
+                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="${f1BadgeClass}" title="Lihat Profil">
+                            ${f1Icon} F1 ID
                         </a>
-                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="font-mono font-bold text-gray-700 text-xs hover:text-blue-600 transition-colors cursor-pointer" title="Lihat Profil">${atlet.f1_id}</a>
+                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="${f1TextClass}" title="Lihat Profil">${atlet.f1_id}</a>
                     </div>
                 </td>
                 <td class="p-4">
@@ -317,7 +334,7 @@ function renderAthleteTable() {
 
 
 // ==========================================
-// 2.5 LOGIKA UNIFIED: EDIT & VERIFIKASI
+// 2.5 LOGIKA UNIFIED: EDIT & VERIFIKASI (MAKER-CHECKER)
 // ==========================================
 const modalEditVerify = document.getElementById('modalEditVerify');
 const closeModalEditVerifyBtn = document.getElementById('closeModalEditVerifyBtn');
@@ -378,7 +395,9 @@ if(btnSaveEditVerify) {
             return;
         }
 
+        // Cek apakah ada perubahan data krusial
         const dataBerubah = (newName !== atlet.full_name) || (newDOB !== atlet.dob) || (newGender !== atlet.gender);
+        
         if ((!atlet.akta_url && !aktaFile) || (dataBerubah && !aktaFile && !atlet.akta_url)) {
             statusMsg.innerText = "Wajib upload Akta Kelahiran untuk pengajuan verifikasi / perubahan data!";
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block mt-2";
@@ -415,25 +434,40 @@ if(btnSaveEditVerify) {
                 finalAktaUrl = aktaUrlData.publicUrl;
             }
 
-            const { error: updateError } = await supabaseClient
-                .from('athletes')
-                .update({ 
-                    full_name: newName, 
-                    dob: newDOB, 
-                    gender: newGender,
-                    foto_url: finalFotoUrl,
-                    akta_url: finalAktaUrl,
-                    is_verified: false 
-                })
-                .eq('f1_id', f1Id);
+            if (dataBerubah) {
+                // MASUK ANTRIAN MAKER-CHECKER (f1_edit_requests)
+                const { error: editErr } = await supabaseClient
+                    .from('f1_edit_requests')
+                    .insert({
+                        f1_id: f1Id,
+                        new_name: newName,
+                        new_dob: newDOB,
+                        new_gender: newGender,
+                        new_foto_url: finalFotoUrl,
+                        new_akta_url: finalAktaUrl,
+                        status: 'PENDING'
+                    });
 
-            if (updateError) {
-                if (updateError.code === '23505') throw new Error("Gagal! Data sudah dipakai atlet lain.");
-                throw updateError;
+                if (editErr) throw editErr;
+
+                statusMsg.innerHTML = "✅ <strong>Usulan Edit Terkirim!</strong><br><span class='text-xs font-normal'>Menunggu persetujuan Admin Pusat. Data di layar belum berubah hingga di-ACC.</span>";
+                statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-amber-100 text-amber-700 block mt-2";
+            } else {
+                // UPDATE BIASA (CUMA NAMBAH FOTO/AKTA PERTAMA KALI)
+                const { error: updateError } = await supabaseClient
+                    .from('athletes')
+                    .update({ 
+                        foto_url: finalFotoUrl,
+                        akta_url: finalAktaUrl,
+                        is_verified: false 
+                    })
+                    .eq('f1_id', f1Id);
+
+                if (updateError) throw updateError;
+
+                statusMsg.innerHTML = "✅ <strong>Berkas berhasil dikirim!</strong><br><span class='text-xs font-normal'>Menunggu verifikasi awal Admin Pusat untuk mengaktifkan F1 ID.</span>";
+                statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-700 block mt-2";
             }
-
-            statusMsg.innerHTML = "✅ <strong>Berkas & Pengajuan berhasil dikirim!</strong><br><span class='text-xs font-normal'>Menunggu persetujuan Admin Pusat untuk penerbitan/pengaktifan kembali F1 ID.</span>";
-            statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-green-100 text-green-700 block mt-2";
 
             setTimeout(() => {
                 closeModalEditVerifyBtn.click();
@@ -455,7 +489,6 @@ if(btnSaveEditVerify) {
         }
     });
 }
-
 
 // ==========================================
 // 3. LOGIC MODAL PENGATURAN KLUB & AKUN

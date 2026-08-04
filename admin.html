@@ -22,16 +22,16 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         
-        <!-- SECTION 1: ANTRIAN VERIFIKASI F1 ID -->
+        <!-- SECTION 1: ANTRIAN VERIFIKASI AWAL F1 ID -->
         <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 overflow-hidden">
             <div class="p-5 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
                 <div>
                     <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
                         <span>⏳</span> F1 ID Verification Queues
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">Review dokumen akta dan foto untuk aktivasi atlet.</p>
+                    <p class="text-xs text-slate-400 mt-1">Review dokumen akta dan foto untuk aktivasi awal atlet.</p>
                 </div>
-                <span id="badgeQueue" class="bg-amber-500 text-slate-900 font-black px-3 py-1 rounded-full text-xs">0 Pending</span>
+                <span id="badgeQueue" class="bg-emerald-500 text-slate-900 font-black px-3 py-1 rounded-full text-xs">0 Pending</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm whitespace-nowrap">
@@ -45,6 +45,35 @@
                     </thead>
                     <tbody id="queueTableBody" class="divide-y divide-slate-700/50">
                         <tr><td colspan="4" class="p-8 text-center text-slate-500">Mencari antrian verifikasi...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 1.5: ANTRIAN PERUBAHAN DATA (EDIT REQUESTS) -->
+        <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 overflow-hidden border-l-4 border-l-amber-500">
+            <div class="p-5 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <span>📝</span> F1 ID Edit Requests
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Review usulan perubahan Nama, Tanggal Lahir, atau Gender.</p>
+                </div>
+                <span id="badgeEditQueue" class="bg-amber-500 text-slate-900 font-black px-3 py-1 rounded-full text-xs">0 Pending</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="p-4 font-bold">F1 ID</th>
+                            <th class="p-4 font-bold text-red-400">Data Lama</th>
+                            <th class="p-4 font-bold text-emerald-400">Usulan Baru</th>
+                            <th class="p-4 font-bold">Bukti Dokumen</th>
+                            <th class="p-4 font-bold text-center">Aksi Dewa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="editQueueTableBody" class="divide-y divide-slate-700/50">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-500">Mencari usulan perubahan data...</td></tr>
                     </tbody>
                 </table>
             </div>

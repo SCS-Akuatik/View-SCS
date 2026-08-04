@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Buku Acara | SCS</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        /* CSS KHUSUS PRINTER */
+        @media print {
+            @page { size: A4; margin: 10mm 15mm; }
+            body { background: white; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .print-break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+            .a4-container { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; border: none !important; }
+        }
+        .a4-container {
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 40px auto;
+            background: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            padding: 15mm;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-slate-200 font-sans text-slate-800">
+
+    <!-- TOMBOL BACK (Hilang pas diprint) -->
+    <div class="fixed top-6 left-6 z-50 no-print">
+        <button onclick="window.history.back()" class="bg-slate-800 hover:bg-slate-900 text-white shadow-xl px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-transform transform hover:-translate-x-1">
+            &laquo; Kembali ke Dashboard
+        </button>
+    </div>
+
+    <!-- TOMBOL CETAK RAKSASA (Hilang pas diprint) -->
+    <div class="fixed bottom-10 right-10 z-50 no-print">
+        <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xl px-8 py-5 rounded-full font-black text-lg flex items-center gap-3 transition-transform transform hover:scale-105 border-4 border-white cursor-pointer ring-4 ring-indigo-200">
+            🖨️ CETAK START LIST (PDF)
+        </button>
+    </div>
+
+    <!-- KERTAS A4 -->
+    <div class="a4-container" id="kertasA4">
+        
+        <!-- HEADER KERTAS -->
+        <div class="flex justify-between items-center border-b-[5px] border-slate-900 pb-4 mb-8">
+            <div class="w-24 h-16 bg-slate-50 border border-dashed border-slate-300 flex items-center justify-center rounded text-[10px] font-bold text-slate-400">Logo 1</div>
+            
+            <div class="text-center flex-1 px-4">
+                <h1 id="eventName" class="text-3xl font-black uppercase text-slate-900 tracking-tighter leading-none mb-1">MEMUAT DATA...</h1>
+                <p class="text-sm font-black text-slate-500 uppercase tracking-widest">OFFICIAL START LIST</p>
+            </div>
+
+            <div class="w-24 h-16 bg-slate-50 border border-dashed border-slate-300 flex items-center justify-center rounded text-[10px] font-bold text-slate-400">Logo 2</div>
+        </div>
+
+        <!-- TEMPAT TABEL DI-RENDER -->
+        <div id="heatContainer" class="space-y-6">
+            <div class="text-center p-10 text-slate-400 font-bold animate-pulse">Menarik Kasta Tertinggi dari Database... ⏳</div>
+        </div>
+
+    </div>
+
+    <script type="module" src="/book/print-startlist.js"></script>
+</body>
+</html>

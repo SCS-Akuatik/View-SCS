@@ -26,7 +26,8 @@ export default defineConfig({
         // MODULE PUSAT CETAK & HEAT BUILDER
         book: resolve(__dirname, 'book/book.html'),
         eventResult: resolve(__dirname, 'book/event-result.html'),
-        heatBuilder: resolve(__dirname, 'book/heat-builder.html')
+        heatBuilder: resolve(__dirname, 'book/heat-builder.html'),
+        printStartList: resolve(__dirname, 'book/print-startlist.html'),
       }
     }
   },

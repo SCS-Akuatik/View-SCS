@@ -98,6 +98,11 @@ async function loadEventDashboard() {
             window.location.href = `/book/heat-builder.html?id=${currentEventId}`;
         };
 
+        // NAVIGASI BARU: Cetak PDF
+        document.getElementById('btnMenuCetakPDF').onclick = () => {
+            window.location.href = `/book/print-startlist.html?id=${currentEventId}`;
+        };
+
         // Navigasi Cetak Hasil Lomba
         document.getElementById('btnMenuHasilLomba').onclick = () => {
             window.location.href = `/book/event-result.html?id=${currentEventId}`;

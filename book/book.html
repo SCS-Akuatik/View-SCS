@@ -6,20 +6,6 @@
     <title>Buku Acara (Heat Sheet) | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
     <style>
-        /* CSS Khusus Cetak PDF */
-        @media print {
-            @page { size: A4; margin: 0; }
-            body { background: white; margin: 0; }
-            .no-print { display: none !important; }
-            .a4-container { 
-                box-shadow: none !important; 
-                margin: 0 !important; 
-                width: 100% !important; 
-                max-width: 100% !important;
-                padding: 10mm 15mm !important;
-            }
-            .page-break { page-break-before: always; }
-        }
         .a4-container {
             max-width: 210mm; 
             min-height: 297mm; 
@@ -33,7 +19,7 @@
 <body class="bg-slate-200 font-sans text-slate-800 h-screen overflow-hidden flex flex-col">
 
     <!-- Top Action Bar -->
-    <div class="no-print bg-slate-900 text-white shadow-md z-50 shrink-0">
+    <div class="bg-slate-900 text-white shadow-md z-50 shrink-0">
         <div class="px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <button onclick="window.history.back()" class="text-slate-300 hover:text-white flex items-center gap-1 text-sm font-bold transition-colors">
@@ -44,11 +30,10 @@
                 <h1 class="text-sm font-black tracking-widest text-emerald-400">FINA HEAT GENERATOR <span id="infoLintasan" class="text-white ml-2 bg-slate-700 px-2 py-0.5 rounded text-[10px]">8 Lintasan</span></h1>
             </div>
             <div class="flex items-center gap-2">
-                <button id="btnSimpanBuku" onclick="simpanKeDatabase()" class="bg-emerald-600 hover:bg-emerald-700 px-5 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
+                <!-- Peringatan UX -->
+                <span class="text-[10px] text-amber-300 font-bold mr-2 hidden md:block">⚠️ Halaman ini me-reset ulang jadwal & formasi</span>
+                <button id="btnSimpanBuku" onclick="simpanKeDatabase()" class="bg-emerald-600 hover:bg-emerald-700 px-5 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
                     💾 Simpan & Kunci Start List
-                </button>
-                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-5 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
-                    🖨️ Cetak PDF
                 </button>
             </div>
         </div>
@@ -58,13 +43,30 @@
     <div class="flex flex-1 overflow-hidden">
         
         <!-- SIDEBAR: PANEL BUILDER -->
-        <div class="no-print w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-40 overflow-y-auto">
-            <div class="p-4 border-b border-slate-100 bg-slate-50 sticky top-0">
+        <div class="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-40 overflow-y-auto">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 sticky top-0 z-10">
                 <h2 class="font-extrabold text-slate-800 text-sm mb-1">Susunan Acara (Builder)</h2>
-                <p class="text-[10px] text-slate-500 leading-relaxed">Tambahkan lomba ke dalam sesi. Sistem akan memecah Heat secara otomatis.</p>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Susun jadwal lomba yang akan di-generate oleh sistem FINA.</p>
             </div>
             
-            <div class="p-4 space-y-4">
+            <div class="p-4 flex flex-col gap-4">
+                
+                <!-- TOMBOL ACTION -->
+                <div class="flex flex-col gap-2">
+                    <button id="btnAutoLoad" onclick="autoGenerateSemua()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-2.5 rounded-lg text-xs transition-colors shadow-md flex items-center justify-center gap-2">
+                        <span>✨</span> Auto-Load Semua Lomba
+                    </button>
+                    <button id="btnLoadDB" onclick="loadUrutanTersimpan()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
+                        📥 Load Data Tersimpan
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 my-1">
+                    <div class="h-px bg-slate-200 flex-1"></div>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Atau Manual</span>
+                    <div class="h-px bg-slate-200 flex-1"></div>
+                </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Sesi</label>
                     <select id="buildSesi" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none">
@@ -102,7 +104,13 @@
 
             <!-- Daftar Event yang sudah ditambahkan -->
             <div class="flex-1 p-4 border-t border-slate-100 bg-slate-50">
-                <h3 class="font-bold text-slate-600 text-[10px] uppercase tracking-widest mb-3">Daftar Acara Tercetak:</h3>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-slate-600 text-[10px] uppercase tracking-widest">Daftar Acara Tercetak:</h3>
+                    <button onclick="kosongkanSemuaAcara()" class="text-[10px] text-red-500 font-bold hover:underline flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Reset
+                    </button>
+                </div>
                 <ul id="listOrderEvents" class="space-y-2">
                     <li class="text-xs text-slate-400 text-center italic mt-10">Belum ada acara ditambahkan.</li>
                 </ul>
@@ -134,7 +142,6 @@
         </div>
     </div>
 
-    <!-- Panggil Logic Utama -->
     <script type="module" src="/book/book.js"></script>
 </body>
 </html>

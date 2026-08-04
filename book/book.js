@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     currentEventId = urlParams.get('id');
     
-    // MENERIMA BERAPAPUN JUMLAH LINTASAN DARI INPUTAN PANITIA
     const lanesParam = urlParams.get('lanes');
     if (lanesParam) {
         LINTASAN_MAX = parseInt(lanesParam);
@@ -92,13 +91,130 @@ function prepareData(rawRegistrations) {
 }
 
 // ==========================================
-// LOGIKA BUILDER (Menambahkan Event)
+// FITUR BARU: LOAD DATA TERSIMPAN (UX POIN 2)
+// ==========================================
+window.loadUrutanTersimpan = async function() {
+    try {
+        const btn = document.getElementById('btnLoadDB');
+        btn.innerHTML = "Memuat... ⏳";
+        
+        const { data, error } = await supabaseClient
+            .from('event_heats')
+            .select('sesi, event_number, nomor_lomba, kelompok_umur, gender')
+            .eq('event_id', currentEventId)
+            .order('event_number', { ascending: true });
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            btn.innerHTML = "📥 Load Data Tersimpan";
+            return alert("Belum ada jadwal yang tersimpan di database.");
+        }
+
+        if (orderOfEvents.length > 0) {
+            if (!confirm("Peringatan: Me-load data tersimpan akan menimpa susunan di layar saat ini. Lanjutkan?")) {
+                btn.innerHTML = "📥 Load Data Tersimpan";
+                return;
+            }
+        }
+
+        // Ekstrak event_number yang unik untuk merekonstruksi urutan
+        let uniqueEvents = [];
+        let seen = new Set();
+        data.forEach(row => {
+            if (!seen.has(row.event_number)) {
+                seen.add(row.event_number);
+                uniqueEvents.push(row);
+            }
+        });
+
+        orderOfEvents = uniqueEvents.map(row => ({
+            id: Date.now() + row.event_number,
+            sesi: row.sesi,
+            nomor: row.nomor_lomba,
+            ku: row.kelompok_umur,
+            gender: row.gender
+        }));
+
+        renderSidebarList();
+        renderKertasA4();
+        
+        btn.innerHTML = "📥 Load Data Tersimpan";
+    } catch (err) {
+        alert("Gagal memuat data tersimpan: " + err.message);
+        document.getElementById('btnLoadDB').innerHTML = "📥 Load Data Tersimpan";
+    }
+};
+
+// ==========================================
+// FITUR BARU: AUTO-GENERATE & ANTI BACK-TO-BACK (UX POIN 3)
+// ==========================================
+window.autoGenerateSemua = function() {
+    if (allFlattenedData.length === 0) return alert("Belum ada data pendaftar untuk event ini.");
+    if (orderOfEvents.length > 0) {
+        if (!confirm("Susunan acara saat ini akan ditimpa. Lanjutkan?")) return;
+    }
+
+    orderOfEvents = []; 
+    let comboSet = new Set();
+    let uniqueCombos = [];
+
+    // Cari kombinasi unik yang ADA PESERTANYA
+    allFlattenedData.forEach(s => {
+        let key = `${s.nomor_lomba}|${s.gender}|${s.ku}`;
+        if (!comboSet.has(key)) {
+            comboSet.add(key);
+            uniqueCombos.push({
+                nomor: s.nomor_lomba,
+                gender: s.gender,
+                ku: s.ku
+            });
+        }
+    });
+
+    // PENGURUTAN LOGIS UNTUK MENCEGAH BACK-TO-BACK:
+    // 1. Gaya Lomba -> 2. Gender -> 3. Kelompok Umur
+    uniqueCombos.sort((a, b) => {
+        if (a.nomor !== b.nomor) return a.nomor.localeCompare(b.nomor);
+        if (a.gender !== b.gender) return a.gender.localeCompare(b.gender); // Putra duluan
+        return a.ku.localeCompare(b.ku);
+    });
+
+    uniqueCombos.forEach((c, idx) => {
+        orderOfEvents.push({
+            id: Date.now() + idx,
+            sesi: 'Sesi Pagi', 
+            nomor: c.nomor,
+            ku: c.ku,
+            gender: c.gender
+        });
+    });
+
+    renderSidebarList();
+    renderKertasA4();
+};
+
+window.kosongkanSemuaAcara = function() {
+    if(!confirm("Yakin ingin mereset seluruh daftar acara?")) return;
+    orderOfEvents = [];
+    renderSidebarList();
+    renderKertasA4();
+};
+
+
+// ==========================================
+// LOGIKA BUILDER MANUAL & CEGAH DUPLIKAT (UX POIN 1)
 // ==========================================
 window.tambahkanEventLomba = function() {
     const sesi = document.getElementById('buildSesi').value;
     const nomor = document.getElementById('buildNomor').value;
     const ku = document.getElementById('buildKU').value;
     const gender = document.getElementById('buildGender').value;
+
+    // CEGAH DUPLIKAT: Cek apakah lomba ini sudah ada di daftar
+    const isDuplicate = orderOfEvents.some(ev => ev.nomor === nomor && ev.ku === ku && ev.gender === gender);
+    if (isDuplicate) {
+        return alert(`Kombinasi Lomba ini (${nomor}, ${gender}, ${ku}) sudah ditambahkan ke daftar!`);
+    }
 
     orderOfEvents.push({
         id: Date.now(), 
@@ -146,11 +262,9 @@ function renderSidebarList() {
 // ==========================================
 function calculateFinaHeats(totalPeserta, jumlahLintasan) {
     if (totalPeserta === 0) return [];
-    
     let totalHeats = Math.ceil(totalPeserta / jumlahLintasan);
     let heats = Array(totalHeats).fill(jumlahLintasan);
     let shortfall = (totalHeats * jumlahLintasan) - totalPeserta;
-    
     let limitBagi = Math.min(totalHeats, 2); 
     let i = 0;
     while (shortfall > 0) {
@@ -158,7 +272,6 @@ function calculateFinaHeats(totalPeserta, jumlahLintasan) {
         shortfall--;
         i++;
     }
-    
     return heats; 
 }
 
@@ -167,7 +280,7 @@ function calculateFinaHeats(totalPeserta, jumlahLintasan) {
 // ==========================================
 function generateSpearheadPattern(lanes) {
     let pattern = [];
-    let start = Math.floor((lanes + 1) / 2); // Cari titik tengah
+    let start = Math.floor((lanes + 1) / 2); 
     let toggle = true;
     let l = start;
     let r = start + 1;
@@ -190,7 +303,7 @@ function generateSpearheadPattern(lanes) {
 }
 
 // ==========================================
-// RENDER DATA KE KERTAS A4 (DENGAN FINA LOGIC)
+// RENDER DATA KE KERTAS
 // ==========================================
 function renderKertasA4() {
     const container = document.getElementById('heatContainer');
@@ -225,12 +338,12 @@ function renderKertasA4() {
                 s.gender === ev.gender
             );
 
-            // LOGIKA 1: Urutkan Peserta dari PALING LAMBAT (NT) ke PALING CEPAT
+            // LOGIKA 1: NT Paling Lambat
             swimmers.sort((a, b) => {
                 if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
-                if (a.seed_time === 'NT') return -1; // NT taruh paling depan (paling lambat)
+                if (a.seed_time === 'NT') return -1; 
                 if (b.seed_time === 'NT') return 1;
-                return b.seed_time.localeCompare(a.seed_time); // Waktu lambat ke waktu cepat
+                return b.seed_time.localeCompare(a.seed_time); 
             });
 
             if (swimmers.length === 0) {
@@ -247,19 +360,17 @@ function renderKertasA4() {
                 let totalHeats = heatDistribution.length;
                 let tbodyHtml = '';
 
-                // Ambil irisan peserta untuk heat ini
                 let heatSwimmers = swimmers.slice(swimmerIndex, swimmerIndex + jumlahOrangDalamHeat);
                 swimmerIndex += jumlahOrangDalamHeat;
 
-                // LOGIKA 2: Di dalam Heat, urutkan dari PALING CEPAT ke PALING LAMBAT untuk Spearheading
+                // LOGIKA 2: Dalam Heat, Tercepat di tengah (Spearheading)
                 heatSwimmers.sort((a, b) => {
                     if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
-                    if (a.seed_time === 'NT') return 1; // NT taruh paling belakang di dalam heat
+                    if (a.seed_time === 'NT') return 1; 
                     if (b.seed_time === 'NT') return -1;
-                    return a.seed_time.localeCompare(b.seed_time); // Waktu cepat ke waktu lambat
+                    return a.seed_time.localeCompare(b.seed_time); 
                 });
 
-                // Mapping perenang ke lintasan (Superheat tercepat masuk index 0 -> Spearhead ke tengah)
                 let assignedLanes = {};
                 for (let k = 0; k < jumlahOrangDalamHeat; k++) {
                     let targetLane = spearheadPattern[k];
@@ -339,7 +450,6 @@ window.simpanKeDatabase = async function() {
                 s.gender === ev.gender
             );
 
-            // SAMA SEPERTI RENDER: Urutkan lambat ke cepat (antar heat)
             swimmers.sort((a, b) => {
                 if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
                 if (a.seed_time === 'NT') return -1;
@@ -359,7 +469,6 @@ window.simpanKeDatabase = async function() {
                 let heatSwimmers = swimmers.slice(swimmerIndex, swimmerIndex + jumlahOrang);
                 swimmerIndex += jumlahOrang;
 
-                // SAMA SEPERTI RENDER: Urutkan cepat ke lambat (dalam heat)
                 heatSwimmers.sort((a, b) => {
                     if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
                     if (a.seed_time === 'NT') return 1;
@@ -409,7 +518,7 @@ window.simpanKeDatabase = async function() {
         const { error: insertErr } = await supabaseClient.from('event_heats').insert(dataToInsert);
         if (insertErr) throw insertErr;
 
-        alert("✅ Start List berhasil dikunci dan disimpan ke Database! Entry Time siap digunakan.");
+        alert("✅ Start List berhasil dikunci dan disimpan ke Database! Lanjutkan ke Heat Builder jika ada perubahan lintasan lapangan.");
 
     } catch (err) {
         console.error("Gagal simpan:", err);

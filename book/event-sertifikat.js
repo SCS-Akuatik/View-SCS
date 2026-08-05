@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ctx.fillStyle = fontColor; 
         
         // Render Teks Dummy
-        ctx.fillText("Richard Zane Tandoyo", nX, nY);
+        ctx.fillText("Nama Lengkap Peserta", nX, nY);
     }
 
     // Listener tiap kali EO merubah pengaturan, otomatis ter-refresh!

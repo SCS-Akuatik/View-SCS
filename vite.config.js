@@ -29,7 +29,7 @@ export default defineConfig({
         heatBuilder: resolve(__dirname, 'book/heat-builder.html'),
         printStartList: resolve(__dirname, 'book/print-startlist.html'),
         eventSertifikat: resolve(__dirname, 'book/event-sertifikat.html'),
-        eventSertifikat: resolve(__dirname, 'book/cetak-sertifikat.html'),
+        eventSertifikat: resolve(__dirname, 'cetak-sertifikat.html'),
       }
     }
   },

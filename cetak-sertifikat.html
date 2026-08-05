@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Sertifikat Lomba | SCS</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <!-- Load custom fonts just in case the template uses them -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-20">
+
+    <!-- NAVBAR PUBLIK -->
+    <nav class="bg-slate-900 text-white shadow-md px-4 py-4 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto flex flex-col gap-1">
+            <h1 class="text-sm font-bold text-amber-400">🏅 SCS E-Certificate System</h1>
+            <h2 id="eventName" class="text-lg font-black tracking-tight">Memuat Nama Event...</h2>
+        </div>
+    </nav>
+
+    <div class="max-w-3xl mx-auto px-4 py-6">
+        
+        <!-- KOLOM PENCARIAN -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6 sticky top-20 z-40">
+            <label class="block text-xs font-bold text-slate-500 mb-2">Cari Nama Jagoan Anda:</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
+                <input type="text" id="searchInput" placeholder="Ketik nama lengkap..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition shadow-inner">
+            </div>
+        </div>
+
+        <!-- DAFTAR PESERTA -->
+        <div id="loadingIndicator" class="text-center py-10 text-slate-400 font-bold text-sm">
+            ⏳ Mencari data peserta dari server...
+        </div>
+
+        <div id="pesertaList" class="space-y-3 hidden">
+            <!-- Card peserta akan di-generate oleh JS di sini -->
+        </div>
+
+        <div id="emptyState" class="hidden text-center py-10">
+            <span class="text-4xl block mb-2">🤷‍♂️</span>
+            <p class="text-slate-500 font-bold text-sm">Peserta tidak ditemukan.</p>
+        </div>
+
+    </div>
+
+    <!-- CANVAS TERSEMBUNYI UNTUK MESIN RENDER PDF/IMG -->
+    <canvas id="renderCanvas" class="hidden"></canvas>
+
+    <script type="module" src="/src/cetak-sertifikat.js"></script>
+</body>
+</html>

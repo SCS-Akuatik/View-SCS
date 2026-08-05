@@ -16,21 +16,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const tabPeserta = document.getElementById('tabPeserta');
     const tabJuara = document.getElementById('tabJuara');
-    const tabMVS = document.getElementById('tabMVS');
-    const panelJuaraExtra = document.getElementById('panelJuaraExtra');
 
     function setActiveTab(tab, mode) {
         currentMode = mode;
-        [tabPeserta, tabJuara, tabMVS].forEach(t => {
+        [tabPeserta, tabJuara].forEach(t => {
             t.className = "px-6 py-2.5 rounded-full font-bold text-sm bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all shrink-0";
         });
         tab.className = "px-6 py-2.5 rounded-full font-bold text-sm bg-blue-900 text-white shadow transition-all shrink-0";
         
-        if (mode === 'juara') panelJuaraExtra.classList.remove('hidden');
-        else panelJuaraExtra.classList.add('hidden');
-
-        if (mode === 'mvs') {
-            alert("Sertifikat MVS segera hadir.");
+        if (mode === 'juara') {
+            alert("Fokus ke Sertifikat Peserta dulu ya Bos! Sesuai request.");
             setActiveTab(tabPeserta, 'peserta');
             return;
         }
@@ -39,7 +34,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     tabPeserta.onclick = () => setActiveTab(tabPeserta, 'peserta');
     tabJuara.onclick = () => setActiveTab(tabJuara, 'juara');
-    tabMVS.onclick = () => setActiveTab(tabMVS, 'mvs');
 
     const uploadInput = document.getElementById('uploadTemplate');
     const canvas = document.getElementById('certCanvas');
@@ -59,16 +53,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 canvas.width = img.width;
                 canvas.height = img.height;
                 
+                // Set default posisi teks tepat di tengah gambar
                 document.getElementById('coordNameX').value = img.width / 2;
                 document.getElementById('coordNameY').value = img.height / 2;
-                document.getElementById('coordClubX').value = img.width / 2;
-                document.getElementById('coordClubY').value = (img.height / 2) + 100;
                 
                 panelKoordinat.style.display = 'block';
                 placeholder.classList.add('hidden');
                 canvas.classList.remove('hidden');
                 
-                drawPreview();
+                // Pastikan font custom diload browser sebelum di-render ke canvas
+                document.fonts.ready.then(function () {
+                    drawPreview();
+                });
             }
             img.src = event.target.result;
         }
@@ -78,40 +74,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     function drawPreview() {
         if (!uploadedImage) return;
 
+        // Bersihkan canvas dan gambar ulang template dasar
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
 
-        ctx.textAlign = "center"; 
+        // Ambil Nilai dari Inputan EO
         const nX = parseInt(document.getElementById('coordNameX').value);
         const nY = parseInt(document.getElementById('coordNameY').value);
-        const cX = parseInt(document.getElementById('coordClubX').value);
-        const cY = parseInt(document.getElementById('coordClubY').value);
+        const fontColor = document.getElementById('colorName').value;
+        const fontSize = document.getElementById('sizeName').value;
+        const fontType = document.getElementById('fontName').value;
 
-        ctx.font = "bold 80px Arial";
-        ctx.fillStyle = "#1e293b"; 
-        ctx.fillText("RICHARD ZANE TANDOYO", nX, nY);
-
-        ctx.font = "italic 40px Arial";
-        ctx.fillStyle = "#64748b"; 
-        ctx.fillText("Jago Renang Academy", cX, cY);
-
-        if (currentMode === 'juara') {
-            const eX = parseInt(document.getElementById('coordEventX').value);
-            const eY = parseInt(document.getElementById('coordEventY').value);
-            const tX = parseInt(document.getElementById('coordTimeX').value);
-            const tY = parseInt(document.getElementById('coordTimeY').value);
-
-            ctx.font = "bold 50px Arial";
-            ctx.fillStyle = "#b45309"; 
-            ctx.fillText("50 M Gaya Bebas Putra KU A", eX, eY);
-
-            ctx.font = "bold 60px monospace";
-            ctx.fillStyle = "#047857"; 
-            ctx.fillText("⏱️ 00:28.45", tX, tY);
+        // Atur Style Teks
+        ctx.textAlign = "center"; 
+        
+        // Font Latin Mewah nggak perlu dibikin "bold", kalau Arial boleh bold.
+        if (fontType.includes('Great Vibes')) {
+            ctx.font = `${fontSize}px ${fontType}`;
+        } else {
+            ctx.font = `bold ${fontSize}px ${fontType}`;
         }
+        
+        ctx.fillStyle = fontColor; 
+        
+        // Render Teks Dummy
+        ctx.fillText("Richard Zane Tandoyo", nX, nY);
     }
 
+    // Listener tiap kali EO merubah pengaturan, otomatis ter-refresh!
     document.getElementById('btnRenderPreview').addEventListener('click', drawPreview);
+    document.getElementById('colorName').addEventListener('input', drawPreview);
+    document.getElementById('fontName').addEventListener('change', drawPreview);
+    document.getElementById('sizeName').addEventListener('input', drawPreview);
 
     document.getElementById('btnSaveConfig').addEventListener('click', async () => {
         const file = uploadInput.files[0];
@@ -136,15 +130,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data: urlData } = supabaseClient.storage.from('sertifikat-template').getPublicUrl(fileName);
             const publicUrl = urlData.publicUrl;
 
+            // Simpan Koordinat, Warna, Ukuran, dan Jenis Font!
             const configJson = {
-                nama: { x: document.getElementById('coordNameX').value, y: document.getElementById('coordNameY').value },
-                klub: { x: document.getElementById('coordClubX').value, y: document.getElementById('coordClubY').value }
+                nama: { 
+                    x: document.getElementById('coordNameX').value, 
+                    y: document.getElementById('coordNameY').value,
+                    color: document.getElementById('colorName').value,
+                    size: document.getElementById('sizeName').value,
+                    font: document.getElementById('fontName').value
+                }
             };
-
-            if (currentMode === 'juara') {
-                configJson.event = { x: document.getElementById('coordEventX').value, y: document.getElementById('coordEventY').value };
-                configJson.waktu = { x: document.getElementById('coordTimeX').value, y: document.getElementById('coordTimeY').value };
-            }
 
             const { error: dbError } = await supabaseClient
                 .from('event_certificates')
@@ -158,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (dbError) throw dbError;
 
-            statusMsg.innerText = `✅ Template ${currentMode.toUpperCase()} berhasil disimpan!`;
+            statusMsg.innerText = `✅ Template Sertifikat Peserta berhasil disimpan!`;
             statusMsg.className = "text-xs text-center mt-3 font-bold text-emerald-600";
             
         } catch (err) {

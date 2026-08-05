@@ -1,4 +1,4 @@
-import { supabaseClient } from './supabase.js'; // Sesuaikan path jika file JS ini di luar
+import { supabaseClient } from './supabase.js';
 
 let eventData = null;
 let certConfig = null;
@@ -8,26 +8,29 @@ let pesertaData = [];
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const eventId = urlParams.get('id');
+    const loadingEl = document.getElementById('loadingIndicator');
 
     if (!eventId) {
-        alert("Link tidak valid. ID Lomba tidak ditemukan.");
+        loadingEl.innerHTML = "❌ Link tidak valid. ID Lomba tidak ditemukan.";
         return;
     }
 
     try {
-        // 1. Ambil Nama Event
+        // 1. Ambil Nama Event (SUDAH DIPERBAIKI SESUAI SQL: event_name)
         const { data: event, error: errEvent } = await supabaseClient
             .from('events')
-            .select('nama_event')
+            .select('event_name') 
             .eq('id', eventId)
             .single();
         
+        if (errEvent) throw new Error("Gagal load event: " + errEvent.message);
+
         if (event) {
-            document.getElementById('eventName').innerText = event.nama_event;
+            document.getElementById('eventName').innerText = event.event_name;
             eventData = event;
         }
 
-        // 2. Ambil Template & Konfigurasi Sertifikat Peserta
+        // 2. Ambil Template Sertifikat
         const { data: cert, error: errCert } = await supabaseClient
             .from('event_certificates')
             .select('*')
@@ -36,25 +39,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             .single();
 
         if (errCert || !cert) {
-            document.getElementById('loadingIndicator').innerHTML = "❌ Panitia belum mengatur template sertifikat untuk event ini.";
+            loadingEl.innerHTML = "❌ Panitia belum menyimpan template sertifikat untuk event ini.";
             return;
         }
 
         certConfig = cert.config_json;
-
-        // Muat gambar template ke memory (Background)
-        templateImage.crossOrigin = "Anonymous"; // Penting biar gak kena error CORS saat download
+        templateImage.crossOrigin = "Anonymous"; 
         templateImage.src = cert.template_url;
 
-        // 3. Ambil Daftar Unik Peserta di Lomba Ini
-        // Asumsi kita ambil dari tabel event_registrations yang nge-link ke f1_athletes
+        // 3. Ambil Daftar Peserta
+        // PENTING: Saat ini pakai asumsi tabel 'event_registrations'
+        // Kalau tabel peserta lu namanya beda, pesan error bakal muncul di layar.
         const { data: peserta, error: errPeserta } = await supabaseClient
-            .from('event_registrations')
-            .select('nama_atlet, klub_asal') // Sesuaikan nama kolom dengan struktur DB lu
+            .from('event_registrations') // <-- (Catatan buat lu: cek nama tabel ini di Supabase)
+            .select('nama_atlet, klub_asal') // <-- (Cek juga apa bener nama kolomnya ini)
             .eq('event_id', eventId);
 
+        if (errPeserta) throw new Error("Gagal meload data peserta: " + errPeserta.message);
+
         if (peserta) {
-            // Filter duplikat (kalau 1 anak ikut 3 gaya, cukup tampilkan 1 kali saja)
+            // Filter duplikat agar 1 anak hanya muncul 1 tombol download
             const uniquePeserta = Array.from(new Set(peserta.map(a => a.nama_atlet)))
                 .map(nama => {
                     return peserta.find(a => a.nama_atlet === nama)
@@ -66,11 +70,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error(error);
-        document.getElementById('loadingIndicator').innerHTML = "Terjadi kesalahan sistem.";
+        loadingEl.innerHTML = `<span class="text-red-600">❌ Error Sistem: ${error.message}</span>`;
     }
 });
 
-// FUNGSI RENDER LIST UI
 function renderList(data) {
     const listContainer = document.getElementById('pesertaList');
     const loading = document.getElementById('loadingIndicator');
@@ -105,40 +108,32 @@ function renderList(data) {
     listContainer.innerHTML = html;
 }
 
-// LOGIKA PENCARIAN (REAL-TIME)
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const keyword = e.target.value.toLowerCase();
     const filtered = pesertaData.filter(p => p.nama_atlet.toLowerCase().includes(keyword));
     renderList(filtered);
 });
 
-// FUNGSI UTAMA: MESIN RENDER & DOWNLOAD OTOMATIS
 window.downloadSertifikat = function(namaAtlet) {
     if (!certConfig || !templateImage.complete) {
         alert("Sistem masih menyiapkan template. Mohon tunggu beberapa detik lalu coba lagi.");
         return;
     }
 
-    // Kasih feedback visual saat loading
     alert(`⏳ Sedang merakit sertifikat untuk ${namaAtlet}... Mohon tunggu.`);
 
     const canvas = document.getElementById('renderCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Set ukuran canvas sama persis dengan resolusi gambar asli
     canvas.width = templateImage.width;
     canvas.height = templateImage.height;
 
-    // 1. Gambar Template Background
     ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
 
-    // 2. Baca settingan dari Admin
     const setNama = certConfig.nama;
 
-    // 3. Render Teks Nama
     ctx.textAlign = "center"; 
     
-    // Terapkan Logic Font (Sama seperti saat admin setup)
     if (setNama.font.includes('Great Vibes')) {
         ctx.font = `${setNama.size}px ${setNama.font}`;
     } else {
@@ -147,17 +142,14 @@ window.downloadSertifikat = function(namaAtlet) {
     
     ctx.fillStyle = setNama.color;
     
-    // Konversi nama jadi Title Case (Awal kapital) biar cakep
     const namaCantik = namaAtlet.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     
-    // Cap tulisan ke atas kanvas!
     ctx.fillText(namaCantik, parseInt(setNama.x), parseInt(setNama.y));
 
-    // 4. Download Eksekusi (Jadikan file JPG agar lebih ringan buat WA)
     const dataURL = canvas.toDataURL("image/jpeg", 0.9);
     
     const link = document.createElement('a');
-    link.download = `Sertifikat_${namaAtlet.replace(/\s+/g, '_')}_${eventData.nama_event.replace(/\s+/g, '')}.jpg`;
+    link.download = `Sertifikat_${namaAtlet.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();

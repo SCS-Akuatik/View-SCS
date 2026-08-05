@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // 1. Ambil Nama Event (SUDAH DIPERBAIKI SESUAI SQL: event_name)
+        // 1. Ambil Nama Event 
         const { data: event, error: errEvent } = await supabaseClient
             .from('events')
             .select('event_name') 
@@ -47,21 +47,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         templateImage.crossOrigin = "Anonymous"; 
         templateImage.src = cert.template_url;
 
-        // 3. Ambil Daftar Peserta
-        // PENTING: Saat ini pakai asumsi tabel 'event_registrations'
-        // Kalau tabel peserta lu namanya beda, pesan error bakal muncul di layar.
+        // 3. Ambil Daftar Peserta (Disesuaikan dengan NAMA_PESERTA di Database)
         const { data: peserta, error: errPeserta } = await supabaseClient
-            .from('event_registrations') // <-- (Catatan buat lu: cek nama tabel ini di Supabase)
-            .select('nama_atlet, klub_asal') // <-- (Cek juga apa bener nama kolomnya ini)
+            .from('event_registrations') 
+            .select('nama_peserta, klub_asal') 
             .eq('event_id', eventId);
 
         if (errPeserta) throw new Error("Gagal meload data peserta: " + errPeserta.message);
 
         if (peserta) {
             // Filter duplikat agar 1 anak hanya muncul 1 tombol download
-            const uniquePeserta = Array.from(new Set(peserta.map(a => a.nama_atlet)))
+            const uniquePeserta = Array.from(new Set(peserta.map(a => a.nama_peserta)))
                 .map(nama => {
-                    return peserta.find(a => a.nama_atlet === nama)
+                    return peserta.find(a => a.nama_peserta === nama)
                 });
             
             pesertaData = uniquePeserta;
@@ -70,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error(error);
-        loadingEl.innerHTML = `<span class="text-red-600">❌ Error Sistem: ${error.message}</span>`;
+        loadingEl.innerHTML = `<span class="text-red-600 font-bold">❌ Error Sistem: ${error.message}</span>`;
     }
 });
 
@@ -92,13 +90,16 @@ function renderList(data) {
     
     let html = '';
     data.forEach((p, index) => {
+        // Amankan nama anak yang ada karakter petik (misal: O'Connor)
+        const safeName = p.nama_peserta.replace(/'/g, "\\'");
+
         html += `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3 hover:border-blue-300 transition">
             <div>
-                <h3 class="font-black text-slate-800 text-sm uppercase">${p.nama_atlet}</h3>
+                <h3 class="font-black text-slate-800 text-sm uppercase">${p.nama_peserta}</h3>
                 <p class="text-xs text-slate-500 font-bold mt-1">🏊‍♂️ ${p.klub_asal || 'Unattached'}</p>
             </div>
-            <button onclick="downloadSertifikat('${p.nama_atlet}')" class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2">
+            <button onclick="downloadSertifikat('${safeName}')" class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2">
                 <span>⬇️</span> Unduh Sertifikat
             </button>
         </div>
@@ -110,17 +111,17 @@ function renderList(data) {
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const keyword = e.target.value.toLowerCase();
-    const filtered = pesertaData.filter(p => p.nama_atlet.toLowerCase().includes(keyword));
+    const filtered = pesertaData.filter(p => p.nama_peserta.toLowerCase().includes(keyword));
     renderList(filtered);
 });
 
-window.downloadSertifikat = function(namaAtlet) {
+window.downloadSertifikat = function(namaPeserta) {
     if (!certConfig || !templateImage.complete) {
         alert("Sistem masih menyiapkan template. Mohon tunggu beberapa detik lalu coba lagi.");
         return;
     }
 
-    alert(`⏳ Sedang merakit sertifikat untuk ${namaAtlet}... Mohon tunggu.`);
+    alert(`⏳ Sedang merakit sertifikat untuk ${namaPeserta}... Mohon tunggu.`);
 
     const canvas = document.getElementById('renderCanvas');
     const ctx = canvas.getContext('2d');
@@ -142,14 +143,15 @@ window.downloadSertifikat = function(namaAtlet) {
     
     ctx.fillStyle = setNama.color;
     
-    const namaCantik = namaAtlet.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    // Ubah format nama jadi Title Case (Awal Kapital)
+    const namaCantik = namaPeserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     
     ctx.fillText(namaCantik, parseInt(setNama.x), parseInt(setNama.y));
 
+    // Eksekusi download gambar ke perangkat user
     const dataURL = canvas.toDataURL("image/jpeg", 0.9);
-    
     const link = document.createElement('a');
-    link.download = `Sertifikat_${namaAtlet.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
+    link.download = `Sertifikat_${namaPeserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();

@@ -30,6 +30,7 @@ export default defineConfig({
         printStartList: resolve(__dirname, 'book/print-startlist.html'),
         eventSertifikat: resolve(__dirname, 'book/event-sertifikat.html'),
         eventSertifikat: resolve(__dirname, 'cetak-sertifikat.html'),
+        eventLeaderboard: resolve(__dirname, 'event-leaderboard.html'),
       }
     }
   },

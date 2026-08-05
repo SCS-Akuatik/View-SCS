@@ -202,3 +202,7 @@ document.getElementById('btnSaveTiket').onclick = () => saveConfigToJSONB('tiket
 document.getElementById('btnSaveSponsor').onclick = () => saveConfigToJSONB('sponsor', { sponsor_name: document.getElementById('valSponsorName').value }, 'modalSponsor', 'btnSaveSponsor');
 
 loadEventDashboard();
+const btnMenuSertifikat = document.getElementById('btnMenuSertifikat');
+if (btnMenuSertifikat) {
+    btnMenuSertifikat.onclick = () => window.location.href = `/book/event-sertifikat.html?id=${currentEventId}`;
+}

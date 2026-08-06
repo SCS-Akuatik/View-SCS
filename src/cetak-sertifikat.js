@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // 1. Ambil Nama Event 
         const { data: event, error: errEvent } = await supabaseClient
             .from('events')
             .select('event_name') 
@@ -30,7 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             eventData = event;
         }
 
-        // 2. Ambil Template Sertifikat
         const { data: cert, error: errCert } = await supabaseClient
             .from('event_certificates')
             .select('*')
@@ -44,10 +42,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         certConfig = cert.config_json;
-        templateImage.crossOrigin = "Anonymous"; 
-        templateImage.src = cert.template_url;
+        templateImage.crossOrigin = "anonymous"; 
+        // TRIK ANTI CACHE CORS:
+        templateImage.src = cert.template_url + "?t=" + new Date().getTime();
 
-        // 3. Ambil Daftar Peserta (Disesuaikan dengan NAMA_PESERTA di Database)
         const { data: peserta, error: errPeserta } = await supabaseClient
             .from('event_registrations') 
             .select('nama_peserta, klub_asal') 
@@ -56,7 +54,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (errPeserta) throw new Error("Gagal meload data peserta: " + errPeserta.message);
 
         if (peserta) {
-            // Filter duplikat agar 1 anak hanya muncul 1 tombol download
             const uniquePeserta = Array.from(new Set(peserta.map(a => a.nama_peserta)))
                 .map(nama => {
                     return peserta.find(a => a.nama_peserta === nama)
@@ -90,9 +87,7 @@ function renderList(data) {
     
     let html = '';
     data.forEach((p, index) => {
-        // Amankan nama anak yang ada karakter petik (misal: O'Connor)
         const safeName = p.nama_peserta.replace(/'/g, "\\'");
-
         html += `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-3 hover:border-blue-300 transition">
             <div>
@@ -105,7 +100,6 @@ function renderList(data) {
         </div>
         `;
     });
-
     listContainer.innerHTML = html;
 }
 
@@ -117,57 +111,51 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
 
 window.downloadSertifikat = function(namaPeserta) {
     if (!certConfig || !templateImage.complete) {
-        alert("Sistem masih menyiapkan template. Mohon tunggu beberapa detik lalu coba lagi.");
+        alert("Sistem masih menyiapkan template. Mohon tunggu...");
         return;
     }
 
-    alert(`⏳ Sedang merakit sertifikat untuk ${namaPeserta}... Mohon tunggu.`);
-
-    const canvas = document.getElementById('renderCanvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = templateImage.width;
-    canvas.height = templateImage.height;
-
-    ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
-
-    const setNama = certConfig.nama;
-
-    ctx.textAlign = "center"; 
-    
-    if (setNama.font.includes('Great Vibes')) {
-        ctx.font = `${setNama.size}px ${setNama.font}`;
-    } else {
-        ctx.font = `bold ${setNama.size}px ${setNama.font}`;
-    }
-    
-    ctx.fillStyle = setNama.color;
-    
-    // Ubah format nama jadi Title Case (Awal Kapital)
-    const namaCantik = namaPeserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    
-    ctx.fillText(namaCantik, parseInt(setNama.x), parseInt(setNama.y));
-
-    // JURUS KEBAL DOWNLOAD BROWSER HP (Blob Method)
-    canvas.toBlob(function(blob) {
-        if (!blob) {
-            alert("Gagal merender gambar! Kemungkinan diblokir memori HP atau Izin CORS Supabase.");
-            return;
-        }
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.style.display = 'none'; // Sembunyikan elemen
-        link.href = url;
-        link.download = `Sertifikat_${namaPeserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
+    try {
+        alert("1/3. Mulai merakit gambar...");
         
-        // Wajib ditempel ke body HTML biar HP mau eksekusi klik
+        const canvas = document.getElementById('renderCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = templateImage.width;
+        canvas.height = templateImage.height;
+
+        ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+
+        const setNama = certConfig.nama;
+        ctx.textAlign = "center"; 
+        
+        if (setNama.font.includes('Great Vibes')) {
+            ctx.font = `${setNama.size}px ${setNama.font}`;
+        } else {
+            ctx.font = `bold ${setNama.size}px ${setNama.font}`;
+        }
+        ctx.fillStyle = setNama.color;
+        
+        const namaCantik = namaPeserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        ctx.fillText(namaCantik, parseInt(setNama.x), parseInt(setNama.y));
+
+        alert("2/3. Gambar berhasil dirakit! Menyiapkan file unduhan...");
+        
+        // Mode Synchronous ToDataURL (Lebih aman untuk HP)
+        const dataURL = canvas.toDataURL("image/jpeg", 0.9);
+        const link = document.createElement('a');
+        link.download = `Sertifikat_${namaPeserta.replace(/\s+/g, '_')}.jpg`;
+        link.href = dataURL;
+        
         document.body.appendChild(link);
         link.click();
         
-        // Langsung hapus lagi biar nggak nyampah di memori HP
         setTimeout(() => {
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            alert("3/3. ✅ SUKSES! Silakan cek notifikasi / folder Download di HP Anda.");
         }, 300);
-    }, 'image/jpeg', 0.9);
+
+    } catch (err) {
+        alert("❌ ERROR RENDER: " + err.message + "\n\n(Ini biasanya karena izin CORS Supabase belum disetting!)");
+        console.error(err);
+    }
 };

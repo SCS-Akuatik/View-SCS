@@ -7,11 +7,10 @@ let baseConfig = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const eventId = urlParams.get('id') || 5; // Default ke 5 untuk testing malam ini
+    const eventId = urlParams.get('id') || 5; 
     const loadingEl = document.getElementById('loadingIndicator');
 
     try {
-        // 1. Ambil Nama Event
         const { data: event, error: errEvent } = await supabaseClient
             .from('events')
             .select('event_name') 
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             eventData = event;
         }
 
-        // 2. Ambil Template Sertifikat (Cari 'juara', kalau belum ada, pinjam 'peserta')
         const { data: certs, error: errCert } = await supabaseClient
             .from('event_certificates')
             .select('*')
@@ -32,19 +30,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (certs && certs.length > 0) {
             let cert = certs.find(c => c.tipe === 'juara');
             if (!cert) {
-                // Pinjam template peserta kalau panitia belum upload khusus juara
                 cert = certs.find(c => c.tipe === 'peserta'); 
-                console.log("Menggunakan template peserta sebagai fallback.");
             }
             if (cert) {
                 baseConfig = cert.config_json;
                 certTemplateUrl = cert.template_url;
-                templateImage.crossOrigin = "Anonymous"; 
-                templateImage.src = certTemplateUrl;
+                templateImage.crossOrigin = "anonymous"; 
+                // TRIK ANTI CACHE CORS:
+                templateImage.src = certTemplateUrl + "?t=" + new Date().getTime();
             }
         }
 
-        // 3. Ambil Data Juara dari Leaderboard
         const { data: juara, error: errJuara } = await supabaseClient
             .from('event_leaderboard')
             .select('*')
@@ -53,7 +49,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             .order('peringkat', { ascending: true });
 
         if (errJuara) throw errJuara;
-
         renderLeaderboard(juara);
 
     } catch (error) {
@@ -80,7 +75,6 @@ function renderLeaderboard(data) {
 
     listContainer.classList.remove('hidden');
     
-    // Kelompokkan berdasarkan Nomor Lomba & KU
     const grouped = data.reduce((acc, curr) => {
         const key = `${curr.nomor_lomba} ${curr.gender} ${curr.kelompok_umur}`;
         if (!acc[key]) acc[key] = [];
@@ -102,9 +96,6 @@ function renderLeaderboard(data) {
         listJuara.forEach(j => {
             const medali = j.peringkat === 1 ? '🥇' : j.peringkat === 2 ? '🥈' : '🥉';
             const color = j.peringkat === 1 ? 'text-amber-500' : j.peringkat === 2 ? 'text-slate-400' : 'text-orange-700';
-            const safeName = j.nama_peserta.replace(/'/g, "\\'");
-            
-            // Konversi string objek ke JSON biar gampang di-pass ke onclick
             const dataJuaraObj = encodeURIComponent(JSON.stringify(j));
 
             html += `
@@ -123,91 +114,80 @@ function renderLeaderboard(data) {
                 </div>
             `;
         });
-
         html += `</div></div>`;
     }
-
     listContainer.innerHTML = html;
 }
 
 window.downloadSertifikatJuara = function(encodedData) {
     if (!templateImage.complete || !certTemplateUrl) {
-        alert("Sistem masih menyiapkan template. Mohon tunggu beberapa detik.");
+        alert("Sistem masih menyiapkan template. Mohon tunggu.");
         return;
     }
 
-    const j = JSON.parse(decodeURIComponent(encodedData));
-    const kategori = `${j.nomor_lomba} ${j.gender} ${j.kelompok_umur}`;
+    try {
+        const j = JSON.parse(decodeURIComponent(encodedData));
+        const kategori = `${j.nomor_lomba} ${j.gender} ${j.kelompok_umur}`;
 
-    alert(`⏳ Sedang mencetak Piagam Juara ${j.peringkat} untuk ${j.nama_peserta}...`);
+        alert(`1/3. Merakit piagam Juara ${j.peringkat} untuk ${j.nama_peserta}...`);
 
-    const canvas = document.getElementById('renderCanvas');
-    const ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('renderCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = templateImage.width;
+        canvas.height = templateImage.height;
 
-    canvas.width = templateImage.width;
-    canvas.height = templateImage.height;
+        ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
 
-    // 1. Render Background
-    ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+        ctx.textAlign = "center"; 
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
 
-    ctx.textAlign = "center"; 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
+        ctx.font = "bold 45px Arial";
+        ctx.fillStyle = "#b45309"; 
+        ctx.fillText(`JUARA ${j.peringkat}`, centerX, centerY - 120);
 
-    // 2. Render Predikat Juara (Posisi di atas nama)
-    ctx.font = "bold 45px Arial";
-    ctx.fillStyle = "#b45309"; // Warna Gold/Bronze
-    ctx.fillText(`JUARA ${j.peringkat}`, centerX, centerY - 120);
-
-    // 3. Render Nama Atlet (Gaya Great Vibes)
-    let fontName = baseConfig?.nama?.font || "'Great Vibes', cursive";
-    let sizeName = baseConfig?.nama?.size || "110";
-    let colorName = baseConfig?.nama?.color || "#1e293b";
-    
-    if (fontName.includes('Great Vibes')) {
-        ctx.font = `${sizeName}px ${fontName}`;
-    } else {
-        ctx.font = `bold ${sizeName}px ${fontName}`;
-    }
-    ctx.fillStyle = colorName;
-    
-    const namaCantik = j.nama_peserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    // Jika X/Y ada di baseConfig, pakai itu, kalau nggak pas di tengah
-    const nX = baseConfig?.nama?.x ? parseInt(baseConfig.nama.x) : centerX;
-    const nY = baseConfig?.nama?.y ? parseInt(baseConfig.nama.y) : centerY - 20;
-    
-    ctx.fillText(namaCantik, nX, nY);
-
-    // 4. Render Kategori Lomba (Di bawah nama)
-    ctx.font = "bold 35px Arial";
-    ctx.fillStyle = "#334155"; 
-    ctx.fillText(`Prestasi pada nomor: ${kategori}`, centerX, nY + 90);
-
-    // 5. Render Catatan Waktu
-    ctx.font = "bold 45px monospace";
-    ctx.fillStyle = "#0f766e"; 
-    ctx.fillText(`⏱️ ${j.catatan_waktu}`, centerX, nY + 160);
-
-    // JURUS KEBAL DOWNLOAD BROWSER HP (Blob Method)
-    canvas.toBlob(function(blob) {
-        if (!blob) {
-            alert("Gagal merender gambar! Kemungkinan diblokir memori HP atau Izin CORS Supabase.");
-            return;
-        }
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.style.display = 'none'; // Sembunyikan elemen
-        link.href = url;
-        link.download = `Juara_${j.peringkat}_${j.nama_peserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
+        let fontName = baseConfig?.nama?.font || "'Great Vibes', cursive";
+        let sizeName = baseConfig?.nama?.size || "110";
+        let colorName = baseConfig?.nama?.color || "#1e293b";
         
-        // Wajib ditempel ke body HTML biar HP mau eksekusi klik
+        if (fontName.includes('Great Vibes')) {
+            ctx.font = `${sizeName}px ${fontName}`;
+        } else {
+            ctx.font = `bold ${sizeName}px ${fontName}`;
+        }
+        ctx.fillStyle = colorName;
+        
+        const namaCantik = j.nama_peserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        const nX = baseConfig?.nama?.x ? parseInt(baseConfig.nama.x) : centerX;
+        const nY = baseConfig?.nama?.y ? parseInt(baseConfig.nama.y) : centerY - 20;
+        
+        ctx.fillText(namaCantik, nX, nY);
+
+        ctx.font = "bold 35px Arial";
+        ctx.fillStyle = "#334155"; 
+        ctx.fillText(`Prestasi pada nomor: ${kategori}`, centerX, nY + 90);
+
+        ctx.font = "bold 45px monospace";
+        ctx.fillStyle = "#0f766e"; 
+        ctx.fillText(`⏱️ ${j.catatan_waktu}`, centerX, nY + 160);
+
+        alert("2/3. Gambar berhasil dirakit! Menyiapkan file unduhan...");
+        
+        const dataURL = canvas.toDataURL("image/jpeg", 0.9);
+        const link = document.createElement('a');
+        link.download = `Juara_${j.peringkat}_${j.nama_peserta.replace(/\s+/g, '_')}.jpg`;
+        link.href = dataURL;
+        
         document.body.appendChild(link);
         link.click();
         
-        // Langsung hapus lagi biar nggak nyampah di memori HP
         setTimeout(() => {
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            alert("3/3. ✅ SUKSES! Silakan cek notifikasi / folder Download di HP Anda.");
         }, 300);
-    }, 'image/jpeg', 0.9);
+
+    } catch (err) {
+        alert("❌ ERROR RENDER: " + err.message + "\n\n(Ini biasanya karena izin CORS Supabase belum disetting!)");
+        console.error(err);
+    }
 };

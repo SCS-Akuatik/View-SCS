@@ -121,21 +121,18 @@ function renderLeaderboard(data) {
 }
 
 window.downloadSertifikatJuara = function(encodedData) {
-    // ALERT SPESIFIK BIAR TAU PENYAKITNYA
     if (!certTemplateUrl) {
         alert("❌ Template belum disetting! Pastikan EO sudah upload template Juara di Dapur Admin.");
         return;
     }
     if (!templateImage.complete) {
-        alert("⏳ Gambar template masih di-download oleh HP... Tunggu sekitar 5 detik lalu klik lagi!");
+        alert("⏳ Gambar template masih loading... Tunggu sebentar!");
         return;
     }
 
     try {
         const j = JSON.parse(decodeURIComponent(encodedData));
-        const kategori = `${j.nomor_lomba} ${j.gender} ${j.kelompok_umur}`;
-
-        alert(`1/3. Merakit piagam Juara ${j.peringkat} untuk ${j.nama_peserta}...`);
+        alert(`Sedang merakit piagam Juara ${j.peringkat} untuk ${j.nama_peserta}...`);
 
         const canvas = document.getElementById('renderCanvas');
         const ctx = canvas.getContext('2d');
@@ -151,18 +148,24 @@ window.downloadSertifikatJuara = function(encodedData) {
         const fontName = baseConfig?.sharedStyle?.font || baseConfig?.nama?.font || "'Great Vibes', cursive";
         const colorName = baseConfig?.sharedStyle?.color || baseConfig?.nama?.color || "#1e293b";
 
-        // TULIS JUARA
+        // 1. TULIS JUARA ("1 (Satu)")
+        // Logic konversi angka peringkat ke teks kurung (sesuai dummy)
+        let strJuara = j.peringkat;
+        if (j.peringkat == 1) strJuara = "1 (Satu)";
+        else if (j.peringkat == 2) strJuara = "2 (Dua)";
+        else if (j.peringkat == 3) strJuara = "3 (Tiga)";
+        
         const predd = baseConfig?.extra?.juara;
         const preddX = predd?.x ? parseInt(predd.x) : centerX;
-        const preddY = predd?.y ? parseInt(predd.y) : centerY - 120;
+        const preddY = predd?.y ? parseInt(predd.y) : 500;
         const preddSize = predd?.size || "45";
         ctx.font = `bold ${preddSize}px Arial`;
-        ctx.fillStyle = "#b45309"; 
-        ctx.fillText(`JUARA ${j.peringkat}`, preddX, preddY);
+        ctx.fillStyle = colorName; // Disamakan dengan shared color biar rapi
+        ctx.fillText(strJuara, preddX, preddY);
 
-        // TULIS NAMA
+        // 2. TULIS NAMA ("Nama Lengkap Peserta")
         const nX = baseConfig?.nama?.x ? parseInt(baseConfig.nama.x) : centerX;
-        const nY = baseConfig?.nama?.y ? parseInt(baseConfig.nama.y) : centerY - 20;
+        const nY = baseConfig?.nama?.y ? parseInt(baseConfig.nama.y) : 400;
         const nSize = baseConfig?.nama?.size || "110";
         if (fontName.includes('Great Vibes')) {
             ctx.font = `${nSize}px ${fontName}`;
@@ -173,29 +176,31 @@ window.downloadSertifikatJuara = function(encodedData) {
         const namaCantik = j.nama_peserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         ctx.fillText(namaCantik, nX, nY);
 
-        // TULIS NOMOR LOMBA
+        // 3. TULIS NOMOR LOMBA ("50 M Gaya Bebas")
+        // Narik murni dari database tanpa imbuhan
+        const strNomor = j.nomor_lomba; 
         const nom = baseConfig?.extra?.nomorLomba;
         const nomX = nom?.x ? parseInt(nom.x) : centerX;
-        const nomY = nom?.y ? parseInt(nom.y) : nY + 90;
+        const nomY = nom?.y ? parseInt(nom.y) : 600;
         const nomSize = nom?.size || "35";
         ctx.font = `bold ${nomSize}px Arial`;
-        ctx.fillStyle = "#334155"; 
-        ctx.fillText(`Prestasi pada nomor: ${kategori}`, nomX, nomY);
+        ctx.fillStyle = colorName; 
+        ctx.fillText(strNomor, nomX, nomY);
 
-        // TULIS WAKTU
+        // 4. TULIS KU/WAKTU ("KU C Putra")
+        // Menggabungkan kelompok_umur dan gender dari database
+        const strKU = `${j.kelompok_umur} ${j.gender}`;
         const ku = baseConfig?.extra?.kelompokUmur;
         const kuX = ku?.x ? parseInt(ku.x) : centerX;
-        const kuY = ku?.y ? parseInt(ku.y) : nY + 160;
+        const kuY = ku?.y ? parseInt(ku.y) : 700;
         const kuSize = ku?.size || "45";
-        ctx.font = `bold ${kuSize}px monospace`;
-        ctx.fillStyle = "#0f766e"; 
-        ctx.fillText(`⏱️ ${j.catatan_waktu}`, kuX, kuY);
-
-        alert("2/3. Gambar berhasil dirakit! Menyiapkan file unduhan...");
+        ctx.font = `bold ${kuSize}px Arial`;
+        ctx.fillStyle = colorName; 
+        ctx.fillText(strKU, kuX, kuY);
         
         canvas.toBlob(function(blob) {
             if (!blob) {
-                alert("Gagal merender gambar! Kemungkinan diblokir memori HP atau Izin CORS Supabase.");
+                alert("Gagal merender gambar! Kemungkinan diblokir memori HP.");
                 return;
             }
             const url = window.URL.createObjectURL(blob);
@@ -210,7 +215,6 @@ window.downloadSertifikatJuara = function(encodedData) {
             setTimeout(() => {
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
-                alert("3/3. ✅ SUKSES! Silakan cek notifikasi / folder Download di HP Anda.");
             }, 300);
         }, 'image/jpeg', 0.9);
 

@@ -2,9 +2,9 @@ import { supabaseClient } from '../src/supabase.js';
 
 let currentEventId = null;
 let uploadedImage = null; 
-let currentMode = 'peserta'; // default
+let currentMode = 'peserta'; 
 
-// DUMMY TEXT disesuaikan biar nggak numpuk sama teks background template
+// DUMMY SESUAI REQUEST (JANGAN DIUBAH)
 const DUMMY_PESERTA = {
     nama: "Nama Lengkap Peserta"
 };
@@ -26,9 +26,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Load Event Name
+    // Load Event Name & Set Input Links
     const { data: evData } = await supabaseClient.from('events').select('event_name').eq('id', currentEventId).single();
-    if(evData) document.getElementById('eventName').innerText = evData.event_name;
+    if(evData) {
+        document.getElementById('eventName').innerText = evData.event_name;
+    }
+    
+    // Set URL untuk Copy Link Ganteng
+    const baseUrl = window.location.origin;
+    document.getElementById('linkPeserta').value = `${baseUrl}/cetak-sertifikat.html?id=${currentEventId}`;
+    document.getElementById('linkJuara').value = `${baseUrl}/event-leaderboard.html?id=${currentEventId}`;
 
     const tabPeserta = document.getElementById('tabPeserta');
     const tabJuara = document.getElementById('tabJuara');
@@ -58,7 +65,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const placeholder = document.getElementById('placeholderCanvas');
     const panelKoordinat = document.getElementById('panelKoordinat');
 
-    // KETIKA EO PILIH GAMBAR BARU DARI LAPTOP
     uploadInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -136,8 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         input.addEventListener(eventType, drawPreview);
     });
 
-    document.getElementById('btnRefreshPreview').addEventListener('click', drawPreview);
-
     document.getElementById('btnAutoCenter').addEventListener('click', () => {
         if (!uploadedImage) return;
         const centerX = uploadedImage.width / 2;
@@ -150,18 +154,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         drawPreview();
     });
 
-    // FITUR COPY LINK
-    document.getElementById('btnCopyLink').addEventListener('click', () => {
-        const urlParamsLink = new URLSearchParams(window.location.search);
-        const link = `${window.location.origin}/cetak-sertifikat.html?id=${urlParamsLink.get('id')}`;
-        navigator.clipboard.writeText(link).then(() => {
-            alert(`Link Cetak Sertifikat Peserta berhasil disalin!\n\n${link}`);
-        }).catch(err => {
-            alert(`Gagal menyalin link. Silakan copy manual:\n${link}`);
-        });
-    });
+    // FITUR COPY LINK GANTENG
+    function copyLink(inputId, btnId, typeText) {
+        const copyText = document.getElementById(inputId);
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); 
+        navigator.clipboard.writeText(copyText.value);
+        
+        const btn = document.getElementById(btnId);
+        const originalText = btn.innerText;
+        btn.innerText = "Tersalin! ✅";
+        btn.classList.add("bg-emerald-600");
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.classList.remove("bg-emerald-600");
+        }, 2000);
+    }
+    
+    document.getElementById('btnCopyPeserta').addEventListener('click', () => copyLink('linkPeserta', 'btnCopyPeserta', 'Peserta'));
+    document.getElementById('btnCopyJuara').addEventListener('click', () => copyLink('linkJuara', 'btnCopyJuara', 'Juara'));
 
-    // FITUR LOAD CONFIG DATABASE
+    // FITUR LOAD CONFIG
     document.getElementById('btnLoadConfig').addEventListener('click', async () => {
         const btn = document.getElementById('btnLoadConfig');
         btn.innerText = "⏳ Loading...";
@@ -182,16 +195,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const config = data.config_json;
             
-            // Set Style Bawaan
             document.getElementById('sharedColor').value = config.sharedStyle?.color || '#1e293b';
             document.getElementById('sharedFont').value = config.sharedStyle?.font || 'Arial, sans-serif';
             
-            // Set Koordinat Nama
             document.getElementById('coordNameX').value = config.nama?.x || 1000;
             document.getElementById('coordNameY').value = config.nama?.y || 400;
             document.getElementById('sizeName').value = config.nama?.size || 95;
 
-            // Set Koordinat Juara
             if (currentMode === 'juara' && config.extra) {
                 document.getElementById('coordPreddX').value = config.extra.juara?.x || 1000;
                 document.getElementById('coordPreddY').value = config.extra.juara?.y || 500;
@@ -206,7 +216,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('sizeKU').value = config.extra.kelompokUmur?.size || 45;
             }
 
-            // Load Gambar
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = () => {
@@ -218,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 canvas.classList.remove('hidden');
                 drawPreview();
             };
-            img.src = data.template_url + "?t=" + new Date().getTime(); // bypass cache
+            img.src = data.template_url + "?t=" + new Date().getTime(); 
             
             alert(`✅ Konfigurasi ${currentMode.toUpperCase()} berhasil di-load!`);
 
@@ -229,9 +238,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // LOGIC UPSERT (TIMPA DATA)
+    // LOGIC UPSERT & AUTO REFRESH
     document.getElementById('btnSaveConfig').addEventListener('click', async () => {
-        // Cek kalau EO cuma nge-load dan ngedit koordinat aja tanpa upload file baru
         let publicUrl = null;
         let isUploadingNewImage = false;
         const file = uploadInput.files[0];
@@ -239,8 +247,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (file) {
             isUploadingNewImage = true;
         } else if (uploadedImage) {
-            // Berarti pake gambar dari load database
-            publicUrl = uploadedImage.src.split('?')[0]; // buang parameter anti-cache
+            publicUrl = uploadedImage.src.split('?')[0]; 
         } else {
             alert("Pilih template image atau Load konfigurasi lama dulu Bos!");
             return;
@@ -255,7 +262,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         statusMsg.className = "text-xs text-center mt-3 font-bold text-blue-600";
 
         try {
-            // 1. Upload File (Hanya jika EO pilih gambar baru dari laptop)
             if (isUploadingNewImage) {
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${currentEventId}_${currentMode}_${Date.now()}.${fileExt}`;
@@ -267,7 +273,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 publicUrl = urlData.publicUrl;
             }
 
-            // 2. Susun JSON Config Baru
             let configJson = {
                 sharedStyle: {
                     color: document.getElementById('sharedColor').value,
@@ -300,7 +305,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 };
             }
 
-            // 3. Cek apakah di database sudah ada baris untuk event ini dan tipe ini
             const { data: existingRow } = await supabaseClient
                 .from('event_certificates')
                 .select('id')
@@ -308,7 +312,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .eq('tipe', currentMode)
                 .single();
 
-            // 4. UPSERT MANUAL (Update jika ada, Insert jika tidak ada)
             if (existingRow) {
                 const { error: updateError } = await supabaseClient
                     .from('event_certificates')
@@ -333,10 +336,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             statusMsg.innerText = `✅ Tersimpan! Halaman akan dimuat ulang...`;
             statusMsg.className = "text-xs text-center mt-3 font-bold text-emerald-600";
             
-            // Auto Refresh supaya mode-nya kereset bersih
             setTimeout(() => {
                 window.location.reload();
-            }, 1500);
+            }, 1000);
             
         } catch (err) {
             console.error(err);

@@ -148,12 +148,26 @@ window.downloadSertifikat = function(namaPeserta) {
     
     ctx.fillText(namaCantik, parseInt(setNama.x), parseInt(setNama.y));
 
-    // Eksekusi download gambar ke perangkat user
-    const dataURL = canvas.toDataURL("image/jpeg", 0.9);
-    const link = document.createElement('a');
-    link.download = `Sertifikat_${namaPeserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // JURUS KEBAL DOWNLOAD BROWSER HP (Blob Method)
+    canvas.toBlob(function(blob) {
+        if (!blob) {
+            alert("Gagal merender gambar! Kemungkinan diblokir memori HP atau Izin CORS Supabase.");
+            return;
+        }
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = 'none'; // Sembunyikan elemen
+        link.href = url;
+        link.download = `Sertifikat_${namaPeserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
+        
+        // Wajib ditempel ke body HTML biar HP mau eksekusi klik
+        document.body.appendChild(link);
+        link.click();
+        
+        // Langsung hapus lagi biar nggak nyampah di memori HP
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 300);
+    }, 'image/jpeg', 0.9);
 };

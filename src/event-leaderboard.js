@@ -188,12 +188,26 @@ window.downloadSertifikatJuara = function(encodedData) {
     ctx.fillStyle = "#0f766e"; 
     ctx.fillText(`⏱️ ${j.catatan_waktu}`, centerX, nY + 160);
 
-    // Eksekusi Download
-    const dataURL = canvas.toDataURL("image/jpeg", 0.9);
-    const link = document.createElement('a');
-    link.download = `Juara_${j.peringkat}_${j.nama_peserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // JURUS KEBAL DOWNLOAD BROWSER HP (Blob Method)
+    canvas.toBlob(function(blob) {
+        if (!blob) {
+            alert("Gagal merender gambar! Kemungkinan diblokir memori HP atau Izin CORS Supabase.");
+            return;
+        }
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = 'none'; // Sembunyikan elemen
+        link.href = url;
+        link.download = `Juara_${j.peringkat}_${j.nama_peserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
+        
+        // Wajib ditempel ke body HTML biar HP mau eksekusi klik
+        document.body.appendChild(link);
+        link.click();
+        
+        // Langsung hapus lagi biar nggak nyampah di memori HP
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }, 300);
+    }, 'image/jpeg', 0.9);
 };

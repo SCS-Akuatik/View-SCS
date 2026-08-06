@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             eventData = event;
         }
 
+        // Ambil Template Juara (atau fallback ke Peserta)
         const { data: certs, error: errCert } = await supabaseClient
             .from('event_certificates')
             .select('*')
@@ -36,8 +37,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 baseConfig = cert.config_json;
                 certTemplateUrl = cert.template_url;
                 templateImage.crossOrigin = "anonymous"; 
-                // TRIK ANTI CACHE CORS:
-                templateImage.src = certTemplateUrl + "?t=" + new Date().getTime();
+                // KEMBALIKAN KE NORMAL: Hapus trik anti-cache karena bisa merusak URL Supabase
+                templateImage.src = certTemplateUrl;
             }
         }
 
@@ -120,8 +121,13 @@ function renderLeaderboard(data) {
 }
 
 window.downloadSertifikatJuara = function(encodedData) {
-    if (!templateImage.complete || !certTemplateUrl) {
-        alert("Sistem masih menyiapkan template. Mohon tunggu.");
+    // ALERT SPESIFIK BIAR TAU PENYAKITNYA
+    if (!certTemplateUrl) {
+        alert("❌ Template belum disetting! Pastikan EO sudah upload template Juara di Dapur Admin.");
+        return;
+    }
+    if (!templateImage.complete) {
+        alert("⏳ Gambar template masih di-download oleh HP... Tunggu sekitar 5 detik lalu klik lagi!");
         return;
     }
 
@@ -142,7 +148,6 @@ window.downloadSertifikatJuara = function(encodedData) {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
-        // Tarik data Style dari Config Admin
         const fontName = baseConfig?.sharedStyle?.font || baseConfig?.nama?.font || "'Great Vibes', cursive";
         const colorName = baseConfig?.sharedStyle?.color || baseConfig?.nama?.color || "#1e293b";
 

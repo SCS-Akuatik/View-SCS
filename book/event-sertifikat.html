@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCS PRO | Mesin Sertifikat</title>
     <link rel="stylesheet" href="/src/style.css">
-    <!-- IMPORT FONT MEWAH DARI GOOGLE -->
+    <!-- IMPORT FONT MEWAH -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-20">
@@ -17,18 +17,21 @@
         <div class="text-[10px] font-black tracking-widest text-amber-400 uppercase bg-amber-900/30 px-2 py-1 rounded border border-amber-700/50">PRO FEATURE</div>
     </nav>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div class="mb-8">
-            <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                📜 Setup E-Sertifikat 
-            </h1>
-            <p class="text-sm text-slate-500 mt-1">Unggah template kosong dan atur koordinat cetak otomatis.</p>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                    <span>糖 Setup E-Sertifikat</span> 
+                </h1>
+                <p class="text-sm text-slate-500 mt-1">Unggah template kosong dan atur koordinat cetak otomatis.</p>
+            </div>
+            <p id="eventName" class="font-black text-xl text-blue-800"></p>
         </div>
 
         <!-- TABS NAVIGASI -->
         <div class="flex gap-2 mb-6 border-b border-slate-200 pb-4 overflow-x-auto hide-scrollbar">
             <button id="tabPeserta" class="px-6 py-2.5 rounded-full font-bold text-sm bg-blue-900 text-white shadow transition-all shrink-0">1. Sertifikat Peserta</button>
-            <button id="tabJuara" class="px-6 py-2.5 rounded-full font-bold text-sm bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all shrink-0">2. Sertifikat Juara (Nanti Dulu)</button>
+            <button id="tabJuara" class="px-6 py-2.5 rounded-full font-bold text-sm bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all shrink-0">2. Sertifikat Juara (BETA)</button>
         </div>
 
         <!-- AREA KERJA -->
@@ -38,53 +41,87 @@
             <div class="lg:col-span-1 space-y-6">
                 <!-- Upload Box -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><span>🖼️</span> Upload Template (JPG/PNG)</h3>
-                    <input type="file" id="uploadTemplate" accept="image/jpeg, image/png" class="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    <p class="text-[10px] text-slate-400 mt-2">*Gunakan gambar ukuran A4 Landscape kosong tanpa nama.</p>
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><span>名�ｸ�/span> Upload Template (JPG/PNG)</h3>
+                    <input type="file" id="uploadTemplate" accept="image/jpeg, image/png" class="w-full text-xs file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                    <p class="text-[10px] text-slate-400 mt-2">*Gunakan gambar ukuran A4 Landscape kosong.</p>
                 </div>
 
                 <!-- Setup Koordinat X, Y & Desain -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200" id="panelKoordinat" style="display: none;">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-3">
                         <h3 class="font-bold text-slate-800">Atur Visual Teks</h3>
-                        <button id="btnRenderPreview" class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-bold hover:bg-indigo-200">🔄 Refresh Preview</button>
+                        <div class="flex gap-1">
+                            <button id="btnAutoCenter" class="text-[10px] bg-slate-100 text-slate-700 px-2 py-1 rounded font-bold hover:bg-slate-200">単 Center X</button>
+                            <button id="btnRefreshPreview" class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-bold hover:bg-indigo-200">売 Refresh (Manual)</button>
+                        </div>
                     </div>
                     
-                    <div class="space-y-4">
-                        <!-- PENGATURAN NAMA ATLET SUPER LENGKAP -->
+                    <div class="space-y-4 max-h-[500px] overflow-y-auto hide-scrollbar pr-2">
+                        <!-- SHARED STYLE (Berlaku untuk semua field) -->
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-inner">
-                            <label class="block text-xs font-black text-slate-700 mb-3 border-b border-slate-200 pb-2">PENGATURAN NAMA ATLET</label>
-                            
-                            <!-- Koordinat -->
-                            <div class="grid grid-cols-2 gap-3 mb-3">
-                                <div><span class="text-[10px] font-bold text-slate-500">Kiri-Kanan (Posisi X)</span><input type="number" id="coordNameX" value="1000" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm outline-none focus:border-blue-500"></div>
-                                <div><span class="text-[10px] font-bold text-slate-500">Atas-Bawah (Posisi Y)</span><input type="number" id="coordNameY" value="700" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm outline-none focus:border-blue-500"></div>
-                            </div>
-
-                            <!-- Warna & Jenis Font -->
+                            <label class="block text-xs font-black text-slate-700 mb-3 border-b border-slate-200 pb-2">WARNA & JENIS HURUF (Shared)</label>
                             <div class="grid grid-cols-2 gap-3 mb-3">
                                 <div>
                                     <span class="text-[10px] font-bold text-slate-500">Warna Font</span>
-                                    <input type="color" id="colorName" value="#1e293b" class="w-full h-9 p-0.5 border border-slate-300 rounded cursor-pointer shadow-sm">
+                                    <input type="color" id="sharedColor" value="#1e293b" class="w-full h-9 p-0.5 border border-slate-300 rounded cursor-pointer shadow-sm">
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-slate-500">Ukuran Font (px)</span>
-                                    <input type="number" id="sizeName" value="95" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm outline-none focus:border-blue-500">
+                                    <span class="text-[10px] font-bold text-slate-500">Gaya Huruf (Font Family)</span>
+                                    <select id="sharedFont" class="w-full h-9 px-2 text-xs font-bold border border-slate-300 rounded shadow-sm outline-none focus:border-blue-500 bg-white cursor-pointer">
+                                        <option value="Arial, sans-serif">Arial (Tegas)</option>
+                                        <option value="'Great Vibes', cursive">Great Vibes (Latin Mewah)</option>
+                                        <option value="'Times New Roman', serif">Times New Roman</option>
+                                    </select>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="w-full">
-                                <span class="text-[10px] font-bold text-slate-500">Gaya Huruf (Font Type)</span>
-                                <select id="fontName" class="w-full px-2 py-2 text-xs font-bold border border-slate-300 rounded shadow-sm outline-none focus:border-blue-500 bg-white">
-                                    <option value="'Great Vibes', cursive">Great Vibes (Latin Mewah)</option>
-                                    <option value="Arial, sans-serif">Arial (Tegas & Modern)</option>
-                                    <option value="'Times New Roman', serif">Times New Roman (Klasik)</option>
-                                </select>
+                        <!-- 1. NAMA ATLET -->
+                        <div class="field-box bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                            <label class="block text-xs font-black text-slate-700 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><span>👤</span> KOORDINAT NAMA ATLET</label>
+                            <div class="grid grid-cols-3 gap-3 mb-3">
+                                <div><span class="text-[10px] font-bold text-slate-500">Kiri-Kanan (X)</span><input type="number" id="coordNameX" value="1000" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                <div><span class="text-[10px] font-bold text-slate-500">Atas-Bawah (Y)</span><input type="number" id="coordNameY" value="700" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                <div><span class="text-[10px] font-bold text-slate-500">Ukuran (px)</span><input type="number" id="sizeName" value="95" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
                             </div>
                         </div>
+
+                        <!-- FIELDS KHUSUS JUARA (Hidden by default) -->
+                        <div id="winnerFieldsBox" class="space-y-4 hidden border-t-2 border-dashed border-blue-100 pt-4">
+                            <!-- 2. PREDDIKAT JUARA -->
+                            <div class="field-box bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                                <label class="block text-xs font-black text-slate-700 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><span>🥇</span> KOORDINAT PREDDIKAT (Misal: 1 (Satu))</label>
+                                <div class="grid grid-cols-3 gap-3 mb-3">
+                                    <div><span class="text-[10px] font-bold text-slate-500">Kiri-Kanan (X)</span><input type="number" id="coordPreddX" value="1000" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                    <div><span class="text-[10px] font-bold text-slate-500">Atas-Bawah (Y)</span><input type="number" id="coordPreddY" value="820" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                    <div><span class="text-[10px] font-bold text-slate-500">Ukuran (px)</span><input type="number" id="sizePredd" value="70" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                </div>
+                            </div>
+                            <!-- 3. NOMOR LOMBA -->
+                            <div class="field-box bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                                <label class="block text-xs font-black text-slate-700 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><span>🏊</span> KOORDINAT NOMOR LOMBA (Misal: 25m Gaya Bebas)</label>
+                                <div class="grid grid-cols-3 gap-3 mb-3">
+                                    <div><span class="text-[10px] font-bold text-slate-500">Kiri-Kanan (X)</span><input type="number" id="coordNomorX" value="1000" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                    <div><span class="text-[10px] font-bold text-slate-500">Atas-Bawah (Y)</span><input type="number" id="coordNomorY" value="920" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                    <div><span class="text-[10px] font-bold text-slate-500">Ukuran (px)</span><input type="number" id="sizeNomor" value="60" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                </div>
+                            </div>
+                            <!-- 4. KELOMPOK UMUR -->
+                            <div class="field-box bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                                <label class="block text-xs font-black text-slate-700 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><span>👥</span> KOORDINAT KU (Misal: KU A)</label>
+                                <div class="grid grid-cols-3 gap-3 mb-3">
+                                    <div><span class="text-[10px] font-bold text-slate-500">Kiri-Kanan (X)</span><input type="number" id="coordKUX" value="1000" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                    <div><span class="text-[10px] font-bold text-slate-500">Atas-Bawah (Y)</span><input type="number" id="coordKUY" value="1000" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                    <div><span class="text-[10px] font-bold text-slate-500">Ukuran (px)</span><input type="number" id="sizeKU" value="60" class="w-full px-2 py-1.5 text-sm border border-slate-300 rounded shadow-sm focus:border-blue-500"></div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <button id="btnSaveConfig" class="w-full mt-6 bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-lg">💾 Simpan Template ke Server</button>
+                    <button id="btnSaveConfig" class="w-full mt-6 bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-lg flex items-center justify-center gap-2">
+                        <span>💾</span> Simpan Template ke Server
+                    </button>
                     <p id="statusMsg" class="text-xs text-center mt-3 font-bold hidden"></p>
                 </div>
             </div>
@@ -99,6 +136,6 @@
         </div>
     </div>
 
-    <script type="module" src="/book/event-sertifikat.js"></script>
+    <script type="module" src="/src/event-sertifikat.js"></script>
 </body>
 </html>

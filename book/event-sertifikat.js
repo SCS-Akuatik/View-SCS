@@ -6,14 +6,14 @@ let currentMode = 'peserta'; // default
 
 // DUMMY TEXT disesuaikan biar nggak numpuk sama teks background template
 const DUMMY_PESERTA = {
-    nama: "Kenzo Liman"
+    nama: "Nama Lengkap Peserta"
 };
 
 const DUMMY_JUARA = {
-    nama: "Kenzo Liman",
-    juara: "1", 
-    nomor: "50 M Gaya Bebas Putra KU C",
-    ku: "00:32.45" 
+    nama: "Nama Lengkap Peserta",
+    juara: "1 (Satu)", 
+    nomor: "50 M Gaya Bebas",
+    ku: "KU C Putra" 
 };
 
 document.addEventListener('DOMContentLoaded', async () => {

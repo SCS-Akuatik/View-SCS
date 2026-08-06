@@ -142,52 +142,75 @@ window.downloadSertifikatJuara = function(encodedData) {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
-        ctx.font = "bold 45px Arial";
-        ctx.fillStyle = "#b45309"; 
-        ctx.fillText(`JUARA ${j.peringkat}`, centerX, centerY - 120);
+        // Tarik data Style dari Config Admin
+        const fontName = baseConfig?.sharedStyle?.font || baseConfig?.nama?.font || "'Great Vibes', cursive";
+        const colorName = baseConfig?.sharedStyle?.color || baseConfig?.nama?.color || "#1e293b";
 
-        let fontName = baseConfig?.nama?.font || "'Great Vibes', cursive";
-        let sizeName = baseConfig?.nama?.size || "110";
-        let colorName = baseConfig?.nama?.color || "#1e293b";
-        
-        if (fontName.includes('Great Vibes')) {
-            ctx.font = `${sizeName}px ${fontName}`;
-        } else {
-            ctx.font = `bold ${sizeName}px ${fontName}`;
-        }
-        ctx.fillStyle = colorName;
-        
-        const namaCantik = j.nama_peserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        // TULIS JUARA
+        const predd = baseConfig?.extra?.juara;
+        const preddX = predd?.x ? parseInt(predd.x) : centerX;
+        const preddY = predd?.y ? parseInt(predd.y) : centerY - 120;
+        const preddSize = predd?.size || "45";
+        ctx.font = `bold ${preddSize}px Arial`;
+        ctx.fillStyle = "#b45309"; 
+        ctx.fillText(`JUARA ${j.peringkat}`, preddX, preddY);
+
+        // TULIS NAMA
         const nX = baseConfig?.nama?.x ? parseInt(baseConfig.nama.x) : centerX;
         const nY = baseConfig?.nama?.y ? parseInt(baseConfig.nama.y) : centerY - 20;
-        
+        const nSize = baseConfig?.nama?.size || "110";
+        if (fontName.includes('Great Vibes')) {
+            ctx.font = `${nSize}px ${fontName}`;
+        } else {
+            ctx.font = `bold ${nSize}px ${fontName}`;
+        }
+        ctx.fillStyle = colorName;
+        const namaCantik = j.nama_peserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         ctx.fillText(namaCantik, nX, nY);
 
-        ctx.font = "bold 35px Arial";
+        // TULIS NOMOR LOMBA
+        const nom = baseConfig?.extra?.nomorLomba;
+        const nomX = nom?.x ? parseInt(nom.x) : centerX;
+        const nomY = nom?.y ? parseInt(nom.y) : nY + 90;
+        const nomSize = nom?.size || "35";
+        ctx.font = `bold ${nomSize}px Arial`;
         ctx.fillStyle = "#334155"; 
-        ctx.fillText(`Prestasi pada nomor: ${kategori}`, centerX, nY + 90);
+        ctx.fillText(`Prestasi pada nomor: ${kategori}`, nomX, nomY);
 
-        ctx.font = "bold 45px monospace";
+        // TULIS WAKTU
+        const ku = baseConfig?.extra?.kelompokUmur;
+        const kuX = ku?.x ? parseInt(ku.x) : centerX;
+        const kuY = ku?.y ? parseInt(ku.y) : nY + 160;
+        const kuSize = ku?.size || "45";
+        ctx.font = `bold ${kuSize}px monospace`;
         ctx.fillStyle = "#0f766e"; 
-        ctx.fillText(`⏱️ ${j.catatan_waktu}`, centerX, nY + 160);
+        ctx.fillText(`⏱️ ${j.catatan_waktu}`, kuX, kuY);
 
         alert("2/3. Gambar berhasil dirakit! Menyiapkan file unduhan...");
         
-        const dataURL = canvas.toDataURL("image/jpeg", 0.9);
-        const link = document.createElement('a');
-        link.download = `Juara_${j.peringkat}_${j.nama_peserta.replace(/\s+/g, '_')}.jpg`;
-        link.href = dataURL;
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(link);
-            alert("3/3. ✅ SUKSES! Silakan cek notifikasi / folder Download di HP Anda.");
-        }, 300);
+        canvas.toBlob(function(blob) {
+            if (!blob) {
+                alert("Gagal merender gambar! Kemungkinan diblokir memori HP atau Izin CORS Supabase.");
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = url;
+            link.download = `Juara_${j.peringkat}_${j.nama_peserta.replace(/\s+/g, '_')}.jpg`;
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                alert("3/3. ✅ SUKSES! Silakan cek notifikasi / folder Download di HP Anda.");
+            }, 300);
+        }, 'image/jpeg', 0.9);
 
     } catch (err) {
-        alert("❌ ERROR RENDER: " + err.message + "\n\n(Ini biasanya karena izin CORS Supabase belum disetting!)");
+        alert("❌ ERROR RENDER: " + err.message);
         console.error(err);
     }
 };

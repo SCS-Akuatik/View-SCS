@@ -126,36 +126,50 @@ window.downloadSertifikat = function(namaPeserta) {
         ctx.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
 
         const setNama = certConfig.nama;
+        
+        // JURUS FIX ERROR 'includes': Ambil dari sharedStyle
+        const fontName = certConfig.sharedStyle?.font || setNama.font || "'Great Vibes', cursive";
+        const fontColor = certConfig.sharedStyle?.color || setNama.color || "#1e293b";
+
         ctx.textAlign = "center"; 
         
-        if (setNama.font.includes('Great Vibes')) {
-            ctx.font = `${setNama.size}px ${setNama.font}`;
+        if (fontName.includes('Great Vibes')) {
+            ctx.font = `${setNama.size}px ${fontName}`;
         } else {
-            ctx.font = `bold ${setNama.size}px ${setNama.font}`;
+            ctx.font = `bold ${setNama.size}px ${fontName}`;
         }
-        ctx.fillStyle = setNama.color;
+        ctx.fillStyle = fontColor;
         
         const namaCantik = namaPeserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         ctx.fillText(namaCantik, parseInt(setNama.x), parseInt(setNama.y));
 
         alert("2/3. Gambar berhasil dirakit! Menyiapkan file unduhan...");
         
-        // Mode Synchronous ToDataURL (Lebih aman untuk HP)
-        const dataURL = canvas.toDataURL("image/jpeg", 0.9);
-        const link = document.createElement('a');
-        link.download = `Sertifikat_${namaPeserta.replace(/\s+/g, '_')}.jpg`;
-        link.href = dataURL;
-        
-        document.body.appendChild(link);
-        link.click();
-        
-        setTimeout(() => {
-            document.body.removeChild(link);
-            alert("3/3. ✅ SUKSES! Silakan cek notifikasi / folder Download di HP Anda.");
-        }, 300);
+        // Eksekusi Blob Aman untuk HP
+        canvas.toBlob(function(blob) {
+            if (!blob) {
+                alert("Gagal merender gambar! Kemungkinan diblokir memori HP atau Izin CORS Supabase.");
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = url;
+            link.download = `Sertifikat_${namaPeserta.replace(/\s+/g, '_')}_${eventData.event_name.replace(/\s+/g, '')}.jpg`;
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                alert("3/3. ✅ SUKSES! Silakan cek notifikasi / folder Download di HP Anda.");
+            }, 300);
+        }, 'image/jpeg', 0.9);
 
     } catch (err) {
-        alert("❌ ERROR RENDER: " + err.message + "\n\n(Ini biasanya karena izin CORS Supabase belum disetting!)");
+        alert("❌ ERROR RENDER: " + err.message);
         console.error(err);
     }
 };
+

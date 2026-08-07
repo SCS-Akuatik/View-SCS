@@ -3,148 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 ID Profile | SCS</title>
+    <title>Apa itu F1 ID? | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
-    
-    <!-- PANGGIL CHART.JS UNTUK GRAFIK -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
 </head>
-<body class="bg-gray-50 antialiased font-sans pb-20">
+<body class="bg-slate-50 antialiased font-sans text-slate-800 pb-20">
 
-    <!-- HEADER PROFIL -->
-    <div class="bg-blue-900 pt-10 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden rounded-b-[3rem] shadow-xl">
-        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519315901367-f34f927e1273?w=800&q=80')] opacity-10 bg-cover bg-center"></div>
-        
-        <div class="max-w-3xl mx-auto relative z-10 flex flex-col items-center text-center">
-            <span id="f1IdBadge" class="bg-scsGold text-blue-900 font-black px-4 py-1.5 rounded-full text-xs uppercase tracking-widest mb-4 shadow-lg flex items-center gap-1.5">
-                <span>🌊</span> Memuat...
-            </span>
-            
-            <img id="f1Avatar" src="https://ui-avatars.com/api/?name=Loading&background=fff&color=1e3a8a&size=128&bold=true" class="w-24 h-24 rounded-full border-4 border-white shadow-xl mb-3 object-cover">
-            <h1 id="f1Name" class="text-3xl font-black text-white tracking-tight">Memuat Data...</h1>
-            <p class="text-blue-200 font-medium flex items-center gap-2 mt-1">
-                <span id="f1Club">Loading Club...</span> <span id="f1Gender" class="bg-blue-800 text-white text-[10px] px-2 py-0.5 rounded border border-blue-700">-</span>
+    <!-- NAVBAR SEDERHANA -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
+                <div class="flex-shrink-0 flex items-center h-full py-2">
+                    <a href="/" class="block">
+                        <img class="max-h-8 md:max-h-10 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo">
+                    </a>
+                </div>
+                <a href="/" class="text-sm font-bold text-slate-500 hover:text-blue-600">&laquo; Kembali ke Beranda</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HEADER SECTION -->
+    <section class="pt-32 pb-16 bg-blue-950 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 C 20 0 50 0 100 100 Z" fill="#ffffff"/></svg>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="inline-block bg-white/20 border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest mb-6 uppercase">
+                Identitas Digital Perenang
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+                Apa itu <span class="text-scsGold drop-shadow-md">F1 ID?</span>
+            </h1>
+            <p class="text-lg md:text-xl text-blue-200 leading-relaxed max-w-2xl mx-auto">
+                F1 ID adalah identitas digital unik (NIM) bagi setiap atlet renang yang merekam seluruh perjalanan, prestasi, dan keanggotaan klub di ekosistem SCS.
             </p>
         </div>
-    </div>
+    </section>
 
-    <!-- MAIN CONTENT -->
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
-        
-        <!-- QUICK STATS -->
-        <div class="bg-white rounded-3xl p-6 shadow-lg border border-gray-100 flex justify-between items-center mb-8 divide-x divide-gray-100">
-            <div class="text-center px-4 flex-1">
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Event</p>
-                <p id="statTotalEvent" class="text-2xl font-black text-blue-900">0</p>
-            </div>
-            <div class="text-center px-4 flex-1">
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Medali</p>
-                <p id="statTotalMedal" class="text-2xl font-black text-scsGold">0</p>
-            </div>
-            <div class="text-center px-4 flex-1">
-                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Status</p>
-                <p class="text-sm font-black text-green-500 mt-2 bg-green-50 rounded-full py-1">Aktif</p>
-            </div>
+    <!-- KENAPA HARUS PUNYA F1 ID? -->
+    <section class="py-16 md:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-extrabold text-slate-800">Kenapa F1 ID Sangat Penting?</h2>
+            <p class="mt-4 text-slate-500">Sistem yang dirancang untuk melindungi atlet dan memudahkan panitia.</p>
         </div>
 
-        <!-- CORE FEATURE: GRAFIK PROGRES SEED TIME -->
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            
+            <!-- Benefit 1 -->
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6 hover:shadow-md hover:-translate-y-1 transition-all">
+                <div class="w-16 h-16 shrink-0 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl">🛡️</div>
                 <div>
-                    <h2 class="text-xl font-extrabold text-blue-900 flex items-center gap-2">
-                        📈 Grafik Progres <span class="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded-full animate-pulse">LIVE</span>
-                    </h2>
-                    <p class="text-xs text-gray-500 mt-1">Catatan waktu (Seed Time) di ekosistem SCS.</p>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Perlindungan Mutasi Klub</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">F1 ID secara resmi melekat pada klub asal atlet. Ini mencegah terjadinya pencurian atlet atau pendaftaran ilegal yang mengatasnamakan klub lain tanpa izin pelatih resmi.</p>
                 </div>
-                <button id="btnBukaModal" class="bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold py-2 px-4 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2">
-                    <span>+</span> Tambah Riwayat
-                </button>
+            </div>
+
+            <!-- Benefit 2 -->
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6 hover:shadow-md hover:-translate-y-1 transition-all">
+                <div class="w-16 h-16 shrink-0 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl">📈</div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Histori Catatan Waktu (Best Time)</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">Tidak perlu lagi mencatat manual di buku. Setiap atlet bertanding di event SCS, catatan waktu terbaiknya otomatis tersimpan dan membentuk grafik progres yang bisa dipantau pelatih & orang tua.</p>
+                </div>
+            </div>
+
+            <!-- Benefit 3 -->
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6 hover:shadow-md hover:-translate-y-1 transition-all">
+                <div class="w-16 h-16 shrink-0 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-3xl">🪪</div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Bebas Salah Input Data</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">Panitia tidak perlu lagi memverifikasi ulang akta kelahiran atau salah memasukkan nama di piagam. Saat mendaftar lomba, cukup masukkan F1 ID, dan seluruh biodata valid akan terisi otomatis.</p>
+                </div>
+            </div>
+
+            <!-- Benefit 4 -->
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6 hover:shadow-md hover:-translate-y-1 transition-all">
+                <div class="w-16 h-16 shrink-0 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-3xl">📜</div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Gudang E-Certificate</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">Sertifikat lomba tidak akan hilang atau rusak. Seluruh sertifikat keikutsertaan maupun piagam juara akan tersimpan rapi secara digital di dalam profil F1 ID atlet.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SEARCH MOCKUP SECTION -->
+    <section class="py-16 bg-blue-50 border-y border-blue-100">
+        <div class="max-w-3xl mx-auto px-4 text-center">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4">Coba Cek Profil F1 ID</h2>
+            <p class="text-slate-600 mb-8 text-sm">Masukkan nomor seri F1 ID untuk melihat profil publik atlet.</p>
+            
+            <div class="flex shadow-lg rounded-2xl overflow-hidden max-w-xl mx-auto bg-white border border-slate-200 p-2">
+                <input type="text" placeholder="Contoh: F1-1308207" class="w-full px-4 py-3 outline-none text-slate-700 font-bold tracking-widest uppercase">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition whitespace-nowrap" onclick="alert('Fitur pencarian publik segera hadir!')">Cari Atlet</button>
             </div>
             
-            <div class="p-4 md:p-6 relative w-full h-[300px]">
-                <canvas id="progressChart"></canvas>
-            </div>
-
-            <div class="bg-blue-50/50 p-4 border-t border-blue-100 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-scsGold rounded-full flex items-center justify-center text-xl shadow-md">🔥</div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Personal Best (PB)</p>
-                        <p class="font-bold text-blue-900 text-sm">Rekor Terbaik</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <p class="text-2xl font-black text-blue-900" id="pbTime">NT</p>
-                </div>
-            </div>
+            <p class="mt-8 text-xs text-slate-400">Belum punya F1 ID? Hubungi pelatih klub Anda untuk didaftarkan secara resmi ke sistem SCS.</p>
         </div>
-    </div>
+    </section>
 
-    <!-- MODAL TAMBAH RIWAYAT MANUAL -->
-    <div id="modalRiwayat" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="p-6 border-b border-slate-100 bg-slate-50">
-                <h3 class="font-black text-slate-800 text-xl">Tambah Riwayat Lomba 🏊‍♂️</h3>
-                <p class="text-xs text-slate-500 font-medium mt-1">Input catatan waktu manual (Otomatis Unverified).</p>
-            </div>
-
-            <div class="p-6 overflow-y-auto hide-scrollbar">
-                <form id="formRiwayat" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Nama Event</label>
-                        <input type="text" id="inputNamaEvent" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold" placeholder="Cth: Walikota Cup 2026">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Tanggal</label>
-                        <input type="date" id="inputTanggal" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold">
-                    </div>
-                    
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Gaya & Jarak</label>
-                            <input list="listGaya" id="inputGaya" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold" placeholder="Cth: 50m Bebas">
-                            <datalist id="listGaya">
-                                <option value="50m Bebas">
-                                <option value="100m Bebas">
-                                <option value="50m Dada">
-                                <option value="50m Kupu">
-                                <option value="50m Punggung">
-                                <option value="200m Ganti">
-                            </datalist>
-                        </div>
-                        <div class="flex-1">
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Waktu (Detik)</label>
-                            <input type="number" step="0.01" id="inputWaktu" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold" placeholder="29.80">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Medali</label>
-                        <select id="inputMedali" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold">
-                            <option value="">Tidak Ada</option>
-                            <option value="Emas">🥇 Emas</option>
-                            <option value="Perak">🥈 Perak</option>
-                            <option value="Perunggu">🥉 Perunggu</option>
-                        </select>
-                    </div>
-                    
-                    <div id="alertModal" class="hidden text-xs font-bold p-3 rounded-xl border text-center leading-relaxed"></div>
-                </form>
-            </div>
-
-            <div class="p-6 border-t border-slate-100 flex gap-3 bg-slate-50">
-                <button id="btnTutupModal" class="flex-1 bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 font-bold py-3 rounded-xl text-sm transition-colors">Batal</button>
-                <button id="btnSimpanRiwayat" class="flex-1 bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2">Simpan Data</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Panggil Script -->
-    <script type="module" src="/src/f1-profile.js"></script>
 </body>
 </html>

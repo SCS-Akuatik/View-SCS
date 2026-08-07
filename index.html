@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <!-- SATPAM SUBDOMAIN: Redirect otomatis kalau ini halaman lomba -->
     <script>
         (function() {
             const host = window.location.hostname;
@@ -14,8 +13,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCS - Swimming Competition System</title>
     <link rel="stylesheet" href="/src/style.css">
-    
-    <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3a8a">
     <link rel="apple-touch-icon" href="/images/logo.png">
@@ -42,24 +39,20 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased relative">
 
-    <!-- STICKY FLOATING BUTTON "MASUK" -->
     <a href="/auth.html" class="fixed top-3 right-14 md:top-4 md:right-6 z-[100] bg-scsBlue text-white font-extrabold px-5 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-900 transition-all border border-blue-900 flex items-center gap-1.5">
         Masuk
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
     </a>
 
-    <!-- NAVBAR -->
     <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
             <div class="flex justify-between items-center h-full">
-                <!-- Logo Nav -->
                 <div class="flex-shrink-0 flex items-center h-full py-2">
                     <a href="/" class="block">
                         <img class="max-h-8 md:max-h-10 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo">
                     </a>
                 </div>
                 
-                <!-- Menu Navigasi B2C & B2B -->
                 <div class="hidden md:flex space-x-6 lg:space-x-8 items-center mr-24 md:mr-28">
                     <a href="/event.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm">Event</a>
                     <a href="/rank.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm flex items-center gap-1">
@@ -69,7 +62,6 @@
                     <a href="/pricing.html" class="text-scsBlue font-extrabold text-sm">Harga</a> 
                 </div>
 
-                <!-- BURGER BUTTON MOBILE -->
                 <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-600 hover:text-scsBlue focus:outline-none ml-auto mr-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
@@ -77,7 +69,6 @@
         </div>
     </nav>
 
-    <!-- MOBILE MENU OVERLAY -->
     <div id="mobileMenu" class="fixed inset-0 bg-white z-[90] hidden flex-col pt-16 px-6">
         <div class="flex flex-col gap-6 text-center mt-10">
             <a href="/event.html" class="text-2xl font-black text-slate-800 border-b border-gray-100 pb-4">Kalender Event</a>
@@ -88,10 +79,9 @@
         <button id="closeMobileBtn" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 font-bold text-3xl">&times;</button>
     </div>
 
-    <!-- RUNNING TEXT -->
     <div class="fixed top-14 md:top-16 left-0 w-full bg-blue-950 shadow-md border-b border-blue-800 py-1.5 z-40 marquee-container">
         <div class="animate-marquee text-scsGold font-bold text-xs md:text-sm tracking-wide flex gap-12 items-center">
-            <span>📢 PROMO EKSKLUSIF: Daftarkan event Anda bulan ini, dapatkan jaminan dana sponsor dari Jago Academy senilai Rp 500.000!</span>
+            <span>📢 EKSKLUSIF: Daftarkan event Anda bulan ini, dapatkan jaminan dana sponsor dari Jago Academy senilai Rp 500.000!</span>
             <span class="opacity-50 text-white">•</span>
             <span class="text-white">🔥 Kuota Terbatas untuk 5 Event Pertama!</span>
             <span class="opacity-50 text-white">•</span>
@@ -102,13 +92,10 @@
     <!-- HERO SECTION SLIDER (WHITE GOLD GRID THEME) -->
     <section class="pt-32 md:pt-40 pb-12 lg:pb-16 bg-white relative overflow-hidden group">
         
-        <!-- BACKGROUND GRID EMAS MEMANJAKAN MATA -->
         <div class="absolute inset-0 z-0" style="background-image: linear-gradient(to right, rgba(217, 119, 6, 0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(217, 119, 6, 0.15) 1px, transparent 1px); background-size: 40px 40px;"></div>
-        <!-- Gradient overlay biar gridnya soft di ujung-ujung -->
         <div class="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white z-0 pointer-events-none"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-white via-transparent to-transparent z-0 pointer-events-none"></div>
         
-        <!-- Panah Navigasi Hero -->
         <button id="heroPrev" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-full shadow-md transition opacity-0 group-hover:opacity-100">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
         </button>
@@ -116,7 +103,6 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
         </button>
 
-        <!-- Slider Track (w-[300%] karena ada 3 slide) -->
         <div id="heroTrack" class="flex w-[300%] transition-transform duration-700 ease-in-out relative z-10">
             
             <!-- SLIDE 1: Fokus Penyelenggara / EO -->
@@ -136,7 +122,6 @@
                 <div class="flex flex-col items-center gap-6 pb-4">
                     <a href="/auth.html" class="bg-blue-900 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-800 transition shadow-[0_10px_20px_rgba(30,58,138,0.2)] inline-block hover:-translate-y-1">Buat Event Pertama (Gratis)</a>
                     
-                    <!-- Social Proof / Statistik -->
                     <div class="flex flex-wrap justify-center gap-3 md:gap-6 text-xs md:text-sm text-slate-600 font-bold">
                         <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏊‍♂️</span> 3.500+ Atlet</span> 
                         <span class="hidden md:inline opacity-30 text-slate-400">|</span>
@@ -147,22 +132,23 @@
                 </div>
             </div>
 
-            <!-- SLIDE 2: Fokus Atlet / Orang Tua -->
+            <!-- SLIDE 2: Fokus Atlet / Orang Tua (REVISI COPYWRITING) -->
             <div class="w-1/3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center shrink-0">
                 <div class="flex justify-center mb-6 md:mb-8">
-                    <span class="inline-block bg-blue-50 border border-blue-200 text-blue-700 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-wide shadow-sm">
+                    <span class="inline-block bg-blue-50 border border-blue-200 text-blue-700 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-wide shadow-sm flex items-center gap-2">
                         🪪 Profil Digital Perenang Masa Depan
                     </span>
                 </div>
                 <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-blue-950">
                     Satu F1 ID Untuk <br class="hidden md:block">
-                    <span class="text-blue-600 drop-shadow-sm">Seumur Hidup</span>
+                    <span class="text-blue-600 drop-shadow-sm">Identitas Atlet</span>
                 </h1>
                 <p class="mt-4 text-lg md:text-xl font-medium text-slate-500 max-w-3xl mx-auto mb-8 leading-relaxed">
                     Koleksi e-certificate, simpan catatan waktu terbaik, dan pantau posisi Anda di Leaderboard Nasional SCS langsung dari genggaman tangan.
                 </p>
                 <div class="flex flex-col items-center gap-6 pb-4">
-                    <a href="/auth.html" class="bg-blue-600 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-700 transition shadow-[0_10px_20px_rgba(37,99,235,0.2)] inline-block hover:-translate-y-1">Klaim F1 ID Saya &raquo;</a>
+                    <!-- LINK MENUJU HALAMAN F1-PROFILE -->
+                    <a href="/f1-profile.html" class="bg-blue-600 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-700 transition shadow-[0_10px_20px_rgba(37,99,235,0.2)] inline-block hover:-translate-y-1">Apa itu F1 ID? &raquo;</a>
                 </div>
             </div>
 
@@ -183,7 +169,6 @@
 
         </div>
 
-        <!-- Indikator Dots (Sekarang ada 3) -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-30">
             <button class="hero-dot w-3 h-3 rounded-full bg-blue-900 shadow-sm transition-all scale-125"></button>
             <button class="hero-dot w-3 h-3 rounded-full bg-slate-300 shadow-sm transition-all"></button>
@@ -191,55 +176,54 @@
         </div>
     </section>
 
-
-    <!-- SECTION BARU: CARA KERJA (6 Langkah Horizontal) -->
+    <!-- SECTION: CARA KERJA (REVISI COPYWRITING) -->
     <section class="py-16 md:py-20 bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">Bagaimana Cara Kerja SCS?</h2>
             <p class="text-slate-500 mb-12">Alur kerja otomatis yang menghemat waktu panitia hingga 80%.</p>
             
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-4 relative">
-                <!-- Step 1 -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">1️⃣</div>
                     <h4 class="font-bold text-slate-800 text-sm">Buat Event</h4>
                     <p class="text-xs text-slate-500 mt-1">Setup dalam 5 menit</p>
                 </div>
-                <!-- Step 2 -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">📱</div>
                     <h4 class="font-bold text-slate-800 text-sm">Klub Mendaftar</h4>
                     <p class="text-xs text-slate-500 mt-1">1 klik pakai F1 ID</p>
                 </div>
-                <!-- Step 3 -->
+                
+                <!-- REVISI BAYAR ONLINE -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">💳</div>
-                    <h4 class="font-bold text-slate-800 text-sm">Bayar Online</h4>
-                    <p class="text-xs text-slate-500 mt-1">Cashflow real-time</p>
+                    <h4 class="font-bold text-slate-800 text-sm">Bayar ke Rekening Panitia</h4>
+                    <p class="text-xs text-slate-500 mt-1">Aman & verifikasi mudah</p>
                 </div>
-                <!-- Step 4 -->
+                
+                <!-- REVISI HEAT OTOMATIS -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">📄</div>
-                    <h4 class="font-bold text-slate-800 text-sm">Heat Otomatis</h4>
+                    <h4 class="font-bold text-slate-800 text-sm">Seri Lomba Otomatis</h4>
                     <p class="text-xs text-slate-500 mt-1">Drawing tanpa pusing</p>
                 </div>
-                <!-- Step 5 -->
+                
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">⏱️</div>
                     <h4 class="font-bold text-slate-800 text-sm">Live Result</h4>
                     <p class="text-xs text-slate-500 mt-1">Pantau dari tribun</p>
                 </div>
-                <!-- Step 6 -->
+                
+                <!-- REVISI RANKING -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-yellow-200">🏆</div>
                     <h4 class="font-bold text-scsGold text-sm">Leaderboard</h4>
-                    <p class="text-xs text-slate-500 mt-1">Ranking nasional</p>
+                    <p class="text-xs text-slate-500 mt-1">Ranking Nasional by SCS</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FITUR SECTION (DIREVISI SESUAI ARAHAN) -->
     <section id="fitur" class="pt-16 pb-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
@@ -251,73 +235,17 @@
                 <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsGold hover:-translate-y-2 transition duration-300">
                     <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mb-6 text-3xl">🪪</div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">F1 ID (Identitas Digital)</h3>
-                    <p class="text-gray-600 leading-relaxed">Selamat tinggal salah ketik nama atau umur palsu. Satu atlet, satu F1 ID seumur hidup yang terkoneksi langsung ke database nasional SCS. Akurat & terverifikasi.</p>
+                    <p class="text-gray-600 leading-relaxed">Selamat tinggal salah ketik nama atau umur palsu. Satu atlet, satu F1 ID yang terkoneksi langsung ke database nasional SCS. Akurat & terverifikasi.</p>
                 </div>
                 <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsBlue hover:-translate-y-2 transition duration-300">
                     <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl">🤝</div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">Sponsor Dashboard</h3>
-                    <p class="text-gray-600 leading-relaxed">Beri ruang VVIP bagi sponsor event Anda. Mereka bisa memantau klik, logo tayang, dan impact promosi mereka secara real-time dari panel khusus.</p>
+                    <p class="text-gray-600 leading-relaxed">Beri ruang VVIP bagi sponsor event Anda. Mereka bisa memantau klik, tayangan promosi mereka secara real-time dari panel khusus.</p>
                 </div>
                 <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-emerald-500 hover:-translate-y-2 transition duration-300">
                     <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mb-6 text-3xl">🚀</div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">Setup Event Super Kilat</h3>
-                    <p class="text-gray-600 leading-relaxed">Dari setting harga tiket, buku acara otomatis, sampai cetak e-certificate presisi. Apa yang biasanya butuh waktu 3 minggu, kini bisa di-setup dalam hitungan menit.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION HIGHLIGHT: EVENT & SPONSOR -->
-    <section class="py-12 md:py-16 bg-white border-b border-gray-100 overflow-hidden relative">
-        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-50/50 to-transparent z-0"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 text-left flex flex-col md:flex-row justify-between items-end gap-4 relative z-10">
-            <div>
-                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 flex items-center gap-2">
-                    Highlight Ekosistem <span class="text-2xl animate-pulse">🔥</span>
-                </h2>
-                <p class="text-sm md:text-base text-slate-500 mt-2">Daftar event unggulan dan partner resmi yang tergabung dalam SCS.</p>
-            </div>
-        </div>
-
-        <!-- CONTAINER CAROUSEL BANNER -->
-        <div class="w-full relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-10">
-            <div id="bannerCarousel" class="flex overflow-x-auto gap-4 md:gap-6 snap-x snap-mandatory scroll-smooth pb-6 pt-2 hide-scrollbar">
-
-                <!-- CARD 1: EVENT PENDAFTARAN -->
-                <div class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[35%] rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative group cursor-pointer bg-white">
-                    <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&q=80" class="w-full h-48 md:h-56 object-cover group-hover:scale-105 transition-transform duration-700" alt="Surabaya Cup">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 p-5 md:p-6 w-full">
-                        <span class="inline-block bg-green-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg mb-3 tracking-wider shadow-sm">PENDAFTARAN DIBUKA</span>
-                        <h3 class="text-white font-bold text-xl md:text-2xl leading-tight mb-2">Jago Renang Academy Cup 2026</h3>
-                        <p class="text-slate-300 text-xs md:text-sm flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> Sidoarjo, Jawa Timur</p>
-                    </div>
-                </div>
-
-                <!-- CARD 2: SIMULASI SPONSOR -->
-                <div class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[35%] rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative group cursor-pointer bg-gradient-to-br from-scsBlue to-blue-900 border border-blue-800">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
-                    </div>
-                    <div class="h-48 md:h-56 p-6 md:p-8 flex flex-col justify-center relative z-10">
-                        <h3 class="text-white font-extrabold text-2xl md:text-3xl mb-1">FIF Finance</h3>
-                        <p class="text-scsGold font-bold text-xs md:text-sm mb-4">Official Event Partner ✓</p>
-                        <div class="flex flex-wrap gap-2 text-[10px] text-white/90">
-                            <span class="bg-white/10 border border-white/20 px-2 py-1 rounded">Booth Digital</span>
-                            <span class="bg-white/10 border border-white/20 px-2 py-1 rounded">Logo di Heat Sheet</span>
-                            <span class="bg-white/10 border border-white/20 px-2 py-1 rounded">Dashboard Khusus</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD 3: CALL TO ACTION -->
-                <div class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[35%] rounded-[2rem] overflow-hidden shadow-inner relative group cursor-pointer border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center hover:border-scsBlue hover:bg-blue-50 transition-colors duration-300">
-                    <div class="h-48 md:h-56 p-6 flex flex-col items-center justify-center text-center">
-                        <span class="text-4xl mb-3 grayscale opacity-40 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-300">📅</span>
-                        <h3 class="text-slate-600 group-hover:text-scsBlue font-extrabold text-lg">Cek Kalender Event</h3>
-                        <p class="text-slate-400 text-xs mt-2 max-w-[200px]">Lihat daftar seluruh kejuaraan nasional SCS.</p>
-                    </div>
+                    <p class="text-gray-600 leading-relaxed">Dari setting harga tiket, buku acara otomatis, sampai cetak e-certificate presisi. Apa yang biasanya butuh waktu berminggu-minggu, kini hitungan menit.</p>
                 </div>
             </div>
         </div>
@@ -353,18 +281,16 @@
             if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
             if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobile);
 
-            // --- LOGIC HERO SLIDER (3 SLIDES) ---
+            // --- LOGIC HERO SLIDER ---
             const heroTrack = document.getElementById('heroTrack');
             const heroPrev = document.getElementById('heroPrev');
             const heroNext = document.getElementById('heroNext');
             const heroDots = document.querySelectorAll('.hero-dot');
             let currentHeroSlide = 0;
-            const totalSlides = 3; // Total slide sekarang ada 3
+            const totalSlides = 3; 
 
             function updateHeroSlider() {
-                // Geser sebesar 33.333% karena container lebarnya 300%
                 heroTrack.style.transform = `translateX(-${currentHeroSlide * 33.3333}%)`;
-                
                 heroDots.forEach((dot, index) => {
                     if(index === currentHeroSlide) {
                         dot.classList.replace('bg-slate-300', 'bg-blue-900');
@@ -390,40 +316,10 @@
                 });
             }
 
-            // Auto-play tiap 6 detik
             setInterval(() => {
                 currentHeroSlide = (currentHeroSlide + 1) % totalSlides;
                 updateHeroSlider();
             }, 6000); 
-
-
-            // --- LOGIC BANNER HIGHLIGHT ---
-            const carousel = document.getElementById('bannerCarousel');
-            let isHovered = false;
-
-            if(carousel) {
-                carousel.addEventListener('mouseenter', () => isHovered = true);
-                carousel.addEventListener('mouseleave', () => isHovered = false);
-                carousel.addEventListener('touchstart', () => isHovered = true);
-                carousel.addEventListener('touchend', () => {
-                    setTimeout(() => { isHovered = false; }, 2000);
-                });
-
-                setInterval(() => {
-                    if(!isHovered && carousel) {
-                        const scrollWidth = carousel.scrollWidth;
-                        const scrollLeft = carousel.scrollLeft;
-                        const clientWidth = carousel.clientWidth;
-                        const scrollStep = clientWidth * 0.85; 
-
-                        if (scrollLeft + clientWidth >= scrollWidth - 20) {
-                            carousel.scrollTo({ left: 0, behavior: 'smooth' });
-                        } else {
-                            carousel.scrollBy({ left: scrollStep, behavior: 'smooth' });
-                        }
-                    }
-                }, 3500); 
-            }
         });
     </script>
 </body>

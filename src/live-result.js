@@ -213,3 +213,69 @@ window.submitHeatData = async function(heatIndex, heatDatabaseId) {
         btn.disabled = false;
     }
 }
+// --- MULAI LOGIKA TEMBAK KE RACE_RESULTS ---
+
+// 1. Kita bikin keranjang kosong buat nampung data atlet di Heat ini
+let dataKeRaceResults = [];
+
+// Asumsi: 'lanes_data' adalah array atlet yang barusan lu kasih waktu
+lanes_data.forEach(atlet => {
+    let waktuString = atlet.waktu; // Contoh: "00:22.00", "DQ", atau "DNS"
+    let timeSeconds = null;
+
+    // 2. Kita ubah format "MM:SS.ms" jadi Detik murni (misal: 22.00)
+    // Kalau dia DQ atau DNS, kita kasih angka 9999 biar rankingnya ditaruh paling bawah
+    if (waktuString === 'DQ' || waktuString === 'DNS') {
+        timeSeconds = 9999.99; 
+    } else if (waktuString && waktuString !== 'NT') {
+        let parts = waktuString.split(':');
+        if (parts.length === 2) {
+            let menit = parseInt(parts[0]) || 0;
+            let detikParts = parts[1].split('.');
+            let detik = parseInt(detikParts[0]) || 0;
+            let ms = parseInt(detikParts[1]) || 0;
+            
+            timeSeconds = (menit * 60) + detik + (ms / 100);
+        }
+    }
+
+    // 3. Masukin ke keranjang kalau waktunya udah diisi
+    if (timeSeconds !== null) {
+        dataKeRaceResults.push({
+            event_id: currentEventId, // ID Event
+            athlete_f1_id: atlet.f1_id || null, // F1 ID atlet (bisa null kalau tamu)
+            nama_peserta: atlet.nama,
+            klub_asal: atlet.klub,
+            nomor_lomba: dataHeat.nomor_lomba, // Misal: "25m Gaya Bebas"
+            kelompok_umur: dataHeat.kelompok_umur, // Misal: "KU A"
+            gender: dataHeat.gender, // Misal: "Putra"
+            heat_number: dataHeat.heat_number, // Angka heat-nya
+            waktu_string: waktuString, // Teks "00:22.00" (buat ditampilin di layar)
+            time_seconds: timeSeconds // Angka 22.00 (buat di-sorting sama SQL)
+        });
+    }
+});
+
+// 4. Eksekusi ke Database Supabase (Cara Paling Aman & Anti-Dobel)
+if (dataKeRaceResults.length > 0) {
+    try {
+        // Langkah A: Kita DELETE dulu data lama khusus untuk Heat ini (biar kalau panitia ngedit waktu, datanya ga dobel)
+        await supabaseClient.from('race_results')
+            .delete()
+            .eq('event_id', currentEventId)
+            .eq('nomor_lomba', dataHeat.nomor_lomba)
+            .eq('kelompok_umur', dataHeat.kelompok_umur)
+            .eq('gender', dataHeat.gender)
+            .eq('heat_number', dataHeat.heat_number);
+
+        // Langkah B: Baru kita INSERT data yang baru diketik
+        const { error: errorInsert } = await supabaseClient.from('race_results').insert(dataKeRaceResults);
+        
+        if (errorInsert) throw errorInsert;
+        console.log("Mantap! Data sukses nembak ke race_results!");
+
+    } catch (err) {
+        console.error("Gagal nyimpen ke race_results:", err);
+    }
+}
+// --- SELESAI LOGIKA TEMBAK KE RACE_RESULTS ---

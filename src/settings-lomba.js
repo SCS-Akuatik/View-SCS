@@ -5,15 +5,15 @@ let dataGaya = [];
 let dataEstafet = []; 
 let currentEventId = null;
 
-// State untuk Form Desain, Pricing & Pembayaran (JSONB)
+// State JSONB Config (Termasuk WA Admin)
 let configForm = {
     header_url: '',
     bg_url: '',
     biaya_normal: '',
     min_diskon: '',
     biaya_diskon: '',
-    admin_wa_1: '', // Masuk ke dalam brankas config!
-    admin_wa_2: '', // Masuk ke dalam brankas config!
+    admin_wa_1: '', // WA Admin 1 numpang di sini
+    admin_wa_2: '', // WA Admin 2 numpang di sini
     info_pembayaran: '',
     qris_url: '' 
 };
@@ -41,15 +41,15 @@ async function loadDataLomba() {
         dataGaya = data?.config_gaya || [];
         dataEstafet = data?.config_estafet || [];
         
-        // Parsing data JSONB Config (Semuanya ditarik dari config)
+        // Tarik data dari brankas JSONB config
         const eventConfig = data?.config || {};
         configForm.header_url = eventConfig.header_url || '';
         configForm.bg_url = eventConfig.bg_url || '';
         configForm.biaya_normal = eventConfig.biaya_normal || '';
         configForm.min_diskon = eventConfig.min_diskon || '';
         configForm.biaya_diskon = eventConfig.biaya_diskon || '';
-        configForm.admin_wa_1 = eventConfig.admin_wa_1 || ''; // Tarik WA 1 dari config
-        configForm.admin_wa_2 = eventConfig.admin_wa_2 || ''; // Tarik WA 2 dari config
+        configForm.admin_wa_1 = eventConfig.admin_wa_1 || ''; 
+        configForm.admin_wa_2 = eventConfig.admin_wa_2 || ''; 
         configForm.info_pembayaran = eventConfig.info_pembayaran || ''; 
         configForm.qris_url = eventConfig.qris_url || ''; 
 
@@ -70,15 +70,11 @@ async function loadDataLomba() {
 }
 
 function renderFormConfig() {
-    // Render text inputs (JSONB)
     document.getElementById('inputBiayaNormal').value = configForm.biaya_normal;
     document.getElementById('inputMinDiskon').value = configForm.min_diskon;
     document.getElementById('inputBiayaDiskon').value = configForm.biaya_diskon;
-    if (document.getElementById('inputInfoPembayaran')) {
-        document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
-    }
     
-    // Render WA Inputs (JSONB)
+    // Tulis WA ke Input Box
     if (document.getElementById('inputAdminWA1')) {
         document.getElementById('inputAdminWA1').value = configForm.admin_wa_1;
     }
@@ -86,26 +82,29 @@ function renderFormConfig() {
         document.getElementById('inputAdminWA2').value = configForm.admin_wa_2;
     }
 
-    // Render images
+    if (document.getElementById('inputInfoPembayaran')) {
+        document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
+    }
+
     if (configForm.header_url) {
         const imgH = document.getElementById('previewHeader');
-        if (imgH) {
-            imgH.src = configForm.header_url;
-            imgH.classList.remove('hidden');
+        if (imgH) { 
+            imgH.src = configForm.header_url; 
+            imgH.classList.remove('hidden'); 
         }
     }
     if (configForm.bg_url) {
         const imgB = document.getElementById('previewBg');
-        if (imgB) {
-            imgB.src = configForm.bg_url;
-            imgB.classList.remove('hidden');
+        if (imgB) { 
+            imgB.src = configForm.bg_url; 
+            imgB.classList.remove('hidden'); 
         }
     }
     if (configForm.qris_url) {
         const imgQ = document.getElementById('previewQris');
-        if (imgQ) {
-            imgQ.src = configForm.qris_url;
-            imgQ.classList.remove('hidden');
+        if (imgQ) { 
+            imgQ.src = configForm.qris_url; 
+            imgQ.classList.remove('hidden'); 
         }
     }
 }
@@ -159,16 +158,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
 // ==========================================
-// RENDER KU, GAYA, ESTAFET, MODAL (SAMA PERSIS)
+// RENDER KU, GAYA, ESTAFET (FORMAT RAPI)
 // ==========================================
-window.renderKU = function() {
-    const container = document.getElementById('kuContainer');
-    if (!container) return;
+window.renderKU = function() { 
+    const container = document.getElementById('kuContainer'); 
+    if (!container) return; 
     container.innerHTML = ''; 
-    dataKU.forEach(ku => {
-        const checked = ku.aktif ? 'checked' : '';
+    dataKU.forEach(ku => { 
+        const checked = ku.aktif ? 'checked' : ''; 
         container.innerHTML += `
         <div class="flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors group shadow-sm">
             <div class="flex flex-col">
@@ -185,28 +183,28 @@ window.renderKU = function() {
                     <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
             </div>
-        </div>`;
-    });
+        </div>`; 
+    }); 
 }
 
-window.renderGaya = function() {
-    const container = document.getElementById('gayaContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    dataGaya.forEach(gaya => {
-        let jarakHTML = '';
-        gaya.jarak.forEach(jrk => {
-            const checked = jrk.aktif ? 'checked' : '';
+window.renderGaya = function() { 
+    const container = document.getElementById('gayaContainer'); 
+    if (!container) return; 
+    container.innerHTML = ''; 
+    dataGaya.forEach(gaya => { 
+        let jarakHTML = ''; 
+        gaya.jarak.forEach(jrk => { 
+            const checked = jrk.aktif ? 'checked' : ''; 
             jarakHTML += `
             <div class="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors shadow-sm">
                 <div class="flex flex-col">
-                    <span class="font-bold text-slate-700 text-xs flex items-center gap-2">${jrk.nama}
+                    <span class="font-bold text-slate-700 text-xs flex items-center gap-2">${jrk.nama} 
                         <button onclick="deleteJarak(${gaya.id}, ${jrk.id})" class="text-slate-400 hover:text-red-500 font-bold text-[10px] opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>
                     </span>
                 </div>
                 <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" ${checked} onchange="toggleJarak(${gaya.id}, ${jrk.id})">
-            </div>`;
-        });
+            </div>`; 
+        }); 
         
         container.innerHTML += `
         <div class="mb-6 p-5 border border-slate-200 rounded-xl bg-slate-50 group/cat">
@@ -218,23 +216,23 @@ window.renderGaya = function() {
                 <button onclick="openModalJarak(${gaya.id})" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-3 py-1.5 rounded-md hover:bg-blue-200 transition-colors">Tambah Jarak</button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">${jarakHTML}</div>
-        </div>`;
-    });
+        </div>`; 
+    }); 
 }
 
-window.renderEstafet = function() {
-    const container = document.getElementById('estafetContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    dataEstafet.forEach(estafet => {
-        let listHTML = '';
-        estafet.list.forEach(item => {
-            const checked = item.aktif ? 'checked' : '';
-            let badgeColor = 'bg-gray-100 text-gray-600';
-            if(item.jenis === 'Putra') badgeColor = 'bg-blue-100 text-blue-700';
-            if(item.jenis === 'Putri') badgeColor = 'bg-pink-100 text-pink-700';
-            if(item.jenis === 'Mix') badgeColor = 'bg-purple-100 text-purple-700';
-
+window.renderEstafet = function() { 
+    const container = document.getElementById('estafetContainer'); 
+    if (!container) return; 
+    container.innerHTML = ''; 
+    dataEstafet.forEach(estafet => { 
+        let listHTML = ''; 
+        estafet.list.forEach(item => { 
+            const checked = item.aktif ? 'checked' : ''; 
+            let badgeColor = 'bg-gray-100 text-gray-600'; 
+            if(item.jenis === 'Putra') badgeColor = 'bg-blue-100 text-blue-700'; 
+            if(item.jenis === 'Putri') badgeColor = 'bg-pink-100 text-pink-700'; 
+            if(item.jenis === 'Mix') badgeColor = 'bg-purple-100 text-purple-700'; 
+            
             listHTML += `
             <div class="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-white group/item hover:border-purple-200 transition-colors shadow-sm">
                 <div class="flex flex-col gap-1">
@@ -245,8 +243,8 @@ window.renderEstafet = function() {
                     </div>
                 </div>
                 <input type="checkbox" class="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500" ${checked} onchange="toggleItemEstafet(${estafet.id}, ${item.id})">
-            </div>`;
-        });
+            </div>`; 
+        }); 
         
         container.innerHTML += `
         <div class="mb-6 p-5 border border-purple-100 rounded-xl bg-purple-50/30 group/cat">
@@ -258,51 +256,216 @@ window.renderEstafet = function() {
                 <button onclick="openModalItemEstafet(${estafet.id})" class="text-[10px] font-bold text-purple-700 bg-purple-100 px-3 py-1.5 rounded-md hover:bg-purple-200 transition-colors">Tambah Nomor</button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${listHTML}</div>
-        </div>`;
-    });
+        </div>`; 
+    }); 
 }
 
-window.openModal = (id) => { const el = document.getElementById(id); if(el) { el.classList.remove('hidden'); el.classList.add('flex'); } }
-window.closeModal = (id) => { const el = document.getElementById(id); if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } }
+// ==========================================
+// SEMUA LOGIKA MODAL (FORMAT RAPI)
+// ==========================================
+window.openModal = (id) => { 
+    const el = document.getElementById(id); 
+    if(el) { el.classList.remove('hidden'); el.classList.add('flex'); } 
+}
 
-window.openModalKU = () => { document.getElementById('kuId').value = ''; document.getElementById('kuNama').value = ''; document.getElementById('kuTahunMulai').value = ''; document.getElementById('kuTahunAkhir').value = ''; document.getElementById('modalKUTitle').innerText = 'Buat KU Baru'; const btnSave = document.getElementById('btnSaveKU'); btnSave.innerText = 'Simpan'; btnSave.className = 'w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors'; window.openModal('modalKU'); }
-window.editKU = (id) => { const ku = dataKU.find(k => k.id === id); document.getElementById('kuId').value = ku.id; document.getElementById('kuNama').value = ku.nama; document.getElementById('kuTahunMulai').value = ku.tahunMulai; document.getElementById('kuTahunAkhir').value = ku.tahunAkhir; document.getElementById('modalKUTitle').innerText = 'Edit Kelompok Umur'; const btnSave = document.getElementById('btnSaveKU'); btnSave.innerText = 'Simpan Perubahan'; btnSave.className = 'w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors'; window.openModal('modalKU'); }
-window.saveKU = () => { const id = document.getElementById('kuId').value; const nama = document.getElementById('kuNama').value; const tahunMulai = document.getElementById('kuTahunMulai').value; const tahunAkhir = document.getElementById('kuTahunAkhir').value; if(!nama) return alert('Nama KU wajib diisi!'); if(id) { const index = dataKU.findIndex(k => k.id == id); dataKU[index] = { ...dataKU[index], nama, tahunMulai, tahunAkhir }; } else { dataKU.push({ id: Date.now(), nama, tahunMulai, tahunAkhir, aktif: true }); } window.renderKU(); window.closeModal('modalKU'); }
-window.deleteKU = (id) => { if(confirm('Yakin hapus Kelompok Umur ini?')) { dataKU = dataKU.filter(k => k.id !== id); window.renderKU(); } }
-window.toggleKU = (id) => { const index = dataKU.findIndex(k => k.id == id); dataKU[index].aktif = !dataKU[index].aktif; }
+window.closeModal = (id) => { 
+    const el = document.getElementById(id); 
+    if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } 
+}
 
-window.openModalGaya = () => { document.getElementById('gayaId').value = ''; document.getElementById('gayaNama').value = ''; window.openModal('modalGaya'); }
-window.saveGaya = () => { const id = document.getElementById('gayaId').value; const nama = document.getElementById('gayaNama').value; if(!nama) return alert('Nama Gaya wajib diisi!'); if(id) { const index = dataGaya.findIndex(g => g.id == id); dataGaya[index].nama = nama; } else { dataGaya.push({ id: Date.now(), nama, jarak: [] }); } window.renderGaya(); window.closeModal('modalGaya'); }
-window.deleteGaya = (id) => { if(confirm('Hapus Kategori Gaya ini?')) { dataGaya = dataGaya.filter(g => g.id !== id); window.renderGaya(); } }
+window.openModalKU = () => { 
+    document.getElementById('kuId').value = ''; 
+    document.getElementById('kuNama').value = ''; 
+    document.getElementById('kuTahunMulai').value = ''; 
+    document.getElementById('kuTahunAkhir').value = ''; 
+    document.getElementById('modalKUTitle').innerText = 'Buat KU Baru'; 
+    const btnSave = document.getElementById('btnSaveKU'); 
+    btnSave.innerText = 'Simpan'; 
+    btnSave.className = 'w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors'; 
+    window.openModal('modalKU'); 
+}
 
-window.openModalJarak = (gayaId) => { document.getElementById('jarakParentId').value = gayaId; document.getElementById('jarakId').value = ''; document.getElementById('jarakNama').value = ''; window.openModal('modalJarak'); }
-window.saveJarak = () => { const gayaId = document.getElementById('jarakParentId').value; let nama = document.getElementById('jarakNama').value; if(!nama) return; nama = nama.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); if (!nama.endsWith('m')) nama += 'm'; const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); dataGaya[gayaIndex].jarak.push({ id: Date.now(), nama, aktif: true }); window.renderGaya(); window.closeModal('modalJarak'); }
-window.deleteJarak = (gayaId, jarakId) => { if(confirm('Hapus jarak ini?')) { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); dataGaya[gayaIndex].jarak = dataGaya[gayaIndex].jarak.filter(j => j.id !== jarakId); window.renderGaya(); } }
-window.toggleJarak = (gayaId, jarakId) => { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId); dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif; }
+window.editKU = (id) => { 
+    const ku = dataKU.find(k => k.id === id); 
+    document.getElementById('kuId').value = ku.id; 
+    document.getElementById('kuNama').value = ku.nama; 
+    document.getElementById('kuTahunMulai').value = ku.tahunMulai; 
+    document.getElementById('kuTahunAkhir').value = ku.tahunAkhir; 
+    document.getElementById('modalKUTitle').innerText = 'Edit Kelompok Umur'; 
+    const btnSave = document.getElementById('btnSaveKU'); 
+    btnSave.innerText = 'Simpan Perubahan'; 
+    btnSave.className = 'w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm mt-2 transition-colors'; 
+    window.openModal('modalKU'); 
+}
 
-window.openModalEstafet = () => { document.getElementById('estafetId').value = ''; document.getElementById('estafetNama').value = ''; window.openModal('modalEstafet'); }
-window.saveEstafet = () => { const nama = document.getElementById('estafetNama').value; if(!nama) return alert('Nama Kategori Estafet wajib diisi!'); dataEstafet.push({ id: Date.now(), nama, list: [] }); window.renderEstafet(); window.closeModal('modalEstafet'); }
-window.deleteEstafet = (id) => { if(confirm('Hapus Kategori Estafet ini?')) { dataEstafet = dataEstafet.filter(e => e.id !== id); window.renderEstafet(); } }
+window.saveKU = () => { 
+    const id = document.getElementById('kuId').value; 
+    const nama = document.getElementById('kuNama').value; 
+    const tahunMulai = document.getElementById('kuTahunMulai').value; 
+    const tahunAkhir = document.getElementById('kuTahunAkhir').value; 
+    
+    if(!nama) return alert('Nama KU wajib diisi!'); 
+    
+    if(id) { 
+        const index = dataKU.findIndex(k => k.id == id); 
+        dataKU[index] = { ...dataKU[index], nama, tahunMulai, tahunAkhir }; 
+    } else { 
+        dataKU.push({ id: Date.now(), nama, tahunMulai, tahunAkhir, aktif: true }); 
+    } 
+    
+    window.renderKU(); 
+    window.closeModal('modalKU'); 
+}
 
-window.openModalItemEstafet = (estafetId) => { document.getElementById('itemEstafetParentId').value = estafetId; document.getElementById('itemEstafetJarak').value = ''; document.getElementById('itemEstafetJenis').value = 'Putra'; window.openModal('modalItemEstafet'); }
-window.saveItemEstafet = () => { const parentId = document.getElementById('itemEstafetParentId').value; let jarak = document.getElementById('itemEstafetJarak').value; const jenis = document.getElementById('itemEstafetJenis').value; if(!jarak) return alert('Jarak wajib diisi!'); jarak = jarak.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); if (!jarak.endsWith('m')) jarak += 'm'; const index = dataEstafet.findIndex(e => e.id == parentId); dataEstafet[index].list.push({ id: Date.now(), jarak, jenis, aktif: true }); window.renderEstafet(); window.closeModal('modalItemEstafet'); }
-window.deleteItemEstafet = (parentId, itemId) => { if(confirm('Hapus Nomor Estafet ini?')) { const index = dataEstafet.findIndex(e => e.id == parentId); dataEstafet[index].list = dataEstafet[index].list.filter(i => i.id !== itemId); window.renderEstafet(); } }
-window.toggleItemEstafet = (parentId, itemId) => { const parentIndex = dataEstafet.findIndex(e => e.id == parentId); const itemIndex = dataEstafet[parentIndex].list.findIndex(i => i.id == itemId); dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif; }
+window.deleteKU = (id) => { 
+    if(confirm('Yakin hapus Kelompok Umur ini?')) { 
+        dataKU = dataKU.filter(k => k.id !== id); 
+        window.renderKU(); 
+    } 
+}
+
+window.toggleKU = (id) => { 
+    const index = dataKU.findIndex(k => k.id == id); 
+    dataKU[index].aktif = !dataKU[index].aktif; 
+}
+
+window.openModalGaya = () => { 
+    document.getElementById('gayaId').value = ''; 
+    document.getElementById('gayaNama').value = ''; 
+    window.openModal('modalGaya'); 
+}
+
+window.saveGaya = () => { 
+    const id = document.getElementById('gayaId').value; 
+    const nama = document.getElementById('gayaNama').value; 
+    
+    if(!nama) return alert('Nama Gaya wajib diisi!'); 
+    
+    if(id) { 
+        const index = dataGaya.findIndex(g => g.id == id); 
+        dataGaya[index].nama = nama; 
+    } else { 
+        dataGaya.push({ id: Date.now(), nama, jarak: [] }); 
+    } 
+    
+    window.renderGaya(); 
+    window.closeModal('modalGaya'); 
+}
+
+window.deleteGaya = (id) => { 
+    if(confirm('Hapus Kategori Gaya ini?')) { 
+        dataGaya = dataGaya.filter(g => g.id !== id); 
+        window.renderGaya(); 
+    } 
+}
+
+window.openModalJarak = (gayaId) => { 
+    document.getElementById('jarakParentId').value = gayaId; 
+    document.getElementById('jarakId').value = ''; 
+    document.getElementById('jarakNama').value = ''; 
+    window.openModal('modalJarak'); 
+}
+
+window.saveJarak = () => { 
+    const gayaId = document.getElementById('jarakParentId').value; 
+    let nama = document.getElementById('jarakNama').value; 
+    
+    if(!nama) return; 
+    nama = nama.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); 
+    if (!nama.endsWith('m')) nama += 'm'; 
+    
+    const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); 
+    dataGaya[gayaIndex].jarak.push({ id: Date.now(), nama, aktif: true }); 
+    
+    window.renderGaya(); 
+    window.closeModal('modalJarak'); 
+}
+
+window.deleteJarak = (gayaId, jarakId) => { 
+    if(confirm('Hapus jarak ini?')) { 
+        const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); 
+        dataGaya[gayaIndex].jarak = dataGaya[gayaIndex].jarak.filter(j => j.id !== jarakId); 
+        window.renderGaya(); 
+    } 
+}
+
+window.toggleJarak = (gayaId, jarakId) => { 
+    const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); 
+    const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId); 
+    dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif; 
+}
+
+window.openModalEstafet = () => { 
+    document.getElementById('estafetId').value = ''; 
+    document.getElementById('estafetNama').value = ''; 
+    window.openModal('modalEstafet'); 
+}
+
+window.saveEstafet = () => { 
+    const nama = document.getElementById('estafetNama').value; 
+    if(!nama) return alert('Nama Kategori Estafet wajib diisi!'); 
+    dataEstafet.push({ id: Date.now(), nama, list: [] }); 
+    window.renderEstafet(); 
+    window.closeModal('modalEstafet'); 
+}
+
+window.deleteEstafet = (id) => { 
+    if(confirm('Hapus Kategori Estafet ini?')) { 
+        dataEstafet = dataEstafet.filter(e => e.id !== id); 
+        window.renderEstafet(); 
+    } 
+}
+
+window.openModalItemEstafet = (estafetId) => { 
+    document.getElementById('itemEstafetParentId').value = estafetId; 
+    document.getElementById('itemEstafetJarak').value = ''; 
+    document.getElementById('itemEstafetJenis').value = 'Putra'; 
+    window.openModal('modalItemEstafet'); 
+}
+
+window.saveItemEstafet = () => { 
+    const parentId = document.getElementById('itemEstafetParentId').value; 
+    let jarak = document.getElementById('itemEstafetJarak').value; 
+    const jenis = document.getElementById('itemEstafetJenis').value; 
+    
+    if(!jarak) return alert('Jarak wajib diisi!'); 
+    jarak = jarak.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); 
+    if (!jarak.endsWith('m')) jarak += 'm'; 
+    
+    const index = dataEstafet.findIndex(e => e.id == parentId); 
+    dataEstafet[index].list.push({ id: Date.now(), jarak, jenis, aktif: true }); 
+    
+    window.renderEstafet(); 
+    window.closeModal('modalItemEstafet'); 
+}
+
+window.deleteItemEstafet = (parentId, itemId) => { 
+    if(confirm('Hapus Nomor Estafet ini?')) { 
+        const index = dataEstafet.findIndex(e => e.id == parentId); 
+        dataEstafet[index].list = dataEstafet[index].list.filter(i => i.id !== itemId); 
+        window.renderEstafet(); 
+    } 
+}
+
+window.toggleItemEstafet = (parentId, itemId) => { 
+    const parentIndex = dataEstafet.findIndex(e => e.id == parentId); 
+    const itemIndex = dataEstafet[parentIndex].list.findIndex(i => i.id == itemId); 
+    dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif; 
+}
 
 // ==========================================
-// SIMPAN SEMUA KE DATABASE (Pasti Nempel)
+// SIMPAN SEMUA KE DATABASE
 // ==========================================
 window.simpanKeDatabase = async function() {
     const btnSave = document.querySelector('button[onclick="simpanKeDatabase()"]');
     btnSave.innerHTML = "Menyimpan...";
     btnSave.disabled = true;
 
-    // Tarik nilai dari inputan form desain & pricing
     configForm.biaya_normal = document.getElementById('inputBiayaNormal').value;
     configForm.min_diskon = document.getElementById('inputMinDiskon').value;
     configForm.biaya_diskon = document.getElementById('inputBiayaDiskon').value;
     
-    // MASUKIN WA KE BRANKAS CONFIG JSONB!
+    // MASUKIN WA KE DALAM CONFIG JSONB
     if (document.getElementById('inputAdminWA1')) configForm.admin_wa_1 = document.getElementById('inputAdminWA1').value;
     if (document.getElementById('inputAdminWA2')) configForm.admin_wa_2 = document.getElementById('inputAdminWA2').value;
 
@@ -313,7 +476,6 @@ window.simpanKeDatabase = async function() {
     try {
         const { data: oldData } = await supabaseClient.from('events').select('config').eq('id', currentEventId).single();
         
-        // Gabungkan config lama dengan configForm baru
         const mergedConfig = { ...(oldData?.config || {}), ...configForm };
 
         const { error } = await supabaseClient
@@ -322,7 +484,7 @@ window.simpanKeDatabase = async function() {
                 config_ku: dataKU, 
                 config_gaya: dataGaya,
                 config_estafet: dataEstafet, 
-                config: mergedConfig // Simpan semua di sini!
+                config: mergedConfig
             })
             .eq('id', currentEventId);
 

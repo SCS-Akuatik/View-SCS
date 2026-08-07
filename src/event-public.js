@@ -49,14 +49,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // =========================================================
         // =========================================================
-        // 1. FLOATING WHATSAPP BUTTON (MULTI ADMIN)
+        // =========================================================
+        // 1. FLOATING WHATSAPP BUTTON (MULTI ADMIN - DARI KOLOM DATABASE)
         // =========================================================
         const btnToggleMenu = document.getElementById('btnToggleWAMenu');
         const waMenuOptions = document.getElementById('waMenuOptions');
         const btnWA1 = document.getElementById('btnWA_Admin1');
         const btnWA2 = document.getElementById('btnWA_Admin2');
 
-        // Cek apakah Admin 1 atau Admin 2 diisi di database config
         let hasWA = false;
 
         function formatWANumber(num) {
@@ -65,29 +65,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             return cleanNum;
         }
 
-        if (config.admin_wa_1) {
+        // SEKARANG NARIKNYA DARI eventData BUKAN config!
+        if (eventData.wa_admin1) {
             hasWA = true;
-            btnWA1.href = `https://wa.me/${formatWANumber(config.admin_wa_1)}?text=Halo%20Admin%201%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
+            btnWA1.href = `https://wa.me/${formatWANumber(eventData.wa_admin1)}?text=Halo%20Admin%201%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
             btnWA1.classList.remove('hidden');
+            btnWA1.classList.add('flex'); // Paksa jadi flex biar rapi
         }
 
-        if (config.admin_wa_2) {
+        if (eventData.wa_admin2) {
             hasWA = true;
-            btnWA2.href = `https://wa.me/${formatWANumber(config.admin_wa_2)}?text=Halo%20Admin%202%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
+            btnWA2.href = `https://wa.me/${formatWANumber(eventData.wa_admin2)}?text=Halo%20Admin%202%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
             btnWA2.classList.remove('hidden');
+            btnWA2.classList.add('flex'); // Paksa jadi flex biar rapi
         }
 
-        // Tampilkan tombol Induk jika ada minimal 1 Admin
         if (hasWA && btnToggleMenu) {
             btnToggleMenu.classList.remove('hidden');
             
-            // Logika Klik (Toggle Menu)
             btnToggleMenu.addEventListener('click', (e) => {
                 e.preventDefault();
                 waMenuOptions.classList.toggle('hidden');
                 waMenuOptions.classList.toggle('flex');
             });
         }
+
 
 
         // =========================================================

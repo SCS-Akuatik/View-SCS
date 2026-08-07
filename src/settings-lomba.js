@@ -12,13 +12,11 @@ let configForm = {
     biaya_normal: '',
     min_diskon: '',
     biaya_diskon: '',
+    admin_wa_1: '', // Masuk ke dalam brankas config!
+    admin_wa_2: '', // Masuk ke dalam brankas config!
     info_pembayaran: '',
     qris_url: '' 
 };
-
-// State khusus untuk Kolom Dedicated
-let waAdmin1 = '';
-let waAdmin2 = '';
 
 async function loadDataLomba() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -31,10 +29,9 @@ async function loadDataLomba() {
     }
 
     try {
-        // Tambahin wa_admin1 dan wa_admin2 di select
         const { data, error } = await supabaseClient
             .from('events')
-            .select('config_ku, config_gaya, config_estafet, config, wa_admin1, wa_admin2')
+            .select('config_ku, config_gaya, config_estafet, config')
             .eq('id', currentEventId)
             .single();
 
@@ -44,17 +41,15 @@ async function loadDataLomba() {
         dataGaya = data?.config_gaya || [];
         dataEstafet = data?.config_estafet || [];
         
-        // Parsing data Kolom Dedicated
-        waAdmin1 = data?.wa_admin1 || '';
-        waAdmin2 = data?.wa_admin2 || '';
-        
-        // Parsing data JSONB Config
+        // Parsing data JSONB Config (Semuanya ditarik dari config)
         const eventConfig = data?.config || {};
         configForm.header_url = eventConfig.header_url || '';
         configForm.bg_url = eventConfig.bg_url || '';
         configForm.biaya_normal = eventConfig.biaya_normal || '';
         configForm.min_diskon = eventConfig.min_diskon || '';
         configForm.biaya_diskon = eventConfig.biaya_diskon || '';
+        configForm.admin_wa_1 = eventConfig.admin_wa_1 || ''; // Tarik WA 1 dari config
+        configForm.admin_wa_2 = eventConfig.admin_wa_2 || ''; // Tarik WA 2 dari config
         configForm.info_pembayaran = eventConfig.info_pembayaran || ''; 
         configForm.qris_url = eventConfig.qris_url || ''; 
 
@@ -83,12 +78,12 @@ function renderFormConfig() {
         document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
     }
     
-    // Render WA Inputs (Kolom Dedicated)
+    // Render WA Inputs (JSONB)
     if (document.getElementById('inputAdminWA1')) {
-        document.getElementById('inputAdminWA1').value = waAdmin1;
+        document.getElementById('inputAdminWA1').value = configForm.admin_wa_1;
     }
     if (document.getElementById('inputAdminWA2')) {
-        document.getElementById('inputAdminWA2').value = waAdmin2;
+        document.getElementById('inputAdminWA2').value = configForm.admin_wa_2;
     }
 
     // Render images
@@ -166,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ==========================================
-// RENDER KU, GAYA, ESTAFET, MODAL (SAMA SEPERTI SEBELUMNYA)
+// RENDER KU, GAYA, ESTAFET, MODAL (SAMA PERSIS)
 // ==========================================
 window.renderKU = function() {
     const container = document.getElementById('kuContainer');
@@ -295,7 +290,7 @@ window.deleteItemEstafet = (parentId, itemId) => { if(confirm('Hapus Nomor Estaf
 window.toggleItemEstafet = (parentId, itemId) => { const parentIndex = dataEstafet.findIndex(e => e.id == parentId); const itemIndex = dataEstafet[parentIndex].list.findIndex(i => i.id == itemId); dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif; }
 
 // ==========================================
-// SIMPAN SEMUA KE DATABASE
+// SIMPAN SEMUA KE DATABASE (Pasti Nempel)
 // ==========================================
 window.simpanKeDatabase = async function() {
     const btnSave = document.querySelector('button[onclick="simpanKeDatabase()"]');
@@ -307,13 +302,13 @@ window.simpanKeDatabase = async function() {
     configForm.min_diskon = document.getElementById('inputMinDiskon').value;
     configForm.biaya_diskon = document.getElementById('inputBiayaDiskon').value;
     
+    // MASUKIN WA KE BRANKAS CONFIG JSONB!
+    if (document.getElementById('inputAdminWA1')) configForm.admin_wa_1 = document.getElementById('inputAdminWA1').value;
+    if (document.getElementById('inputAdminWA2')) configForm.admin_wa_2 = document.getElementById('inputAdminWA2').value;
+
     if (document.getElementById('inputInfoPembayaran')) {
         configForm.info_pembayaran = document.getElementById('inputInfoPembayaran').value;
     }
-
-    // TARIK WA ADMIN KE VARIABEL TERPISAH
-    const valWa1 = document.getElementById('inputAdminWA1') ? document.getElementById('inputAdminWA1').value : '';
-    const valWa2 = document.getElementById('inputAdminWA2') ? document.getElementById('inputAdminWA2').value : '';
 
     try {
         const { data: oldData } = await supabaseClient.from('events').select('config').eq('id', currentEventId).single();
@@ -327,9 +322,7 @@ window.simpanKeDatabase = async function() {
                 config_ku: dataKU, 
                 config_gaya: dataGaya,
                 config_estafet: dataEstafet, 
-                config: mergedConfig,
-                wa_admin1: valWa1, // MASUK KE KOLOM DEDICATED DATABASE
-                wa_admin2: valWa2  // MASUK KE KOLOM DEDICATED DATABASE
+                config: mergedConfig // Simpan semua di sini!
             })
             .eq('id', currentEventId);
 

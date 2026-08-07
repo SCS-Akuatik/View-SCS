@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // =========================================================
         // =========================================================
         // =========================================================
-        // 1. FLOATING WHATSAPP BUTTON (MULTI ADMIN - DARI KOLOM DATABASE)
+        // 1. FLOATING WHATSAPP BUTTON (DARI BRANKAS CONFIG)
         // =========================================================
         const btnToggleMenu = document.getElementById('btnToggleWAMenu');
         const waMenuOptions = document.getElementById('waMenuOptions');
@@ -65,19 +65,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             return cleanNum;
         }
 
-        // SEKARANG NARIKNYA DARI eventData BUKAN config!
-        if (eventData.wa_admin1) {
+        // Panggil dari config.admin_wa_1
+        if (config.admin_wa_1) {
             hasWA = true;
-            btnWA1.href = `https://wa.me/${formatWANumber(eventData.wa_admin1)}?text=Halo%20Admin%201%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
+            btnWA1.href = `https://wa.me/${formatWANumber(config.admin_wa_1)}?text=Halo%20Admin%201%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
             btnWA1.classList.remove('hidden');
-            btnWA1.classList.add('flex'); // Paksa jadi flex biar rapi
+            btnWA1.classList.add('flex'); 
         }
 
-        if (eventData.wa_admin2) {
+        if (config.admin_wa_2) {
             hasWA = true;
-            btnWA2.href = `https://wa.me/${formatWANumber(eventData.wa_admin2)}?text=Halo%20Admin%202%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
+            btnWA2.href = `https://wa.me/${formatWANumber(config.admin_wa_2)}?text=Halo%20Admin%202%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
             btnWA2.classList.remove('hidden');
-            btnWA2.classList.add('flex'); // Paksa jadi flex biar rapi
+            btnWA2.classList.add('flex'); 
         }
 
         if (hasWA && btnToggleMenu) {

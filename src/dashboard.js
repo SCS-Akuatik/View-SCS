@@ -505,48 +505,74 @@ const formAkun = document.getElementById('formAkun');
 
 const elProvinsi = document.getElementById('editProvinsi');
 const elKota = document.getElementById('editKota');
+const eventProvinsi = document.getElementById('inputEventProvinsi');
+const eventKota = document.getElementById('inputEventKota');
 
 async function loadProvinsi() {
     try {
         const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
         const provinces = await response.json();
         
-        elProvinsi.innerHTML = '<option value="">-- Pilih Provinsi --</option>';
+        const defaultOption = '<option value="">-- Pilih Provinsi --</option>';
+        if (elProvinsi) elProvinsi.innerHTML = defaultOption;
+        if (eventProvinsi) eventProvinsi.innerHTML = defaultOption;
+
         provinces.forEach(prov => {
-            elProvinsi.innerHTML += `<option value="${prov.name}" data-id="${prov.id}">${prov.name}</option>`;
+            const opt = `<option value="${prov.name}" data-id="${prov.id}">${prov.name}</option>`;
+            if (elProvinsi) elProvinsi.innerHTML += opt;
+            if (eventProvinsi) eventProvinsi.innerHTML += opt;
         });
     } catch (error) {
-        elProvinsi.innerHTML = '<option value="">Gagal memuat API</option>';
+        if (elProvinsi) elProvinsi.innerHTML = '<option value="">Gagal memuat API</option>';
+        if (eventProvinsi) eventProvinsi.innerHTML = '<option value="">Gagal memuat API</option>';
     }
 }
 loadProvinsi(); 
 
-elProvinsi.addEventListener('change', async function() {
-    const selectedOption = this.options[this.selectedIndex];
+// Logika change untuk Form Profil Klub
+if (elProvinsi) {
+    elProvinsi.addEventListener('change', async function() {
+        handleProvinsiChange(this, elKota);
+    });
+}
+
+// Logika change untuk Form Buat Event
+if (eventProvinsi) {
+    eventProvinsi.addEventListener('change', async function() {
+        handleProvinsiChange(this, eventKota);
+    });
+}
+
+// Fungsi reusable untuk narik data Kota berdasarkan Provinsi yang dipilih
+async function handleProvinsiChange(provElement, kotaElement) {
+    const selectedOption = provElement.options[provElement.selectedIndex];
     const provId = selectedOption.getAttribute('data-id');
     
     if (!provId) {
-        elKota.innerHTML = '<option value="">Pilih Provinsi Dulu</option>';
-        elKota.disabled = true;
+        kotaElement.innerHTML = '<option value="">Pilih Provinsi Dulu</option>';
+        kotaElement.disabled = true;
         return;
     }
 
-    elKota.innerHTML = '<option value="">Memuat Kota...</option>';
-    elKota.disabled = true;
+    kotaElement.innerHTML = '<option value="">Memuat Kota...</option>';
+    kotaElement.disabled = true;
 
     try {
         const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provId}.json`);
         const cities = await response.json();
         
-        elKota.innerHTML = '<option value="">-- Pilih Kota/Kab --</option>';
+        kotaElement.innerHTML = '<option value="">-- Pilih Kota/Kab --</option>';
         cities.forEach(city => {
-            elKota.innerHTML += `<option value="${city.name}">${city.name}</option>`;
+            kotaElement.innerHTML += `<option value="${city.name}">${city.name}</option>`;
         });
-        elKota.disabled = false;
+        kotaElement.disabled = false;
     } catch (error) {
         console.error("Gagal load API Kota");
     }
-});
+}
+
+// --- BIARKAN FUNGSI openProfileModal() DI BAWAH SINI ---
+
 
 function openProfileModal() {
     if (!currentClubData) return;
@@ -944,12 +970,14 @@ if (btnSaveEvent) {
         let inputSubdomain = document.getElementById('inputSubdomain').value.trim().toLowerCase();
         const inputEventStartDate = document.getElementById('inputEventStartDate').value;
         const inputEventEndDate = document.getElementById('inputEventEndDate').value;
+        const inputProvinsi = document.getElementById('inputEventProvinsi').value; // Tangkap Provinsi
+        const inputKota = document.getElementById('inputEventKota').value; // Tangkap Kota
         const statusMsg = document.getElementById('eventStatusMsg');
 
         inputSubdomain = inputSubdomain.replace(/[^a-z0-9-]/g, '');
 
-        if (!inputEventName || !inputSubdomain || !inputEventStartDate || !inputEventEndDate) {
-            statusMsg.innerText = "Semua kolom wajib diisi!";
+        if (!inputEventName || !inputSubdomain || !inputEventStartDate || !inputEventEndDate || !inputProvinsi || !inputKota) {
+            statusMsg.innerText = "Semua kolom wajib diisi, termasuk Provinsi & Kota!";
             statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-100 text-red-600 block";
             return;
         }
@@ -973,11 +1001,14 @@ if (btnSaveEvent) {
                     subdomain: inputSubdomain,
                     event_date: inputEventStartDate,
                     end_date: inputEventEndDate,
+                    provinsi: inputProvinsi, // Kirim ke DB
+                    kota: inputKota,         // Kirim ke DB
                     club_id: currentClubId 
                 }])
                 .select()
                 .single();
 
+            // ... sisa kode tidak berubah (penanganan sukses & error)
             if (error) throw error;
 
             statusMsg.innerText = "Event berhasil dibuat! Mengalihkan ke Dashboard Event...";

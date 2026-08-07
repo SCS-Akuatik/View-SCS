@@ -48,20 +48,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // =========================================================
-        // 1. FLOATING WHATSAPP BUTTON (FITUR HIJAU)
         // =========================================================
-        if (config.tiket_wa) {
-            const waBtn = document.getElementById('btnFloatingWA');
-            if (waBtn) {
-                // Bersihin nomor telepon dari karakter aneh, ubah '0' di depan jadi '62'
-                let waNum = config.tiket_wa.replace(/\D/g, '');
-                if (waNum.startsWith('0')) waNum = '62' + waNum.substring(1);
-                
-                // Set link ke WhatsApp
-                waBtn.href = `https://wa.me/${waNum}?text=Halo%20Panitia%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya%20terkait%20pendaftaran.`;
-                waBtn.classList.remove('hidden');
-            }
+        // 1. FLOATING WHATSAPP BUTTON (MULTI ADMIN)
+        // =========================================================
+        const btnToggleMenu = document.getElementById('btnToggleWAMenu');
+        const waMenuOptions = document.getElementById('waMenuOptions');
+        const btnWA1 = document.getElementById('btnWA_Admin1');
+        const btnWA2 = document.getElementById('btnWA_Admin2');
+
+        // Cek apakah Admin 1 atau Admin 2 diisi di database config
+        let hasWA = false;
+
+        function formatWANumber(num) {
+            let cleanNum = num.replace(/\D/g, '');
+            if (cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
+            return cleanNum;
         }
+
+        if (config.admin_wa_1) {
+            hasWA = true;
+            btnWA1.href = `https://wa.me/${formatWANumber(config.admin_wa_1)}?text=Halo%20Admin%201%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
+            btnWA1.classList.remove('hidden');
+        }
+
+        if (config.admin_wa_2) {
+            hasWA = true;
+            btnWA2.href = `https://wa.me/${formatWANumber(config.admin_wa_2)}?text=Halo%20Admin%202%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya...`;
+            btnWA2.classList.remove('hidden');
+        }
+
+        // Tampilkan tombol Induk jika ada minimal 1 Admin
+        if (hasWA && btnToggleMenu) {
+            btnToggleMenu.classList.remove('hidden');
+            
+            // Logika Klik (Toggle Menu)
+            btnToggleMenu.addEventListener('click', (e) => {
+                e.preventDefault();
+                waMenuOptions.classList.toggle('hidden');
+                waMenuOptions.classList.toggle('flex');
+            });
+        }
+
 
         // =========================================================
         // MANGGIL INFO PEMBAYARAN & QRIS KE KERANJANG BAWAH

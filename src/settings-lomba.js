@@ -12,6 +12,8 @@ let configForm = {
     biaya_normal: '',
     min_diskon: '',
     biaya_diskon: '',
+    admin_wa_1: '', // Tambahan Baru: WA Admin 1
+    admin_wa_2: '', // Tambahan Baru: WA Admin 2
     info_pembayaran: '',
     qris_url: '' // Menampung URL Barcode QRIS
 };
@@ -46,6 +48,8 @@ async function loadDataLomba() {
         configForm.biaya_normal = eventConfig.biaya_normal || '';
         configForm.min_diskon = eventConfig.min_diskon || '';
         configForm.biaya_diskon = eventConfig.biaya_diskon || '';
+        configForm.admin_wa_1 = eventConfig.admin_wa_1 || ''; // Tarik WA Admin 1
+        configForm.admin_wa_2 = eventConfig.admin_wa_2 || ''; // Tarik WA Admin 2
         configForm.info_pembayaran = eventConfig.info_pembayaran || ''; 
         configForm.qris_url = eventConfig.qris_url || ''; // Tarik URL QRIS dari DB
 
@@ -71,6 +75,14 @@ function renderFormConfig() {
     document.getElementById('inputMinDiskon').value = configForm.min_diskon;
     document.getElementById('inputBiayaDiskon').value = configForm.biaya_diskon;
     
+    // Render WA Inputs
+    if (document.getElementById('inputAdminWA1')) {
+        document.getElementById('inputAdminWA1').value = configForm.admin_wa_1;
+    }
+    if (document.getElementById('inputAdminWA2')) {
+        document.getElementById('inputAdminWA2').value = configForm.admin_wa_2;
+    }
+
     if (document.getElementById('inputInfoPembayaran')) {
         document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
     }
@@ -78,13 +90,17 @@ function renderFormConfig() {
     // Render images
     if (configForm.header_url) {
         const imgH = document.getElementById('previewHeader');
-        imgH.src = configForm.header_url;
-        imgH.classList.remove('hidden');
+        if (imgH) {
+            imgH.src = configForm.header_url;
+            imgH.classList.remove('hidden');
+        }
     }
     if (configForm.bg_url) {
         const imgB = document.getElementById('previewBg');
-        imgB.src = configForm.bg_url;
-        imgB.classList.remove('hidden');
+        if (imgB) {
+            imgB.src = configForm.bg_url;
+            imgB.classList.remove('hidden');
+        }
     }
     if (configForm.qris_url) {
         const imgQ = document.getElementById('previewQris');
@@ -100,9 +116,11 @@ async function handleImageUpload(event, keyName, previewId) {
     if (!file) return;
 
     const preview = document.getElementById(previewId);
-    preview.classList.remove('hidden');
-    // Placeholder loading
-    preview.src = 'https://media.tenor.com/On7kvXhzmV4AAAAj/loading-gif.gif'; 
+    if (preview) {
+        preview.classList.remove('hidden');
+        // Placeholder loading
+        preview.src = 'https://media.tenor.com/On7kvXhzmV4AAAAj/loading-gif.gif'; 
+    }
 
     try {
         const fileExt = file.name.split('.').pop();
@@ -119,12 +137,12 @@ async function handleImageUpload(event, keyName, previewId) {
             .getPublicUrl(fileName);
 
         configForm[keyName] = urlData.publicUrl;
-        preview.src = urlData.publicUrl;
+        if (preview) preview.src = urlData.publicUrl;
 
     } catch (err) {
         console.error(err);
         alert("Gagal upload gambar!");
-        preview.classList.add('hidden');
+        if (preview) preview.classList.add('hidden');
     }
 }
 
@@ -132,10 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDataLomba();
     
     // Listener Upload Gambar
-    document.getElementById('inputHeader').addEventListener('change', (e) => handleImageUpload(e, 'header_url', 'previewHeader'));
-    document.getElementById('inputBg').addEventListener('change', (e) => handleImageUpload(e, 'bg_url', 'previewBg'));
-    if (document.getElementById('inputQris')) {
-        document.getElementById('inputQris').addEventListener('change', (e) => handleImageUpload(e, 'qris_url', 'previewQris'));
+    const inputHeader = document.getElementById('inputHeader');
+    if(inputHeader) inputHeader.addEventListener('change', (e) => handleImageUpload(e, 'header_url', 'previewHeader'));
+    
+    const inputBg = document.getElementById('inputBg');
+    if(inputBg) inputBg.addEventListener('change', (e) => handleImageUpload(e, 'bg_url', 'previewBg'));
+    
+    const inputQris = document.getElementById('inputQris');
+    if (inputQris) {
+        inputQris.addEventListener('change', (e) => handleImageUpload(e, 'qris_url', 'previewQris'));
     }
 });
 
@@ -249,8 +272,8 @@ window.renderEstafet = function() {
 // ==========================================
 // SEMUA LOGIKA MODAL
 // ==========================================
-window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
-window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+window.openModal = (id) => { const el = document.getElementById(id); if(el) { el.classList.remove('hidden'); el.classList.add('flex'); } }
+window.closeModal = (id) => { const el = document.getElementById(id); if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } }
 
 // Modal KU
 window.openModalKU = () => { 
@@ -345,7 +368,6 @@ window.toggleItemEstafet = (parentId, itemId) => {
     dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif;
 }
 
-
 // ==========================================
 // SIMPAN SEMUA KE DATABASE
 // ==========================================
@@ -359,6 +381,10 @@ window.simpanKeDatabase = async function() {
     configForm.min_diskon = document.getElementById('inputMinDiskon').value;
     configForm.biaya_diskon = document.getElementById('inputBiayaDiskon').value;
     
+    // Tarik Data WA Admin
+    if (document.getElementById('inputAdminWA1')) configForm.admin_wa_1 = document.getElementById('inputAdminWA1').value;
+    if (document.getElementById('inputAdminWA2')) configForm.admin_wa_2 = document.getElementById('inputAdminWA2').value;
+
     if (document.getElementById('inputInfoPembayaran')) {
         configForm.info_pembayaran = document.getElementById('inputInfoPembayaran').value;
     }
@@ -368,7 +394,7 @@ window.simpanKeDatabase = async function() {
         const { data: oldData } = await supabaseClient.from('events').select('config').eq('id', currentEventId).single();
         
         // Gabungkan config lama dengan configForm baru
-        const mergedConfig = { ...(oldData.config || {}), ...configForm };
+        const mergedConfig = { ...(oldData?.config || {}), ...configForm };
 
         const { error } = await supabaseClient
             .from('events')

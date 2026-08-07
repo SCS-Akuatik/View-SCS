@@ -48,6 +48,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // =========================================================
+        // 1. FLOATING WHATSAPP BUTTON (FITUR HIJAU)
+        // =========================================================
+        if (config.tiket_wa) {
+            const waBtn = document.getElementById('btnFloatingWA');
+            if (waBtn) {
+                // Bersihin nomor telepon dari karakter aneh, ubah '0' di depan jadi '62'
+                let waNum = config.tiket_wa.replace(/\D/g, '');
+                if (waNum.startsWith('0')) waNum = '62' + waNum.substring(1);
+                
+                // Set link ke WhatsApp
+                waBtn.href = `https://wa.me/${waNum}?text=Halo%20Panitia%20${encodeURIComponent(eventData.event_name)},%20saya%20mau%20tanya%20terkait%20pendaftaran.`;
+                waBtn.classList.remove('hidden');
+            }
+        }
+
+        // =========================================================
         // MANGGIL INFO PEMBAYARAN & QRIS KE KERANJANG BAWAH
         // =========================================================
         if (config.info_pembayaran || config.qris_url) {
@@ -62,12 +78,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (config.qris_url) {
                 document.getElementById('boxQris').classList.remove('hidden');
-                document.getElementById('boxQris').classList.add('flex'); // Pakai flex biar posisinya ke tengah
+                document.getElementById('boxQris').classList.add('flex'); 
                 document.getElementById('imgQris').src = config.qris_url;
             }
         }
-        // =========================================================
 
+        // =========================================================
+        // 2. STATISTIK REAL DARI DATABASE (FITUR MERAH)
+        // =========================================================
+        try {
+            // A. Menghitung Jumlah Peserta Terdaftar
+            const { count: countPeserta, error: errPeserta } = await supabaseClient
+                .from('event_registrations')
+                .select('*', { count: 'exact', head: true })
+                .eq('event_id', currentEvent.id);
+                // Sengaja ga filter "Lunas" biar orang lihat event-nya udah rame
+                
+            if (!errPeserta) {
+                document.getElementById('statPesertaPublik').innerText = `${countPeserta || 0} Terdaftar`;
+            }
+
+            // B. Menghitung/Estimasi Heat
+            const { data: heatsData, error: errHeats } = await supabaseClient
+                .from('event_heats')
+                .select('event_number')
+                .eq('event_id', currentEvent.id);
+
+            let heatCount = (heatsData && !errHeats) ? heatsData.length : 0;
+            
+            // Kalau heat belum di-generate panitia, kita pakai rumus estimasi pintar
+            if (heatCount === 0 && countPeserta > 0) {
+                // Asumsi kasar 1 peserta daftar 2 nomor, dibagi 8 lintasan
+                heatCount = Math.ceil((countPeserta * 2) / 8); 
+                document.getElementById('statHeatPublik').innerText = `${heatCount} Heat Est.`;
+            } else {
+                // Kalau udah ada data heat real
+                document.getElementById('statHeatPublik').innerText = `${heatCount} Heat`;
+            }
+        } catch (statsError) {
+            console.error("Gagal menarik data statistik:", statsError);
+        }
+
+        // =========================================================
+        // RENDER KELOMPOK UMUR & GAYA
+        // =========================================================
         const kuList = eventData.config_ku || [];
         document.getElementById('inputTglLahir').addEventListener('change', (e) => {
             const tahunLahir = new Date(e.target.value).getFullYear();
@@ -153,9 +207,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Transisi UI untuk VVIP
             document.getElementById('areaLogin').classList.add('hidden'); 
-            document.getElementById('areaGuestOnly').classList.add('hidden'); // Sembunyikan input Klub Manual & WA
+            document.getElementById('areaGuestOnly').classList.add('hidden'); 
             
-            // Sembunyikan form Akta sementara sampai VVIP memilih nama dari dropdown
             document.getElementById('areaAkta').classList.add('hidden');
             
             const namaKlub = clubData.club_name || clubData.nama_klub || "Klub Terdaftar SCS";
@@ -185,7 +238,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 dropdown.innerHTML += `<option value="${atlet.f1_id}" data-name="${atlet.full_name}" data-tgl="${tgl}" data-gender="${jk}" data-akta="${akta}">${atlet.full_name} (${atlet.f1_id})</option>`;
             });
 
-            // Refresh tabel tagihan khusus untuk klub ini
             loadTagihan();
 
         } catch (err) {
@@ -246,7 +298,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (isKlubLoggedIn) {
-            // -- JALUR VVIP --
             if(dropdownAtlet.value === "") return alert("Pilih atlet terlebih dahulu!");
             
             f1_id = dropdownAtlet.value;
@@ -258,7 +309,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 requiresAktaUpload = true;
             }
         } else {
-            // -- JALUR TAMU --
             if(!inputKlubManual) return alert("Nama Klub/Sekolah wajib diisi!");
             if(!inputWhatsapp) return alert("Nomor WhatsApp wajib diisi agar panitia bisa menghubungi Anda!");
             if(!inputManualName) return alert("Nama Atlet wajib diisi!");
@@ -266,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             klub_asal = inputKlubManual; 
             nomor_wa_pic = inputWhatsapp; 
             nama_peserta = inputManualName; 
-            requiresAktaUpload = true; // Tamu selalu diwajibkan upload akta
+            requiresAktaUpload = true; 
         }
 
         const tanggal_lahir = document.getElementById('inputTglLahir').value;
@@ -285,7 +335,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return alert("Anda wajib mengunggah foto Akta Kelahiran!");
         }
 
-        // Hitung total biaya
         const config = currentEvent.config || {};
         let totalBiaya = selectedNomor.length >= Number(config.min_diskon || 999) 
             ? selectedNomor.length * Number(config.biaya_diskon || 0) 
@@ -308,12 +357,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const { data: urlData } = supabaseClient.storage.from('verifikasi-akta').getPublicUrl(fileName);
                 finalAktaUrl = urlData.publicUrl;
                 
-                // Jika VVIP upload Akta, update master datanya!
                 if (isKlubLoggedIn && f1_id) {
                     await supabaseClient.from('athletes').update({ akta_url: finalAktaUrl }).eq('f1_id', f1_id);
                 }
             } else if (isKlubLoggedIn) {
-                // Kalau VVIP gak perlu upload, tarik data URL yang udah ada di dropdown
                 finalAktaUrl = dropdownAtlet.options[dropdownAtlet.selectedIndex].getAttribute('data-akta');
             }
 
@@ -335,10 +382,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (insertError) throw insertError;
 
-            // Reset Captcha setelah sukses
             if (window.turnstile) turnstile.reset();
 
-            // Simpan ID pendaftaran tamu ke memori HP (localStorage)
             if (!isKlubLoggedIn && insertedData && insertedData.length > 0) {
                 let guestIds = JSON.parse(localStorage.getItem(`scs_guest_${currentEvent.id}`) || '[]');
                 guestIds.push(insertedData[0].id);
@@ -349,13 +394,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             checkboxesNomor.forEach(cb => cb.checked = false);
             alert("✅ Berhasil dimasukkan ke Daftar Tagihan di bawah!");
             
-            // Refresh tabel tagihan
+            // Refresh Statistik Real
+            const { count } = await supabaseClient.from('event_registrations').select('*', { count: 'exact', head: true }).eq('event_id', currentEvent.id);
+            document.getElementById('statPesertaPublik').innerText = `${count || 0} Terdaftar`;
+
             loadTagihan();
 
         } catch (err) {
             alert("Terjadi kesalahan sistem: " + err.message);
         } finally {
-            // KEMBALIKAN TEKS TOMBOL KE VERSI BENAR!
             btn.innerHTML = "Daftar, Bayar di Antrian"; 
             btn.disabled = false;
         }
@@ -377,7 +424,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('inputTglLahir').readOnly = false;
             document.getElementById('inputTglLahir').classList.remove('bg-slate-200', 'pointer-events-none');
             document.getElementById('inputGender').classList.remove('bg-slate-200', 'pointer-events-none');
-            // WAJIBKAN TAMU MELIHAT FORM AKTA LAGI
             document.getElementById('areaAkta').classList.remove('hidden'); 
         }
     }

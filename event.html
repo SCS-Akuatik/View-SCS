@@ -2,80 +2,100 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Kalender Event | SCS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalender Event Renang | SCS</title>
+    
+    <!-- META TAGS & IMAGE UNTUK SHARE WHATSAPP/SOSMED -->
+    <meta name="description" content="Temukan dan daftar kejuaraan renang terdekat di kota Anda. Kumpulkan poin rank dan raih total uang pembinaan jutaan rupiah!">
+    <meta property="og:title" content="Kalender Event Renang Terbesar | SCS" />
+    <meta property="og:description" content="Temukan dan daftar kejuaraan renang terdekat. Raih prestasi, kumpulkan poin rank, dan menangkan uang pembinaan!" />
+    <!-- Meta Image (Ukuran standar landscape untuk share link) -->
+    <meta property="og:image" content="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=1200&q=80" />
+    <meta property="og:type" content="website" />
+    
     <link rel="stylesheet" href="/src/style.css">
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-50 antialiased font-sans pt-24 pb-12">
-    <!-- Navbar (Sama Persis) -->
-    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16">
+<body class="bg-slate-50 antialiased font-sans pt-24 pb-20 text-slate-800">
+    
+    <!-- Navbar -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16 border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
             <div class="flex justify-between items-center h-full">
                 <div class="flex-shrink-0 flex items-center h-full py-2">
                     <a href="/" class="block"><img class="max-h-8 md:max-h-10 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo"></a>
                 </div>
                 <div class="hidden md:flex space-x-6 lg:space-x-8 items-center mr-24 md:mr-28">
-                    <a href="/event.html" class="text-scsBlue font-extrabold text-sm border-b-2 border-scsBlue pb-1">Event</a>
-                    <a href="/rank.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm flex items-center gap-1">Rank <span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded-full animate-pulse">HOT</span></a>
-                    <a href="/promosi.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm">Promosi</a>
-                    <a href="/pricing.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm">Harga</a> 
+                    <a href="/event.html" class="text-blue-700 font-extrabold text-sm border-b-2 border-blue-700 pb-1">Event</a>
+                    <a href="/rank.html" class="text-slate-600 hover:text-blue-700 font-bold text-sm flex items-center gap-1">Rank <span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded-full animate-pulse tracking-widest">HOT</span></a>
+                    <a href="/promosi.html" class="text-slate-600 hover:text-blue-700 font-bold text-sm">Promosi</a>
+                    <a href="/pricing.html" class="text-slate-600 hover:text-blue-700 font-bold text-sm">Harga</a> 
                 </div>
             </div>
         </div>
-        <a href="/auth.html" class="fixed top-3 right-4 md:top-4 md:right-6 z-[100] bg-scsBlue text-white font-extrabold px-4 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-900 transition-all">Masuk</a>
+        <a href="/auth.html" class="fixed top-3 right-4 md:top-4 md:right-6 z-[100] bg-blue-700 text-white font-extrabold px-5 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-800 transition-all border border-blue-800">Masuk</a>
     </nav>
     
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-black text-blue-900 mb-3">Kalender Event</h1>
-            <p class="text-gray-500">Temukan dan daftar kejuaraan renang terdekat di kota Anda.</p>
+        <div class="text-center mb-8 mt-4">
+            <h1 class="text-3xl md:text-5xl font-black text-blue-900 mb-3 tracking-tight">Kalender Event Nasional</h1>
+            <p class="text-slate-500 text-sm md:text-base font-medium">Temukan panggung juara Anda. Daftar dengan mudah, berlomba dengan bangga.</p>
+        </div>
+
+        <!-- 3 HOOKS MAUT (Daftar, Rank, Uang Pembinaan) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <!-- Hook 1: Daftar Bebas Ribet -->
+            <div class="bg-white rounded-2xl p-5 border border-blue-100 shadow-sm flex items-start gap-4 hover:shadow-md hover:border-blue-300 transition-all group">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">⚡</div>
+                <div>
+                    <h3 class="font-extrabold text-blue-900 mb-1 text-sm md:text-base">Daftar Bebas Ribet</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Registrasi dan bayar online. Cukup 1 klik jika atlet sudah punya F1 ID.</p>
+                </div>
+            </div>
+
+            <!-- Hook 2: Kejar Top Rank -->
+            <div class="bg-white rounded-2xl p-5 border border-amber-100 shadow-sm flex items-start gap-4 hover:shadow-md hover:border-amber-300 transition-all group">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">🏆</div>
+                <div>
+                    <h3 class="font-extrabold text-amber-700 mb-1 text-sm md:text-base">Kejar Top Rank</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Setiap lomba di sini tercatat di SCS Leaderboard. Buktikan siapa yang tercepat!</p>
+                </div>
+            </div>
+
+            <!-- Hook 3: Uang Pembinaan -->
+            <div class="bg-white rounded-2xl p-5 border border-emerald-100 shadow-sm flex items-start gap-4 hover:shadow-md hover:border-emerald-300 transition-all group">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">💰</div>
+                <div>
+                    <h3 class="font-extrabold text-emerald-700 mb-1 text-sm md:text-base">Raih Uang Pembinaan</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">Ikuti event berlogo premium dan menangkan total hadiah jutaan rupiah!</p>
+                </div>
+            </div>
         </div>
 
         <!-- Filter Category -->
-        <div class="flex gap-2 overflow-x-auto pb-4 hide-scrollbar mb-6 justify-center">
-            <button class="bg-blue-900 text-white px-6 py-2 rounded-full font-bold text-sm shrink-0 shadow-md">Semua Event</button>
-            <button class="bg-white text-gray-600 border border-gray-200 px-6 py-2 rounded-full font-bold text-sm shrink-0 hover:bg-gray-50">Pendaftaran Buka</button>
-            <button class="bg-white text-gray-600 border border-gray-200 px-6 py-2 rounded-full font-bold text-sm shrink-0 hover:bg-gray-50">Sedang Berjalan</button>
+        <div class="flex gap-2 overflow-x-auto pb-4 hide-scrollbar mb-6 justify-center border-b border-slate-200">
+            <button class="bg-blue-900 text-white px-6 py-2.5 rounded-full font-bold text-sm shrink-0 shadow-md">Semua Event</button>
+            <button class="bg-white text-slate-600 border border-slate-200 px-6 py-2.5 rounded-full font-bold text-sm shrink-0 hover:bg-slate-50 transition">Pendaftaran Buka</button>
+            <button class="bg-white text-slate-600 border border-slate-200 px-6 py-2.5 rounded-full font-bold text-sm shrink-0 hover:bg-slate-50 transition">Sedang Berjalan / Live</button>
         </div>
 
-        <!-- Event Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            <!-- Card Event 1 (Buka) -->
-            <div class="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-gray-100 group">
-                <div class="h-48 overflow-hidden relative">
-                    <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Event">
-                    <div class="absolute top-4 left-4 bg-green-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg shadow-sm">PENDAFTARAN DIBUKA</div>
-                </div>
-                <div class="p-6">
-                    <p class="text-xs font-bold text-scsGold mb-1">15 - 17 Agustus 2026</p>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Jago Renang Academy Cup 2026</h3>
-                    <p class="text-sm text-gray-500 mb-4">Kolam Renang GOR Sidoarjo, Jawa Timur</p>
-                    <button class="w-full bg-blue-50 text-scsBlue font-bold py-2.5 rounded-xl hover:bg-blue-100 transition">Lihat Detail & Daftar</button>
-                </div>
+        <!-- Event Grid (Akan diinjeksi oleh event.js) -->
+        <div id="eventGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loading State bawaan sebelum JS jalan -->
+            <div class="col-span-full py-20 text-center">
+                <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-slate-500 font-bold animate-pulse">Menghubungkan ke Database Pusat SCS...</p>
             </div>
-
-            <!-- Card Event 2 (Live) -->
-            <div class="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-gray-100 group">
-                <div class="h-48 overflow-hidden relative">
-                    <img src="https://images.unsplash.com/photo-1519315901367-f34f927e1273?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale-[30%]" alt="Event">
-                    <div class="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> LIVE RESULT
-                    </div>
-                </div>
-                <div class="p-6">
-                    <p class="text-xs font-bold text-gray-400 mb-1">20 - 22 Juli 2026</p>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Kejurda Renang Jatim 2026</h3>
-                    <p class="text-sm text-gray-500 mb-4">Kolam Renang Koni Jatim, Surabaya</p>
-                    <button class="w-full border-2 border-slate-200 text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-50 transition">Pantau Hasil Pertandingan</button>
-                </div>
-            </div>
-
         </div>
+
     </div>
+
+    <!-- Panggil Script Logika Dinamis -->
+    <script type="module" src="/src/event.js"></script>
 </body>
 </html>

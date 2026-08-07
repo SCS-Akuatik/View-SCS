@@ -193,10 +193,10 @@ async function fetchDashboardData() {
 
         const eventContainer = document.getElementById('eventListContainer');
         if (eventContainer) {
-            if (!eventsData || eventsData.length === 0) {
-                eventContainer.innerHTML = `<p class="text-sm text-gray-500 italic col-span-full">Belum ada event lomba yang dibuat. Silakan klik 'Buat Event' di menu Aksi Cepat.</p>`;
-            } else {
-                let evHTML = '';
+            let evHTML = '';
+            
+            // 1. Tampilkan Event Milik Klub
+            if (eventsData && eventsData.length > 0) {
                 eventsData.forEach(ev => {
                     evHTML += `
                         <div class="border border-emerald-100 bg-white p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-300 transition-all group flex flex-col justify-between">
@@ -209,9 +209,23 @@ async function fetchDashboardData() {
                         </div>
                     `;
                 });
-                eventContainer.innerHTML = evHTML;
+            } else {
+                evHTML += `<p class="text-sm text-gray-500 italic">Belum ada event lomba yang dibuat.</p>`;
             }
+
+            // 2. Tambahkan "Trik Hybrid" (Card Pintasan Kalender Publik)
+            evHTML += `
+                <div class="border-2 border-dashed border-blue-200 bg-blue-50/50 p-4 rounded-2xl hover:border-blue-400 transition-all group flex flex-col justify-center items-center text-center">
+                    <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">🌍</span>
+                    <h3 class="font-bold text-blue-900 text-base">Jelajahi Kalender Event</h3>
+                    <p class="text-xs text-gray-600 mt-1 mb-4">Cari kejuaraan renang terdekat di Provinsi / Kota Anda atau pantau event lainnya.</p>
+                    <a href="/event.html" class="bg-blue-600 text-white text-xs font-bold py-2 px-6 rounded-full shadow-md hover:bg-blue-700 transition">Buka Kalender Lomba &raquo;</a>
+                </div>
+            `;
+            
+            eventContainer.innerHTML = evHTML;
         }
+
 
         // TARIK DATA ATLET
         const { data: athletesData, error: athletesError } = await supabaseClient

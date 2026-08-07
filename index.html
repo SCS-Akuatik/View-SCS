@@ -5,9 +5,7 @@
     <script>
         (function() {
             const host = window.location.hostname;
-            // Jika yang dibuka BUKAN domain utama, BUKAN www, dan BUKAN localhost
             if (host !== 'funswimming.my.id' && host !== 'www.funswimming.my.id' && host !== 'localhost' && !host.includes('vercel.app')) {
-                // Tendang langsung ke halaman form pendaftaran
                 window.location.replace('/event-public.html');
             }
         })();
@@ -45,7 +43,7 @@
 <body class="bg-gray-50 text-gray-800 font-sans antialiased relative">
 
     <!-- STICKY FLOATING BUTTON "MASUK" -->
-    <a href="/auth.html" class="fixed top-4 right-4 md:top-5 md:right-6 z-[100] bg-white text-scsBlue font-extrabold px-4 py-1.5 text-xs md:text-sm rounded-full shadow-md border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all flex items-center gap-1.5">
+    <a href="/auth.html" class="fixed top-3 right-14 md:top-4 md:right-6 z-[100] bg-scsBlue text-white font-extrabold px-5 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-900 transition-all border border-blue-900 flex items-center gap-1.5">
         Masuk
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
     </a>
@@ -70,9 +68,25 @@
                     <a href="/promosi.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm">Promosi</a>
                     <a href="/pricing.html" class="text-scsBlue font-extrabold text-sm">Harga</a> 
                 </div>
+
+                <!-- BURGER BUTTON MOBILE -->
+                <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-600 hover:text-scsBlue focus:outline-none ml-auto mr-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobileMenu" class="fixed inset-0 bg-white z-[90] hidden flex-col pt-16 px-6">
+        <div class="flex flex-col gap-6 text-center mt-10">
+            <a href="/event.html" class="text-2xl font-black text-slate-800 border-b border-gray-100 pb-4">Kalender Event</a>
+            <a href="/rank.html" class="text-2xl font-black text-slate-800 border-b border-gray-100 pb-4 flex items-center justify-center gap-2">Leaderboard <span class="text-xs bg-red-500 text-white px-2 py-1 rounded-full animate-pulse">HOT</span></a>
+            <a href="/promosi.html" class="text-2xl font-black text-slate-800 border-b border-gray-100 pb-4">Promosi Bisnis</a>
+            <a href="/pricing.html" class="text-2xl font-black text-scsBlue">Harga & Layanan</a>
+        </div>
+        <button id="closeMobileBtn" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 font-bold text-3xl">&times;</button>
+    </div>
 
     <!-- RUNNING TEXT -->
     <div class="fixed top-14 md:top-16 left-0 w-full bg-blue-950 shadow-md border-b border-blue-800 py-1.5 z-40 marquee-container">
@@ -86,7 +100,7 @@
     </div>
 
     <!-- HERO SECTION SLIDER -->
-    <section class="pt-28 md:pt-36 pb-12 lg:pb-16 bg-scsBlue text-white relative overflow-hidden group">
+    <section class="pt-32 md:pt-40 pb-12 lg:pb-16 bg-scsBlue text-white relative overflow-hidden group">
         <!-- Panah Navigasi Hero -->
         <button id="heroPrev" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 bg-white/10 hover:bg-white/30 rounded-full backdrop-blur-sm transition opacity-0 group-hover:opacity-100">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
@@ -97,45 +111,45 @@
 
         <!-- Slider Track -->
         <div id="heroTrack" class="flex w-[200%] transition-transform duration-700 ease-in-out">
-            <!-- SLIDE 1: Main Copywriting (Solusi Masalah) -->
+            <!-- SLIDE 1: Pilihan Persona (Klub vs Atlet) -->
             <div class="w-1/2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center shrink-0">
-                <div class="flex justify-center mb-6 md:mb-8">
-                    <span class="inline-block bg-blue-900/50 border border-blue-400 text-blue-200 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-wide">
-                        🚀 Lomba Profesional Tanpa Spreadsheet & Google Forms
-                    </span>
-                </div>
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-                    Stop Ribet Urus <br class="hidden md:block">
-                    <span class="text-scsGold">Lomba Renang</span>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-4 leading-tight">
+                    Siapa <span class="text-scsGold">Anda?</span>
                 </h1>
-                <p class="mt-4 text-lg md:text-xl font-light text-blue-100 max-w-3xl mx-auto mb-8 leading-relaxed">
-                    Dari pendaftaran, pembayaran, drawing, hingga hasil lomba dalam satu dashboard. Tinggalkan cara manual, mulai otomatisasi event Anda hari ini.
+                <p class="mt-2 text-lg md:text-xl font-light text-blue-100 max-w-3xl mx-auto mb-10 leading-relaxed">
+                    SCS membedakan jalur antara penyelenggara event (Klub/EO) dan peserta (Atlet/Orang Tua). Pilih jalur Anda untuk memulai.
                 </p>
-                <div class="flex flex-col items-center gap-6 pb-4">
-                    <a href="/auth.html" class="bg-scsGold text-scsBlue px-8 py-4 rounded-full font-black text-lg hover:bg-yellow-500 transition shadow-[0_10px_20px_rgba(0,0,0,0.2)] inline-block hover:-translate-y-1">Buat Event Pertama (Gratis Trial)</a>
+                
+                <div class="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 pb-8">
+                    <!-- Opsi Klub / EO -->
+                    <a href="/auth.html" class="flex-1 max-w-[280px] mx-auto sm:mx-0 bg-white/10 hover:bg-white/20 border border-white/20 rounded-3xl p-6 backdrop-blur-sm transition-all hover:-translate-y-2 group text-left relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-7xl opacity-10 group-hover:opacity-20 transition-opacity">🚀</div>
+                        <h3 class="text-2xl font-black text-scsGold mb-2">Saya Klub / EO</h3>
+                        <p class="text-sm text-blue-100 mb-6">Buat event perlombaan, kelola pendaftaran, dan cetak buku acara.</p>
+                        <span class="inline-block bg-white text-scsBlue text-xs font-bold px-4 py-2 rounded-full">Masuk Dashboard &raquo;</span>
+                    </a>
                     
-                    <!-- Social Proof / Statistik -->
-                    <div class="flex flex-wrap justify-center gap-3 md:gap-6 text-xs md:text-sm text-blue-200 font-medium">
-                        <span class="flex items-center gap-1.5"><span class="text-scsGold">🏊‍♂️</span> 3.500+ Atlet</span> 
-                        <span class="hidden md:inline opacity-30">|</span>
-                        <span class="flex items-center gap-1.5"><span class="text-scsGold">🏆</span> 40+ Event</span> 
-                        <span class="hidden md:inline opacity-30">|</span>
-                        <span class="flex items-center gap-1.5"><span class="text-scsGold">🏟️</span> 25 Klub</span>
-                    </div>
+                    <!-- Opsi Atlet / Orang Tua -->
+                    <a href="/auth.html" class="flex-1 max-w-[280px] mx-auto sm:mx-0 bg-white/10 hover:bg-white/20 border border-white/20 rounded-3xl p-6 backdrop-blur-sm transition-all hover:-translate-y-2 group text-left relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-7xl opacity-10 group-hover:opacity-20 transition-opacity">🏊‍♂️</div>
+                        <h3 class="text-2xl font-black text-emerald-400 mb-2">Saya Atlet / Wali</h3>
+                        <p class="text-sm text-blue-100 mb-6">Klaim F1 ID, simpan sertifikat, dan pantau rank nasional.</p>
+                        <span class="inline-block bg-white text-scsBlue text-xs font-bold px-4 py-2 rounded-full">Klaim Akun F1 &raquo;</span>
+                    </a>
                 </div>
             </div>
 
-            <!-- SLIDE 2: Testimoni -->
+            <!-- SLIDE 2: Social Proof -->
             <div class="w-1/2 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center shrink-0 flex flex-col items-center justify-center">
                 <span class="text-5xl md:text-6xl mb-6">⭐⭐⭐⭐⭐</span>
                 <h2 class="text-2xl md:text-4xl font-extrabold mb-8 leading-relaxed max-w-4xl mx-auto italic">
-                    "Semenjak pakai ekosistem SCS, panitia udah nggak pernah lagi pusing ngurusin komplain salah input umur atlet. Cashflow event juga jadi transparan banget!"
+                    "Semenjak pakai ekosistem SCS, panitia udah nggak pernah lagi pusing ngurusin tumpukan kertas. F1 ID bener-bener ngerubah cara kita lomba!"
                 </h2>
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 bg-blue-800 rounded-full flex items-center justify-center text-xl font-bold border-2 border-scsGold">A</div>
                     <div class="text-left">
                         <p class="font-bold text-xl text-scsGold">Coach Aditya</p>
-                        <p class="text-blue-200 text-sm">Pelatih Regional Jatim / Pengguna SCS</p>
+                        <p class="text-blue-200 text-sm">Head Coach Jago Renang Academy</p>
                     </div>
                 </div>
             </div>
@@ -165,12 +179,12 @@
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">📱</div>
                     <h4 class="font-bold text-slate-800 text-sm">Klub Mendaftar</h4>
-                    <p class="text-xs text-slate-500 mt-1">Validasi umur otomatis</p>
+                    <p class="text-xs text-slate-500 mt-1">1 klik pakai F1 ID</p>
                 </div>
                 <!-- Step 3 -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">💳</div>
-                    <h4 class="font-bold text-slate-800 text-sm">Pembayaran Masuk</h4>
+                    <h4 class="font-bold text-slate-800 text-sm">Bayar Online</h4>
                     <p class="text-xs text-slate-500 mt-1">Cashflow real-time</p>
                 </div>
                 <!-- Step 4 -->
@@ -195,6 +209,34 @@
         </div>
     </section>
 
+    <!-- FITUR SECTION (DIREVISI SESUAI ARAHAN) -->
+    <section id="fitur" class="pt-16 pb-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-extrabold text-scsBlue">Fitur Unggulan SCS</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">Kami merancang SCS untuk menyelesaikan masalah fundamental di lapangan perlombaan renang Indonesia.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsGold hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mb-6 text-3xl">🪪</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">F1 ID (Identitas Digital)</h3>
+                    <p class="text-gray-600 leading-relaxed">Selamat tinggal salah ketik nama atau umur palsu. Satu atlet, satu F1 ID seumur hidup yang terkoneksi langsung ke database nasional SCS. Akurat & terverifikasi.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsBlue hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl">🤝</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Sponsor Dashboard</h3>
+                    <p class="text-gray-600 leading-relaxed">Beri ruang VVIP bagi sponsor event Anda. Mereka bisa memantau klik, logo tayang, dan impact promosi mereka secara real-time dari panel khusus.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-emerald-500 hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mb-6 text-3xl">🚀</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Setup Event Super Kilat</h3>
+                    <p class="text-gray-600 leading-relaxed">Dari setting harga tiket, buku acara otomatis, sampai cetak e-certificate presisi. Apa yang biasanya butuh waktu 3 minggu, kini bisa di-setup dalam hitungan menit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- SECTION HIGHLIGHT: EVENT & SPONSOR -->
     <section class="py-12 md:py-16 bg-white border-b border-gray-100 overflow-hidden relative">
         <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-50/50 to-transparent z-0"></div>
@@ -205,14 +247,6 @@
                     Highlight Ekosistem <span class="text-2xl animate-pulse">🔥</span>
                 </h2>
                 <p class="text-sm md:text-base text-slate-500 mt-2">Daftar event unggulan dan partner resmi yang tergabung dalam SCS.</p>
-            </div>
-            <div class="hidden md:flex gap-2">
-                <button id="btnPrevBanner" class="p-2.5 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md hover:bg-slate-50 text-slate-600 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-                <button id="btnNextBanner" class="p-2.5 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md hover:bg-slate-50 text-slate-600 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </button>
             </div>
         </div>
 
@@ -242,166 +276,20 @@
                         <div class="flex flex-wrap gap-2 text-[10px] text-white/90">
                             <span class="bg-white/10 border border-white/20 px-2 py-1 rounded">Booth Digital</span>
                             <span class="bg-white/10 border border-white/20 px-2 py-1 rounded">Logo di Heat Sheet</span>
-                            <span class="bg-white/10 border border-white/20 px-2 py-1 rounded">Dashboard Sponsor Khusus</span>
+                            <span class="bg-white/10 border border-white/20 px-2 py-1 rounded">Dashboard Khusus</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- CARD 3: EVENT LIVE -->
-                <div class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[35%] rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.08)] relative group cursor-pointer bg-white">
-                    <img src="https://images.unsplash.com/photo-1519315901367-f34f927e1273?w=800&q=80" class="w-full h-48 md:h-56 object-cover group-hover:scale-105 transition-transform duration-700 grayscale-[40%]" alt="Jatim Sprint">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 p-5 md:p-6 w-full">
-                        <span class="inline-flex items-center gap-1.5 bg-red-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg mb-3 tracking-wider shadow-sm">
-                            <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> LIVE RESULT
-                        </span>
-                        <h3 class="text-white font-bold text-xl md:text-2xl leading-tight mb-2">Kejurda Renang Jatim 2026</h3>
-                        <p class="text-slate-300 text-xs md:text-sm">Sedang Berlangsung • Klik untuk hasil seri</p>
-                    </div>
-                </div>
-
-                <!-- CARD 4: CALL TO ACTION -->
+                <!-- CARD 3: CALL TO ACTION -->
                 <div class="snap-center shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[35%] rounded-[2rem] overflow-hidden shadow-inner relative group cursor-pointer border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center hover:border-scsBlue hover:bg-blue-50 transition-colors duration-300">
                     <div class="h-48 md:h-56 p-6 flex flex-col items-center justify-center text-center">
-                        <span class="text-4xl mb-3 grayscale opacity-40 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-300">🏊‍♂️</span>
-                        <h3 class="text-slate-600 group-hover:text-scsBlue font-extrabold text-lg">Buat Event di SCS</h3>
-                        <p class="text-slate-400 text-xs mt-2 max-w-[200px]">Coba gratis sekarang dan rasakan kemudahannya.</p>
+                        <span class="text-4xl mb-3 grayscale opacity-40 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-300">📅</span>
+                        <h3 class="text-slate-600 group-hover:text-scsBlue font-extrabold text-lg">Cek Kalender Event</h3>
+                        <p class="text-slate-400 text-xs mt-2 max-w-[200px]">Lihat daftar seluruh kejuaraan nasional SCS.</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- FITUR SECTION -->
-    <section id="fitur" class="pt-16 pb-12 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10">
-                <h2 class="text-3xl font-extrabold text-scsBlue">Didesain Khusus untuk Panitia Fun Swimming</h2>
-                <p class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">Kelola pendaftaran, pembayaran, kategori umur, drawing, hasil lomba, hingga buku acara dalam satu dashboard.</p>
-            </div>
-            
-            <div class="flex flex-wrap justify-center gap-3 md:gap-6 mb-12 max-w-4xl mx-auto">
-                <div class="flex items-center gap-2 text-sm md:text-base font-bold text-slate-700 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-                    <span>✔️</span> Pendaftaran otomatis
-                </div>
-                <div class="flex items-center gap-2 text-sm md:text-base font-bold text-slate-700 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-                    <span>✔️</span> Auto-Lock Kelompok Umur
-                </div>
-                <div class="flex items-center gap-2 text-sm md:text-base font-bold text-slate-700 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-                    <span>✔️</span> Hasil lomba real-time
-                </div>
-                <div class="flex items-center gap-2 text-sm md:text-base font-bold text-slate-700 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-                    <span>✔️</span> Buku acara otomatis
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsBlue hover:-translate-y-2 transition duration-300">
-                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl">📅</div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Auto-Lock Kelompok Umur</h3>
-                    <p class="text-gray-600">Kategori umur otomatis ditentukan berdasarkan tanggal lahir, sehingga mengurangi kesalahan input dan revisi data.</p>
-                </div>
-                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsGold hover:-translate-y-2 transition duration-300">
-                    <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mb-6 text-3xl">🥷</div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Filter Sparing Partner</h3>
-                    <p class="text-gray-600">Pendaftar atlet pro (NISDA/NISNAS) tetap diterima tanpa merusak medali pemula. Tersembunyi di start list, otomatis jadi "Exhibition" di hasil akhir.</p>
-                </div>
-                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsBlue hover:-translate-y-2 transition duration-300">
-                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl">💰</div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Cashflow Management</h3>
-                    <p class="text-gray-600">Pantau modal, revenue, dan margin profit secara real-time. Dilengkapi sistem bagi hasil transparan antara Owner, Admin, dan Operator.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION BARU: TABEL PERBANDINGAN -->
-    <section class="py-16 bg-white border-t border-gray-100">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-2xl md:text-3xl font-extrabold text-center text-slate-800 mb-10">Mengapa Memilih SCS?</h2>
-            
-            <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
-                <table class="w-full text-left border-collapse min-w-[600px]">
-                    <thead>
-                        <tr class="bg-gray-50">
-                            <th class="p-4 md:p-5 font-bold text-slate-700 w-1/2">Fitur Lomba</th>
-                            <th class="p-4 md:p-5 font-black text-scsBlue text-center w-1/4 bg-blue-50 border-b-2 border-scsBlue">SCS</th>
-                            <th class="p-4 md:p-5 font-bold text-slate-500 text-center w-1/4">Platform Lain</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-sm md:text-base">
-                        <tr class="border-b border-gray-100 hover:bg-slate-50 transition">
-                            <td class="p-4 md:p-5 text-slate-700 font-medium">Auto-Lock Kelompok Umur</td>
-                            <td class="p-4 md:p-5 text-center text-green-500 bg-blue-50/30 text-lg">✅</td>
-                            <td class="p-4 md:p-5 text-center text-red-400 text-lg">❌</td>
-                        </tr>
-                        <tr class="border-b border-gray-100 hover:bg-slate-50 transition">
-                            <td class="p-4 md:p-5 text-slate-700 font-medium">Cashflow Dashboard Real-time</td>
-                            <td class="p-4 md:p-5 text-center text-green-500 bg-blue-50/30 text-lg">✅</td>
-                            <td class="p-4 md:p-5 text-center text-red-400 text-lg">❌</td>
-                        </tr>
-                        <tr class="border-b border-gray-100 hover:bg-slate-50 transition">
-                            <td class="p-4 md:p-5 text-slate-700 font-medium">F1_ID Atlet Digital</td>
-                            <td class="p-4 md:p-5 text-center text-green-500 bg-blue-50/30 text-lg">✅</td>
-                            <td class="p-4 md:p-5 text-center text-red-400 text-lg">❌</td>
-                        </tr>
-                        <tr class="border-b border-gray-100 hover:bg-slate-50 transition">
-                            <td class="p-4 md:p-5 text-slate-700 font-medium">Leaderboard Nasional / Rank</td>
-                            <td class="p-4 md:p-5 text-center text-green-500 bg-blue-50/30 text-lg">✅</td>
-                            <td class="p-4 md:p-5 text-center text-red-400 text-lg">❌</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="p-4 md:p-5 text-slate-700 font-medium">Sponsor Dashboard Terintegrasi</td>
-                            <td class="p-4 md:p-5 text-center text-green-500 bg-blue-50/30 text-lg">✅</td>
-                            <td class="p-4 md:p-5 text-center text-red-400 text-lg">❌</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- EKOSISTEM SECTION -->
-    <section id="ekosistem" class="py-20 bg-gray-50 border-t border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-12">
-            <div class="md:w-1/2">
-                <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Swimming Pool" class="rounded-2xl shadow-2xl">
-            </div>
-            <div class="md:w-1/2">
-                <h2 class="text-3xl font-extrabold text-scsBlue mb-6">Lebih Dari Sekadar Web Pendaftaran</h2>
-                <p class="text-lg text-gray-600 mb-6">SCS membawa Anda ke dalam ekosistem akuatik Nusantara yang terintegrasi. Semua kebutuhan event Anda ada di satu "selimut".</p>
-                <ul class="space-y-4">
-                    <li class="flex items-start">
-                        <span class="flex-shrink-0 h-6 w-6 text-scsGold font-bold text-xl mr-3">✓</span>
-                        <span class="text-gray-700"><strong>Subdomain Eksklusif:</strong> (nama-event).funswimming.my.id</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="flex-shrink-0 h-6 w-6 text-scsGold font-bold text-xl mr-3">✓</span>
-                        <span class="text-gray-700"><strong>Ajukan Sponsor:</strong> Terhubung langsung dengan brand lokal untuk support event Anda.</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="flex-shrink-0 h-6 w-6 text-scsGold font-bold text-xl mr-3">✓</span>
-                        <span class="text-gray-700"><strong>Call Juri Pro:</strong> Akses direktori dan booking tim juri bersertifikat di kota Anda.</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION BARU: VISI BESAR (CLOSING STATEMENT) -->
-    <section class="py-20 bg-blue-950 text-center relative overflow-hidden">
-        <!-- Background Accent -->
-        <div class="absolute inset-0 opacity-10">
-            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 C 20 0 50 0 100 100 Z" fill="#ffffff"/></svg>
-        </div>
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <h2 class="text-3xl md:text-5xl font-black text-white mb-6 leading-tight">Membangun Ekosistem <br class="hidden md:block"> <span class="text-scsGold">Akuatik Indonesia</span></h2>
-            <p class="text-lg md:text-xl text-blue-200 leading-relaxed mb-10 max-w-2xl mx-auto">
-                SCS menghubungkan atlet, klub, pelatih, event organizer, sponsor, dan orang tua dalam satu platform digital nasional yang transparan dan profesional.
-            </p>
-            <a href="/auth.html" class="inline-block bg-white text-scsBlue font-extrabold px-10 py-4 rounded-full text-lg hover:bg-gray-100 transition shadow-xl hover:-translate-y-1">
-                Bergabung Sekarang
-            </a>
         </div>
     </section>
 
@@ -417,6 +305,24 @@
     <!-- SCRIPT GABUNGAN -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // --- LOGIC BURGER MENU MOBILE ---
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const closeMobileBtn = document.getElementById('closeMobileBtn');
+
+            function toggleMobile() {
+                if (mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.remove('hidden');
+                    mobileMenu.classList.add('flex');
+                } else {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('flex');
+                }
+            }
+
+            if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
+            if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobile);
+
             // --- LOGIC HERO SLIDER ---
             const heroTrack = document.getElementById('heroTrack');
             const heroPrev = document.getElementById('heroPrev');
@@ -437,27 +343,28 @@
                 });
             }
 
-            heroNext.addEventListener('click', () => {
-                currentHeroSlide = currentHeroSlide === 0 ? 1 : 0;
-                updateHeroSlider();
-            });
+            if(heroNext) {
+                heroNext.addEventListener('click', () => {
+                    currentHeroSlide = currentHeroSlide === 0 ? 1 : 0;
+                    updateHeroSlider();
+                });
+            }
 
-            heroPrev.addEventListener('click', () => {
-                currentHeroSlide = currentHeroSlide === 0 ? 1 : 0;
-                updateHeroSlider();
-            });
+            if(heroPrev) {
+                heroPrev.addEventListener('click', () => {
+                    currentHeroSlide = currentHeroSlide === 0 ? 1 : 0;
+                    updateHeroSlider();
+                });
+            }
 
             setInterval(() => {
                 currentHeroSlide = currentHeroSlide === 0 ? 1 : 0;
                 updateHeroSlider();
             }, 8000); 
 
-            // --- LOGIC BANNER HIGHLIGHT (MyBCA Style) ---
+            // --- LOGIC BANNER HIGHLIGHT ---
             const carousel = document.getElementById('bannerCarousel');
-            const btnNext = document.getElementById('btnNextBanner');
-            const btnPrev = document.getElementById('btnPrevBanner');
             let isHovered = false;
-            let autoScrollInterval;
 
             if(carousel) {
                 carousel.addEventListener('mouseenter', () => isHovered = true);
@@ -467,52 +374,22 @@
                     setTimeout(() => { isHovered = false; }, 2000);
                 });
 
-                function startAutoScroll() {
-                    autoScrollInterval = setInterval(() => {
-                        if(!isHovered && carousel) {
-                            const scrollWidth = carousel.scrollWidth;
-                            const scrollLeft = carousel.scrollLeft;
-                            const clientWidth = carousel.clientWidth;
-                            const scrollStep = clientWidth * 0.85; 
+                setInterval(() => {
+                    if(!isHovered && carousel) {
+                        const scrollWidth = carousel.scrollWidth;
+                        const scrollLeft = carousel.scrollLeft;
+                        const clientWidth = carousel.clientWidth;
+                        const scrollStep = clientWidth * 0.85; 
 
-                            if (scrollLeft + clientWidth >= scrollWidth - 20) {
-                                carousel.scrollTo({ left: 0, behavior: 'smooth' });
-                            } else {
-                                carousel.scrollBy({ left: scrollStep, behavior: 'smooth' });
-                            }
+                        if (scrollLeft + clientWidth >= scrollWidth - 20) {
+                            carousel.scrollTo({ left: 0, behavior: 'smooth' });
+                        } else {
+                            carousel.scrollBy({ left: scrollStep, behavior: 'smooth' });
                         }
-                    }, 3500); 
-                }
-
-                startAutoScroll();
-
-                if(btnNext) {
-                    btnNext.addEventListener('click', () => {
-                        carousel.scrollBy({ left: carousel.clientWidth * 0.85, behavior: 'smooth' });
-                    });
-                }
-                if(btnPrev) {
-                    btnPrev.addEventListener('click', () => {
-                        carousel.scrollBy({ left: -(carousel.clientWidth * 0.85), behavior: 'smooth' });
-                    });
-                }
+                    }
+                }, 3500); 
             }
         });
-    </script>
-
-    <!-- PWA Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SCS App berhasil diinstall!', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('Service Worker gagal mendarat:', err);
-                    });
-            });
-        }
     </script>
 </body>
 </html>

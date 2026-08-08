@@ -95,14 +95,25 @@ function renderLeaderboard(data) {
         `;
 
         listJuara.forEach(j => {
-            const medali = j.peringkat === 1 ? '🥇' : j.peringkat === 2 ? '🥈' : '🥉';
-            const color = j.peringkat === 1 ? 'text-amber-500' : j.peringkat === 2 ? 'text-slate-400' : 'text-orange-700';
+            
+            // --- LOGIKA BARU BADGE PERINGKAT ---
+            let rankBadge = '';
+            if (j.peringkat === 1) {
+                rankBadge = `<div class="text-4xl text-amber-500 drop-shadow-sm">🥇</div>`;
+            } else if (j.peringkat === 2) {
+                rankBadge = `<div class="text-4xl text-slate-400 drop-shadow-sm">🥈</div>`;
+            } else if (j.peringkat === 3) {
+                rankBadge = `<div class="text-4xl text-orange-700 drop-shadow-sm">🥉</div>`;
+            } else {
+                rankBadge = `<div class="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full text-lg font-black border-2 border-slate-200 ml-1 mr-1 shadow-sm">${j.peringkat}</div>`;
+            }
+            
             const dataJuaraObj = encodeURIComponent(JSON.stringify(j));
 
             html += `
                 <div class="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition">
                     <div class="flex items-center gap-4">
-                        <div class="text-4xl ${color} drop-shadow-sm">${medali}</div>
+                        ${rankBadge}
                         <div>
                             <h5 class="font-black text-slate-800 text-base uppercase tracking-tight">${j.nama_peserta}</h5>
                             <p class="text-xs text-slate-500 font-bold mb-1">🏠 ${j.klub_asal}</p>
@@ -149,7 +160,6 @@ window.downloadSertifikatJuara = function(encodedData) {
         const colorName = baseConfig?.sharedStyle?.color || baseConfig?.nama?.color || "#1e293b";
 
         // 1. TULIS JUARA ("1 (Satu)")
-        // Logic konversi angka peringkat ke teks kurung (sesuai dummy)
         let strJuara = j.peringkat;
         if (j.peringkat == 1) strJuara = "1 (Satu)";
         else if (j.peringkat == 2) strJuara = "2 (Dua)";
@@ -177,7 +187,6 @@ window.downloadSertifikatJuara = function(encodedData) {
         ctx.fillText(namaCantik, nX, nY);
 
         // 3. TULIS NOMOR LOMBA ("50 M Gaya Bebas")
-        // Narik murni dari database tanpa imbuhan
         const strNomor = j.nomor_lomba; 
         const nom = baseConfig?.extra?.nomorLomba;
         const nomX = nom?.x ? parseInt(nom.x) : centerX;
@@ -188,7 +197,6 @@ window.downloadSertifikatJuara = function(encodedData) {
         ctx.fillText(strNomor, nomX, nomY);
 
         // 4. TULIS KU/WAKTU ("KU C Putra")
-        // Menggabungkan kelompok_umur dan gender dari database
         const strKU = `${j.kelompok_umur} ${j.gender}`;
         const ku = baseConfig?.extra?.kelompokUmur;
         const kuX = ku?.x ? parseInt(ku.x) : centerX;

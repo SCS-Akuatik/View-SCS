@@ -18,21 +18,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnGoogleLogin = document.getElementById('btnGoogleLogin');
 
     // ==========================================
-    // FUNGSI PENERJEMAH ERROR SUPABASE (V2 SAKTI)
+    // FUNGSI PENERJEMAH ERROR SUPABASE
     // ==========================================
     function translateAuthError(err) {
-        // Sengaja di-log biar ketahuan kalau ada error aneh dari server
         console.error("🔴 RAW ERROR DARI SUPABASE:", err); 
         
         let msg = "";
         if (typeof err === 'string') {
             msg = err;
         } else if (err && typeof err === 'object') {
-            // Hajar semua kemungkinan properti error
             msg = err.message || err.error_description || err.msg || err.error || JSON.stringify(err);
         }
 
-        // Kalau Supabase ngirim object kosong atau error ghoib
         if (!msg || msg === '{}' || msg === '[object Object]') {
             return "Terjadi blokir dari server (Akun sudah ada atau limit request). Coba masuk ke menu Login, atau tunggu 60 detik.";
         }
@@ -47,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (lowerMsg.includes("fetch") || lowerMsg.includes("network")) return "Koneksi terputus. Pastikan internet Anda stabil.";
         if (lowerMsg.includes("signups not allowed")) return "Pendaftaran ditutup sementara oleh sistem.";
         
-        return msg; // Kalau ga ada di list, tampilkan error aslinya
+        return msg; 
     }
 
     // ==========================================
@@ -125,6 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.replace('/dashboard.html');
 
         } catch (err) {
+            console.error("Login Error:", err);
             errorMsg.innerText = "❌ " + translateAuthError(err);
             errorMsg.classList.remove('hidden');
             btnLogin.innerHTML = `Masuk 🚀`;
@@ -133,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ==========================================
-    // LOGIKA REGISTER EMAIL
+    // LOGIKA REGISTER EMAIL (DENGAN VERIFIKASI)
     // ==========================================
     formRegister.addEventListener('submit', async () => {
         const email = document.getElementById('regEmail').value;
@@ -160,12 +158,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (error) throw error;
 
-            // FIX SUPABASE FAKE SUCCESS (Email Enumeration Protection)
-            // Jika data.user.identities kosong, artinya email aslinya sudah terdaftar!
             if (data?.user && data.user.identities && data.user.identities.length === 0) {
                 throw new Error("Email ini sudah terdaftar. Silakan kembali ke menu Masuk.");
             }
 
+            // Pesan dikembalikan seperti semula (Minta User Cek Email)
             alertMsg.innerHTML = "✅ <strong>Pendaftaran Berhasil!</strong><br>Silakan periksa <strong>Kotak Masuk / Spam</strong> email Anda untuk mengklik tautan verifikasi sebelum masuk.";
             alertMsg.className = "bg-emerald-50 text-emerald-700 text-xs font-bold p-3 rounded-lg border border-emerald-200 text-center leading-relaxed block";
             
@@ -174,6 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('regConfirmPassword').value = '';
 
         } catch (err) {
+            console.error("Register Error:", err);
             alertMsg.innerText = "❌ " + translateAuthError(err);
             alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-100 text-center block";
             alertMsg.classList.remove('hidden');
@@ -233,6 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('inputResetEmail').value = ''; 
 
             } catch (err) {
+                console.error("Reset Password Error:", err);
                 alertMsg.innerText = "❌ " + translateAuthError(err);
                 alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100 text-center block mb-4";
                 alertMsg.classList.remove('hidden');

@@ -13,6 +13,8 @@
             background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
             background-size: 20px 20px;
         }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-20 bg-pattern">
@@ -49,7 +51,6 @@
             
             <!-- DIGITAL ID CARD -->
             <div class="relative bg-gradient-to-br from-slate-900 via-blue-950 to-blue-900 rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-800/50">
-                <!-- Abstract Background Elements -->
                 <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
                 <div class="absolute bottom-0 left-0 w-64 h-64 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 translate-y-1/2 -translate-x-1/4"></div>
                 
@@ -57,7 +58,7 @@
                 <div class="p-6 flex justify-between items-start relative z-10 border-b border-white/10">
                     <div>
                         <img src="/images/logo.png" class="h-6 opacity-80 filter brightness-0 invert mb-1">
-                        <p class="text-[9px] text-blue-200 tracking-widest font-bold uppercase">Official Athlete Identity</p>
+                        <p class="text-[9px] text-blue-200 tracking-widest font-bold uppercase mt-1">Official Athlete Identity</p>
                     </div>
                     <div id="badgeVerifikasi">
                         <!-- Disuntik JS -->
@@ -66,19 +67,16 @@
 
                 <!-- Card Body -->
                 <div class="p-6 relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6">
-                    <!-- Photo -->
                     <div class="shrink-0 relative">
                         <img id="atletFoto" src="" class="w-32 h-32 md:w-36 md:h-36 rounded-2xl object-cover border-4 border-white/10 shadow-xl bg-slate-800">
                         <div class="absolute -bottom-3 -right-3 w-10 h-10 bg-amber-400 rounded-full border-4 border-slate-900 flex items-center justify-center shadow-lg" id="atletGenderIcon">
-                            <!-- Disuntik JS -->
                         </div>
                     </div>
                     
-                    <!-- Info -->
                     <div class="text-center md:text-left flex-1 w-full">
                         <h1 id="atletName" class="text-2xl md:text-3xl font-black text-white tracking-tight leading-none mb-2 drop-shadow-md">Memuat...</h1>
                         
-                        <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-1.5 rounded-lg backdrop-blur-sm mb-4">
+                        <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-1.5 rounded-lg backdrop-blur-sm mb-4 cursor-pointer hover:bg-white/20 transition-colors" onclick="navigator.clipboard.writeText(document.getElementById('atletF1Id').innerText); alert('F1 ID berhasil disalin!')">
                             <span class="text-amber-400 text-sm">🆔</span>
                             <span id="atletF1Id" class="font-mono text-lg font-black text-white tracking-wider">F1-XXXXXX</span>
                         </div>
@@ -97,21 +95,36 @@
                 </div>
             </div>
 
-            <!-- TAB MENU (Untuk Pengembangan Fitur Ke Depan) -->
+            <!-- TAB MENU -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 flex gap-2">
-                <button class="flex-1 py-2.5 bg-blue-50 text-blue-700 rounded-xl font-bold text-sm transition-colors">🏅 Pencapaian</button>
-                <button class="flex-1 py-2.5 text-slate-500 hover:bg-slate-50 rounded-xl font-bold text-sm transition-colors opacity-50 cursor-not-allowed">⏱️ Best Time</button>
+                <button id="tabPencapaian" class="flex-1 py-2.5 bg-blue-50 text-blue-700 rounded-xl font-bold text-sm transition-colors">🏅 Pencapaian</button>
+                <button id="tabBestTime" class="flex-1 py-2.5 text-slate-500 hover:bg-slate-50 rounded-xl font-bold text-sm transition-colors">⏱️ Best Time</button>
             </div>
 
-            <!-- DAFTAR MEDALI / PRESTASI (Bisa ditarik dari race_results / leaderboard nanti) -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+            <!-- TAB CONTENT: PENCAPAIAN (MEDALI) -->
+            <div id="contentPencapaian" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="flex items-center justify-between p-5 md:p-6 border-b border-slate-100">
                     <h3 class="font-extrabold text-slate-800 text-lg">Koleksi Medali</h3>
-                    <span class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold">Segera Hadir</span>
+                    <span id="totalMedali" class="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-bold">0 Medali</span>
                 </div>
-                <div class="text-center py-8">
-                    <span class="text-5xl block mb-3 grayscale opacity-30">🎖️</span>
-                    <p class="text-sm font-bold text-slate-500">Fitur rekapitulasi medali dan sertifikat digital sedang dalam tahap pengembangan.</p>
+                <div id="medaliList" class="divide-y divide-slate-100">
+                    <div class="text-center py-10">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-900 mx-auto mb-3"></div>
+                        <p class="text-xs text-slate-500 font-bold">Memuat rekap medali...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: BEST TIME -->
+            <div id="contentBestTime" class="hidden bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="flex items-center justify-between p-5 md:p-6 border-b border-slate-100 bg-blue-50/50">
+                    <h3 class="font-extrabold text-blue-900 text-lg">Catatan Waktu Terbaik</h3>
+                </div>
+                <div id="bestTimeList" class="divide-y divide-slate-100">
+                    <div class="text-center py-10">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-900 mx-auto mb-3"></div>
+                        <p class="text-xs text-slate-500 font-bold">Menganalisis waktu tercepat...</p>
+                    </div>
                 </div>
             </div>
 

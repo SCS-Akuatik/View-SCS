@@ -18,6 +18,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnGoogleLogin = document.getElementById('btnGoogleLogin');
 
     // ==========================================
+    // FUNGSI PENERJEMAH ERROR SUPABASE
+    // ==========================================
+    function translateAuthError(err) {
+        // Ekstrak pesan dari object error
+        let msg = err?.message || err?.error_description || (typeof err === 'string' ? err : JSON.stringify(err));
+        
+        // Kalau error-nya cuma "{}" atau kosong
+        if (msg === '{}' || !msg) return "Terjadi gangguan pada server. Silakan coba beberapa saat lagi.";
+        
+        // Terjemahkan error umum ke Bahasa Indonesia
+        const lowerMsg = msg.toLowerCase();
+        if (lowerMsg.includes("already registered")) return "Email ini sudah terdaftar. Silakan kembali ke menu Masuk.";
+        if (lowerMsg.includes("password should be")) return "Kata sandi terlalu lemah (minimal 6 karakter).";
+        if (lowerMsg.includes("invalid login credentials")) return "Email atau kata sandi salah!";
+        if (lowerMsg.includes("email not confirmed")) return "Email belum diverifikasi. Cek Kotak Masuk atau folder Spam Anda.";
+        if (lowerMsg.includes("60 seconds") || lowerMsg.includes("rate limit")) return "Terlalu banyak percobaan. Sistem mengamankan akun Anda, tunggu 60 detik.";
+        
+        return msg; // Tampilkan error aslinya kalau belum ada di daftar terjemahan
+    }
+
+    // ==========================================
     // SWITCHER ANIMASI (LOGIN <-> REGISTER)
     // ==========================================
     document.getElementById('btnSwitchToRegister').addEventListener('click', () => {
@@ -26,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => {
             containerLogin.classList.add('hidden');
             containerRegister.classList.remove('hidden');
-            containerRegister.classList.add('flex'); // Pastikan bentuknya flex
+            containerRegister.classList.add('flex');
             setTimeout(() => {
                 containerRegister.classList.remove('translate-x-full', 'opacity-0');
                 containerRegister.classList.add('translate-x-0', 'opacity-100');
@@ -63,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (error) {
-                alert("Gagal menghubungkan ke Google: " + error.message);
+                alert("Gagal menghubungkan ke Google: " + translateAuthError(error));
                 btnGoogleLogin.innerHTML = "Lanjutkan dengan Google";
             }
         });
@@ -87,19 +108,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 password: password,
             });
 
-            if (error) {
-                if (error.message.includes("Invalid login credentials")) {
-                    throw new Error("Email atau kata sandi salah!");
-                } else if (error.message.includes("Email not confirmed")) {
-                    throw new Error("Email belum diverifikasi. Cek kotak masuk Anda!");
-                }
-                throw error;
-            }
+            if (error) throw error;
             
             window.location.replace('/dashboard.html');
 
         } catch (err) {
-            errorMsg.innerText = err.message;
+            console.error("Login Error:", err);
+            errorMsg.innerText = "❌ " + translateAuthError(err);
             errorMsg.classList.remove('hidden');
             btnLogin.innerHTML = `Masuk 🚀`;
             btnLogin.disabled = false;
@@ -112,10 +127,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     formRegister.addEventListener('submit', async () => {
         const email = document.getElementById('regEmail').value;
         const password = document.getElementById('regPassword').value;
-        const confirmPassword = document.getElementById('regConfirmPassword').value; // Ambil nilai ulangi sandi
+        const confirmPassword = document.getElementById('regConfirmPassword').value; 
         const alertMsg = document.getElementById('regAlertMsg');
 
-        // Validasi: Cek apakah kedua password sama
         if (password !== confirmPassword) {
             alertMsg.innerText = "❌ Kata sandi tidak cocok. Silakan periksa kembali!";
             alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-100 text-center block";
@@ -133,23 +147,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 password: password,
             });
 
-            if (error) {
-                if (error.message.includes("User already registered")) {
-                    throw new Error("Email ini sudah digunakan. Silakan login.");
-                }
-                throw error;
-            }
+            if (error) throw error;
 
             alertMsg.innerHTML = "✅ <strong>Pendaftaran Berhasil!</strong><br>Silakan periksa <strong>Kotak Masuk / Spam</strong> email Anda untuk mengklik tautan verifikasi sebelum masuk.";
             alertMsg.className = "bg-emerald-50 text-emerald-700 text-xs font-bold p-3 rounded-lg border border-emerald-200 text-center leading-relaxed block";
             
-            // Kosongkan form
             document.getElementById('regEmail').value = '';
             document.getElementById('regPassword').value = '';
             document.getElementById('regConfirmPassword').value = '';
 
         } catch (err) {
-            alertMsg.innerText = "❌ " + err.message;
+            console.error("Register Error:", err);
+            alertMsg.innerText = "❌ " + translateAuthError(err);
             alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-100 text-center block";
         } finally {
             btnRegister.innerHTML = `Daftarkan Via Email`;
@@ -185,8 +194,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const alertMsg = document.getElementById('resetAlertMsg');
 
             if (!email) {
-                alertMsg.innerText = "Masukkan email akun Anda terlebih dahulu!";
+                alertMsg.innerText = "❌ Masukkan email akun Anda terlebih dahulu!";
                 alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100 text-center block mb-4";
+                alertMsg.classList.remove('hidden');
                 return;
             }
 
@@ -206,7 +216,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('inputResetEmail').value = ''; 
 
             } catch (err) {
-                alertMsg.innerText = "❌ Gagal: " + err.message;
+                console.error("Reset Password Error:", err);
+                alertMsg.innerText = "❌ " + translateAuthError(err);
                 alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100 text-center block mb-4";
             } finally {
                 btnKirimReset.innerHTML = "Kirim Tautan";

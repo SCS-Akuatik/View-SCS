@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnGoogleLogin = document.getElementById('btnGoogleLogin');
 
     // ==========================================
-    // FUNGSI PENERJEMAH ERROR SUPABASE (V3 ANTI GHOIB)
+    // FUNGSI PENERJEMAH ERROR SUPABASE (ANTI LEBAY)
     // ==========================================
     function translateAuthError(err) {
         console.error("🔴 RAW ERROR DARI SUPABASE:", err); 
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof err === 'string') {
             msg = err;
         } else if (err instanceof Error) {
-            msg = err.message; // Nangkap error custom JS
+            msg = err.message; 
         } else if (err && typeof err === 'object') {
             msg = err.message || err.error_description || err.msg || err.error;
             if (!msg) {
@@ -35,8 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
+        // HAPUS TEBAKAN LEBAY TENTANG KUOTA SELULER
         if (!msg || msg === '{}' || msg === '[object Object]') {
-            return "Sistem mendeteksi terlalu banyak percobaan dari jaringan Anda. Tunggu maksimal 1 jam, atau gunakan koneksi lain (contoh: pakai Kuota Seluler).";
+            return "Pendaftaran ditolak oleh server. Pastikan email valid dan kata sandi minimal 6 karakter.";
         }
 
         const lowerMsg = String(msg).toLowerCase();
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (lowerMsg.includes("password should be")) return "Kata sandi terlalu lemah (minimal 6 karakter).";
         if (lowerMsg.includes("invalid login credentials")) return "Email atau kata sandi salah!";
         if (lowerMsg.includes("email not confirmed")) return "Email belum diverifikasi. Cek Kotak Masuk atau folder Spam Anda.";
-        if (lowerMsg.includes("rate limit") || lowerMsg.includes("60 seconds") || lowerMsg.includes("too many")) return "Terlalu banyak percobaan. Sistem mengamankan akun Anda dari spam, coba lagi nanti.";
+        if (lowerMsg.includes("rate limit") || lowerMsg.includes("60 seconds") || lowerMsg.includes("too many")) return "Terlalu banyak percobaan. Tunggu 60 detik.";
         if (lowerMsg.includes("fetch") || lowerMsg.includes("network")) return "Koneksi terputus. Pastikan internet Anda stabil.";
         if (lowerMsg.includes("signups not allowed")) return "Pendaftaran ditutup sementara oleh sistem.";
         

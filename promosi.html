@@ -2,71 +2,171 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promo Ekosistem | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="apple-touch-icon" href="/images/logo.png">
 </head>
-<body class="bg-gray-50 antialiased font-sans pt-24 pb-12">
-    <!-- Navbar (Sama Persis) -->
-    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16">
+<body class="bg-slate-50 antialiased font-sans pt-24 pb-20">
+    
+    <!-- Tombol Auth Mengambang (Diubah oleh JS kalau sudah Login) -->
+    <a href="/auth.html" id="floatingAuthBtn" class="fixed top-3 right-14 md:top-4 md:right-6 z-[100] bg-blue-700 text-white font-extrabold px-5 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-800 transition-all border border-blue-800 flex items-center gap-1.5">
+        <span id="floatingAuthText">Masuk</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+    </a>
+
+    <!-- Navbar -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16 border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
             <div class="flex justify-between items-center h-full">
-                <div class="flex-shrink-0 flex items-center h-full py-2">
-                    <a href="/" class="block"><img class="max-h-8 md:max-h-10 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo"></a>
+                <!-- LOGO -->
+                <div class="flex-shrink-0 flex items-center h-full py-1">
+                    <a href="/" class="block"><img class="max-h-12 md:max-h-14 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo"></a>
                 </div>
+                
                 <div class="hidden md:flex space-x-6 lg:space-x-8 items-center mr-24 md:mr-28">
-                    <a href="/event.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm">Event</a>
-                    <a href="/rank.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm flex items-center gap-1">Rank <span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded-full animate-pulse">HOT</span></a>
-                    <a href="/promosi.html" class="text-scsBlue font-extrabold text-sm border-b-2 border-scsBlue pb-1">Promosi</a>
-                    <a href="/pricing.html" class="text-gray-600 hover:text-scsBlue font-bold text-sm">Harga</a> 
+                    <a href="/event.html" class="text-slate-600 hover:text-blue-700 font-bold text-sm">Event</a>
+                    <a href="/rank.html" class="text-slate-600 hover:text-blue-700 font-bold text-sm flex items-center gap-1">Rank <span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded-full animate-pulse tracking-widest">HOT</span></a>
+                    <a href="/promosi.html" class="text-blue-700 font-extrabold text-sm border-b-2 border-blue-700 pb-1">Promosi</a>
+                    <a href="/pricing.html" class="text-slate-600 hover:text-blue-700 font-bold text-sm">Harga</a> 
                 </div>
+
+                <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-600 hover:text-blue-700 focus:outline-none ml-auto mr-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
             </div>
         </div>
-        <a href="/auth.html" class="fixed top-3 right-4 md:top-4 md:right-6 z-[100] bg-scsBlue text-white font-extrabold px-4 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-900 transition-all">Masuk</a>
     </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 bg-white z-[90] hidden flex-col pt-16 px-6">
+        <div class="flex flex-col gap-6 text-center mt-10">
+            <a href="/event.html" class="text-2xl font-black text-slate-800 border-b border-gray-100 pb-4">Kalender Event</a>
+            <a href="/rank.html" class="text-2xl font-black text-slate-800 border-b border-gray-100 pb-4 flex items-center justify-center gap-2">Leaderboard <span class="text-xs bg-red-500 text-white px-2 py-1 rounded-full animate-pulse">HOT</span></a>
+            <a href="/promosi.html" class="text-2xl font-black text-blue-700 border-b border-gray-100 pb-4">Promosi Bisnis</a>
+            <a href="/pricing.html" class="text-2xl font-black text-slate-800">Harga & Layanan</a>
+        </div>
+        <button id="closeMobileBtn" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-red-500 font-bold text-3xl">&times;</button>
+    </div>
     
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="text-center mb-10">
-            <span class="text-4xl mb-2 block">🎁</span>
-            <h1 class="text-4xl font-black text-blue-900 mb-3">Promo Eksklusif</h1>
-            <p class="text-gray-500">Nikmati penawaran khusus dari jaringan sponsor dan partner SCS.</p>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        
+        <!-- HOOK, TRUST & CTA Header -->
+        <div class="text-center mb-12 bg-blue-50/50 py-10 px-6 rounded-3xl border border-blue-100 shadow-sm relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+            
+            <span class="text-5xl mb-4 block drop-shadow-sm">🎁🚀</span>
+            <!-- Hook -->
+            <h1 class="text-3xl md:text-5xl font-black text-blue-900 mb-4 tracking-tight">Tinggalkan Cara Lama!</h1>
+            <!-- Trust -->
+            <p class="text-slate-600 font-medium text-sm md:text-base max-w-3xl mx-auto leading-relaxed mb-6">
+                Masih zaman ngurus lomba pakai Google Forms, ngetik *heat* manual di Excel, dan begadang nyetak piagam satu-satu? <br class="hidden md:block">
+                Selamat datang di <strong class="text-blue-800">SCS (Swimming Competition System)</strong>, sistem otomatisasi lomba pertama yang terintegrasi dengan F1 ID. Pendaftaran, *drawing*, hingga Live Result kini terbit dalam hitungan detik!
+            </p>
+            <!-- CTA -->
+            <p class="text-amber-600 font-extrabold text-sm md:text-base mb-2">Jangan sampai event Anda ketinggalan zaman!</p>
+            <p class="text-slate-500 text-xs mb-0">Nikmati penawaran eksklusif dari jaringan sponsor dan ekosistem kami di bawah ini:</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            <!-- Promo Card 1: Jago Renang Academy (Ekosistem Sendiri) -->
-            <div class="bg-gradient-to-br from-blue-900 to-blue-950 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden group">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-scsGold rounded-full opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
+            <!-- PROMO CARD 1: FREEMIUM SUROBOYO (MAUT) -->
+            <div class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 rounded-3xl p-6 md:p-8 text-white shadow-[0_15px_40px_-15px_rgba(30,58,138,0.5)] relative overflow-hidden group border-2 border-amber-400 hover:-translate-y-1 transition-all">
+                <!-- Ornamen Buaya Suroboyo -->
+                <div class="absolute -right-6 -bottom-8 text-9xl opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-700 group-hover:opacity-20">🐊</div>
+                
                 <div class="relative z-10">
-                    <span class="bg-scsGold text-blue-950 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block">Partner Resmi</span>
-                    <h2 class="text-2xl font-black mb-2">Diskon 20% Privat Class</h2>
-                    <p class="text-blue-200 text-sm mb-6 max-w-xs">Gunakan kode ini untuk pendaftaran kelas atlet di Jago Renang Academy cabang Surabaya & Sidoarjo.</p>
+                    <span class="bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block shadow-sm">✨ FREEMIUM SCS ✨</span>
+                    
+                    <h2 class="text-2xl md:text-3xl font-black mb-2 tracking-tight text-white drop-shadow-sm">Hai Arek Suroboyo! 🦈</h2>
+                    
+                    <p class="text-blue-100 text-sm mb-4 leading-relaxed font-medium">
+                        Setelah sukses di berbagai kota, kini giliranmu! Nikmati <strong>ALL FITUR</strong> SCS (Live Result, Sertifikat Auto, Manajemen Heat) secara <span class="text-yellow-300 font-extrabold">GRATIS</span>.
+                        <br><span class="text-[10px] text-blue-300/80 mt-1.5 block leading-tight">*Catatan: Modul cari sponsor VVIP tidak termasuk dalam promo ini.</span>
+                    </p>
+                    
+                    <!-- Kotak Masa Berlaku -->
+                    <div class="bg-blue-950/60 border border-blue-800/50 rounded-xl p-3 mb-6 inline-flex shadow-inner">
+                        <p class="text-xs text-blue-200 font-bold flex items-center gap-2">
+                            <span class="text-lg">⏳</span> Berlaku hingga: <span class="text-white font-black">November 2026</span>
+                        </p>
+                    </div>
                     
                     <div class="flex items-center gap-3">
-                        <div class="bg-white/10 border border-white/20 border-dashed rounded-xl px-4 py-2 font-mono font-bold text-scsGold tracking-widest flex-1 text-center">
-                            JAGO20SCS
-                        </div>
-                        <button class="bg-white text-blue-900 font-bold px-4 py-2 rounded-xl hover:bg-gray-100 transition shadow-lg shrink-0">Klaim Promo</button>
+                        <a href="/auth.html" class="w-full text-center bg-gradient-to-r from-amber-300 to-yellow-500 text-yellow-950 font-black px-6 py-3.5 rounded-xl hover:from-amber-400 hover:to-yellow-600 transition shadow-[0_0_20px_rgba(251,191,36,0.3)] flex justify-center items-center gap-2 active:scale-95">
+                            🚀 Buat Event Sekarang
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Promo Card 2: Alat Renang Sponsor -->
-            <div class="bg-white rounded-3xl p-6 md:p-8 border-2 border-gray-100 shadow-md relative overflow-hidden group hover:border-scsGold transition-colors">
-                <div class="relative z-10 flex flex-col h-full justify-between">
-                    <div>
-                        <span class="bg-red-100 text-red-600 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block">Apparel Sponsor</span>
-                        <h2 class="text-2xl font-black text-gray-900 mb-2">Cashback Goggles & Kickboard Pro</h2>
-                        <p class="text-gray-500 text-sm mb-6 max-w-xs">Beli perlengkapan renang pro-series dari brand partner kami, dapatkan cashback langsung via GoPay.</p>
+            <!-- PROMO CARD 2: Jago Renang Academy (Partner) -->
+            <div class="bg-white rounded-3xl p-6 md:p-8 border-2 border-slate-100 shadow-md relative overflow-hidden group hover:border-blue-200 transition-all hover:-translate-y-1 flex flex-col justify-between">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                
+                <div class="relative z-10 mb-6">
+                    <span class="bg-blue-100 text-blue-700 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">Partner Ekosistem</span>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-2 tracking-tight">Diskon 20% Privat Class</h2>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Gunakan kode afiliasi ini untuk pendaftaran kelas atlet di <strong>Jago Renang Academy</strong> cabang Surabaya & Sidoarjo. Tingkatkan performa atlet Anda bersama pelatih pro!
+                    </p>
+                </div>
+                
+                <div class="relative z-10 flex flex-col sm:flex-row items-center gap-3 mt-auto">
+                    <div class="w-full sm:w-auto bg-slate-50 border border-slate-200 border-dashed rounded-xl px-4 py-3 font-mono font-bold text-blue-700 tracking-widest flex-1 text-center select-all">
+                        JAGO20SCS
                     </div>
-                    
-                    <div class="flex items-center gap-3">
-                        <button class="w-full bg-scsGold text-blue-900 font-bold px-4 py-3 rounded-xl hover:bg-yellow-500 transition shadow-md">Lihat Katalog Apparel</button>
-                    </div>
+                    <a href="https://wa.me/628123456789" target="_blank" class="w-full sm:w-auto text-center bg-blue-900 text-white font-bold px-6 py-3.5 rounded-xl hover:bg-blue-800 transition shadow-md shrink-0 active:scale-95">
+                        Klaim Promo
+                    </a>
                 </div>
             </div>
 
         </div>
     </div>
+
+    <!-- Script Logika Auth & Mobile Menu -->
+    <script type="module">
+        import { supabaseClient } from '/src/supabase.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. CEK STATUS LOGIN
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const floatBtn = document.getElementById('floatingAuthBtn');
+                const floatText = document.getElementById('floatingAuthText');
+                
+                if (session) {
+                    floatBtn.href = '/dashboard.html';
+                    floatBtn.classList.replace('bg-blue-700', 'bg-emerald-600');
+                    floatBtn.classList.replace('border-blue-800', 'border-emerald-700');
+                    floatBtn.classList.replace('hover:bg-blue-800', 'hover:bg-emerald-700');
+                    floatText.innerText = 'Ke Dashboard';
+                }
+            } catch (err) {
+                console.error("Gagal cek auth:", err);
+            }
+
+            // 2. LOGIC BURGER MENU MOBILE
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const closeMobileBtn = document.getElementById('closeMobileBtn');
+
+            function toggleMobile() {
+                if (mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.remove('hidden');
+                    mobileMenu.classList.add('flex');
+                } else {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('flex');
+                }
+            }
+
+            if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
+            if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobile);
+        });
+    </script>
 </body>
 </html>

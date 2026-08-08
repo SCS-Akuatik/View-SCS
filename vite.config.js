@@ -21,7 +21,8 @@ export default defineConfig({
 
         // --- 2. DASHBOARD KLUB / PELATIH ---
         dashboard: resolve(__dirname, 'dashboard.html'), // Command Center Manajemen Klub
-        f1Profile: resolve(__dirname, 'f1-profile.html'), // Profil Digital F1 ID Atlet
+        f1Profile: resolve(__dirname, 'f1-profile.html'), // Landing Page F1 ID / Edukasi
+        f1Id: resolve(__dirname, 'f1-id.html'), // <--- TAMBAHAN BARU: Brankas Profil F1 ID
 
         // --- 3. DASHBOARD EO / PANITIA LOMBA ---
         eventDashboard: resolve(__dirname, 'event-dashboard.html'), // Panel Utama Command Center 1 Event

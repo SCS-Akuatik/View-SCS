@@ -226,7 +226,6 @@ async function fetchDashboardData() {
             eventContainer.innerHTML = evHTML;
         }
 
-
         // TARIK DATA ATLET
         const { data: athletesData, error: athletesError } = await supabaseClient
             .from('athletes')
@@ -306,24 +305,30 @@ function renderAthleteTable() {
             ? "font-mono font-black text-amber-500 hover:text-amber-400 transition-colors cursor-pointer drop-shadow-[0_0_2px_rgba(245,158,11,0.3)]"
             : "font-mono font-bold text-gray-700 hover:text-blue-600 transition-colors cursor-pointer";
 
+        // MENGUBAH URL DARI f1-profile.html KE f1-id.html
         const row = `
             <tr class="hover:bg-blue-50/50 transition-colors group border-b border-gray-50">
                 <td class="p-4 text-center font-bold text-gray-400">${actualIndex}</td>
                 <td class="p-4">
                     <div class="flex items-center gap-3">
-                        <img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-sm">
+                        <a href="/f1-id.html?id=${atlet.f1_id}" title="Lihat Profil" class="shrink-0">
+                            <img src="${avatarUrl}" class="w-10 h-10 rounded-lg object-cover border border-gray-200 shadow-sm hover:scale-105 transition-transform">
+                        </a>
                         <div>
-                            <p class="font-extrabold text-gray-800">${atlet.full_name} ${statusDokumen}</p>
+                            <a href="/f1-id.html?id=${atlet.f1_id}" class="font-extrabold text-gray-800 hover:text-blue-600 transition-colors" title="Lihat Profil">
+                                ${atlet.full_name} 
+                            </a>
+                            ${statusDokumen}
                             <p class="text-xs text-gray-500">${genderIcon}</p>
                         </div>
                     </div>
                 </td>
                 <td class="p-4">
                     <div class="flex flex-col items-start gap-1">
-                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="${f1BadgeClass}" title="Lihat Profil">
+                        <a href="/f1-id.html?id=${atlet.f1_id}" class="${f1BadgeClass}" title="Lihat Profil">
                             ${f1Icon} F1 ID
                         </a>
-                        <a href="/f1-profile.html?id=${atlet.f1_id}" class="${f1TextClass}" title="Lihat Profil">${atlet.f1_id}</a>
+                        <a href="/f1-id.html?id=${atlet.f1_id}" class="${f1TextClass}" title="Lihat Profil">${atlet.f1_id}</a>
                     </div>
                 </td>
                 <td class="p-4">
@@ -584,9 +589,6 @@ async function handleProvinsiChange(provElement, kotaElement) {
         console.error("Gagal load API Kota");
     }
 }
-
-// --- BIARKAN FUNGSI openProfileModal() DI BAWAH SINI ---
-
 
 function openProfileModal() {
     if (!currentClubData) return;
@@ -984,8 +986,8 @@ if (btnSaveEvent) {
         let inputSubdomain = document.getElementById('inputSubdomain').value.trim().toLowerCase();
         const inputEventStartDate = document.getElementById('inputEventStartDate').value;
         const inputEventEndDate = document.getElementById('inputEventEndDate').value;
-        const inputProvinsi = document.getElementById('inputEventProvinsi').value; // Tangkap Provinsi
-        const inputKota = document.getElementById('inputEventKota').value; // Tangkap Kota
+        const inputProvinsi = document.getElementById('inputEventProvinsi').value; 
+        const inputKota = document.getElementById('inputEventKota').value; 
         const statusMsg = document.getElementById('eventStatusMsg');
 
         inputSubdomain = inputSubdomain.replace(/[^a-z0-9-]/g, '');
@@ -1015,14 +1017,13 @@ if (btnSaveEvent) {
                     subdomain: inputSubdomain,
                     event_date: inputEventStartDate,
                     end_date: inputEventEndDate,
-                    provinsi: inputProvinsi, // Kirim ke DB
-                    kota: inputKota,         // Kirim ke DB
+                    provinsi: inputProvinsi, 
+                    kota: inputKota,         
                     club_id: currentClubId 
                 }])
                 .select()
                 .single();
 
-            // ... sisa kode tidak berubah (penanganan sukses & error)
             if (error) throw error;
 
             statusMsg.innerText = "Event berhasil dibuat! Mengalihkan ke Dashboard Event...";

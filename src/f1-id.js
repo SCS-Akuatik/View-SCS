@@ -135,13 +135,14 @@ function renderProfile(atlet) {
 async function fetchMedals() {
     const listEl = document.getElementById('medaliList');
     try {
+        // FIX: Karena tabel event_leaderboard ga punya kolom f1_id, kita murni cari berdasarkan NAMA PESERTA aja
         const { data, error } = await supabaseClient
             .from('event_leaderboard')
             .select(`
                 *,
                 events (event_name)
             `)
-            .or(`nama_peserta.ilike.%${currentAthleteName}%,athlete_f1_id.eq.${targetF1Id}`)
+            .ilike('nama_peserta', `%${currentAthleteName}%`)
             .lte('peringkat', 3) 
             .order('published_at', { ascending: false });
 

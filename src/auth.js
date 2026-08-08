@@ -18,24 +18,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnGoogleLogin = document.getElementById('btnGoogleLogin');
 
     // ==========================================
-    // FUNGSI PENERJEMAH ERROR SUPABASE
+    // FUNGSI PENERJEMAH ERROR SUPABASE (V2 SAKTI)
     // ==========================================
     function translateAuthError(err) {
-        // Ekstrak pesan dari object error
-        let msg = err?.message || err?.error_description || (typeof err === 'string' ? err : JSON.stringify(err));
+        // Sengaja di-log biar ketahuan kalau ada error aneh dari server
+        console.error("🔴 RAW ERROR DARI SUPABASE:", err); 
         
-        // Kalau error-nya cuma "{}" atau kosong
-        if (msg === '{}' || !msg) return "Terjadi gangguan pada server. Silakan coba beberapa saat lagi.";
-        
-        // Terjemahkan error umum ke Bahasa Indonesia
+        let msg = "";
+        if (typeof err === 'string') {
+            msg = err;
+        } else if (err && typeof err === 'object') {
+            // Hajar semua kemungkinan properti error
+            msg = err.message || err.error_description || err.msg || err.error || JSON.stringify(err);
+        }
+
+        // Kalau Supabase ngirim object kosong atau error ghoib
+        if (!msg || msg === '{}' || msg === '[object Object]') {
+            return "Terjadi blokir dari server (Akun sudah ada atau limit request). Coba masuk ke menu Login, atau tunggu 60 detik.";
+        }
+
         const lowerMsg = msg.toLowerCase();
-        if (lowerMsg.includes("already registered")) return "Email ini sudah terdaftar. Silakan kembali ke menu Masuk.";
+        
+        if (lowerMsg.includes("already registered") || lowerMsg.includes("user already exists")) return "Email ini sudah terdaftar. Silakan kembali ke menu Masuk.";
         if (lowerMsg.includes("password should be")) return "Kata sandi terlalu lemah (minimal 6 karakter).";
         if (lowerMsg.includes("invalid login credentials")) return "Email atau kata sandi salah!";
         if (lowerMsg.includes("email not confirmed")) return "Email belum diverifikasi. Cek Kotak Masuk atau folder Spam Anda.";
-        if (lowerMsg.includes("60 seconds") || lowerMsg.includes("rate limit")) return "Terlalu banyak percobaan. Sistem mengamankan akun Anda, tunggu 60 detik.";
+        if (lowerMsg.includes("rate limit") || lowerMsg.includes("60 seconds") || lowerMsg.includes("too many")) return "Sistem mengamankan akun Anda dari spam. Tunggu 60 detik.";
+        if (lowerMsg.includes("fetch") || lowerMsg.includes("network")) return "Koneksi terputus. Pastikan internet Anda stabil.";
+        if (lowerMsg.includes("signups not allowed")) return "Pendaftaran ditutup sementara oleh sistem.";
         
-        return msg; // Tampilkan error aslinya kalau belum ada di daftar terjemahan
+        return msg; // Kalau ga ada di list, tampilkan error aslinya
     }
 
     // ==========================================
@@ -113,7 +125,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.replace('/dashboard.html');
 
         } catch (err) {
-            console.error("Login Error:", err);
             errorMsg.innerText = "❌ " + translateAuthError(err);
             errorMsg.classList.remove('hidden');
             btnLogin.innerHTML = `Masuk 🚀`;
@@ -149,6 +160,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (error) throw error;
 
+            // FIX SUPABASE FAKE SUCCESS (Email Enumeration Protection)
+            // Jika data.user.identities kosong, artinya email aslinya sudah terdaftar!
+            if (data?.user && data.user.identities && data.user.identities.length === 0) {
+                throw new Error("Email ini sudah terdaftar. Silakan kembali ke menu Masuk.");
+            }
+
             alertMsg.innerHTML = "✅ <strong>Pendaftaran Berhasil!</strong><br>Silakan periksa <strong>Kotak Masuk / Spam</strong> email Anda untuk mengklik tautan verifikasi sebelum masuk.";
             alertMsg.className = "bg-emerald-50 text-emerald-700 text-xs font-bold p-3 rounded-lg border border-emerald-200 text-center leading-relaxed block";
             
@@ -157,9 +174,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('regConfirmPassword').value = '';
 
         } catch (err) {
-            console.error("Register Error:", err);
             alertMsg.innerText = "❌ " + translateAuthError(err);
             alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-100 text-center block";
+            alertMsg.classList.remove('hidden');
         } finally {
             btnRegister.innerHTML = `Daftarkan Via Email`;
             btnRegister.disabled = false;
@@ -216,9 +233,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('inputResetEmail').value = ''; 
 
             } catch (err) {
-                console.error("Reset Password Error:", err);
                 alertMsg.innerText = "❌ " + translateAuthError(err);
                 alertMsg.className = "bg-red-50 text-red-600 text-xs font-bold p-3 rounded-xl border border-red-100 text-center block mb-4";
+                alertMsg.classList.remove('hidden');
             } finally {
                 btnKirimReset.innerHTML = "Kirim Tautan";
                 btnKirimReset.disabled = false;

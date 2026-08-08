@@ -24,15 +24,34 @@ document.addEventListener('DOMContentLoaded', () => {
         searchStatus.innerText = 'Mencari atlet... ⏳';
 
         try {
-            // MAGIC: Kita join tabel 'athletes' dan 'clubs', lalu nyari di 3 kolom sekaligus!
+            // TRIK SUPABASE: 1. Kita cari dulu ada nggak Klub yang namanya mirip
+            const { data: clubMatches } = await supabaseClient
+                .from('clubs')
+                .select('id')
+                .ilike('club_name', `%${query}%`);
+            
+            let clubIds = [];
+            if (clubMatches && clubMatches.length > 0) {
+                clubIds = clubMatches.map(c => c.id);
+            }
+
+            // 2. Susun rumus pencarian gabungan (Nama OR F1_ID OR Club_ID)
+            let orString = `full_name.ilike.%${query}%,f1_id.ilike.%${query}%`;
+            
+            // Kalau ada klub yang cocok, masukin ke rumus pencarian
+            if (clubIds.length > 0) {
+                orString += `,club_id.in.(${clubIds.join(',')})`;
+            }
+
+            // 3. Tembak Database Atlet
             const { data, error } = await supabaseClient
                 .from('athletes')
                 .select(`
                     *,
                     clubs (club_name)
                 `)
-                .or(`full_name.ilike.%${query}%,f1_id.ilike.%${query}%,clubs.club_name.ilike.%${query}%`)
-                .limit(10); // Batisin 10 biar ga berat
+                .or(orString)
+                .limit(10); // Batisin 10 biar enteng
 
             if (error) throw error;
 
@@ -44,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Kalau ketemu, render ke list
+            // 4. Kalau Ketemu, Render HTML nya
             data.forEach(atlet => {
                 const isEmas = atlet.is_verified;
                 const statusIcon = isEmas ? '<span class="text-amber-500 text-xs" title="Verified">👑</span>' : '';
@@ -52,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const avatarUrl = atlet.foto_url ? atlet.foto_url : `https://ui-avatars.com/api/?name=${encodeURIComponent(atlet.full_name)}&background=f8fafc&color=1e293b&bold=true`;
 
                 const li = document.createElement('li');
-                // Link langsung mengarah ke Brankas (f1-id.html)
                 li.innerHTML = `
                     <a href="/f1-id.html?id=${atlet.f1_id}" class="flex items-center gap-4 p-4 hover:bg-blue-50 transition-colors cursor-pointer group">
                         <img src="${avatarUrl}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shadow-sm group-hover:scale-105 transition-transform shrink-0">

@@ -39,15 +39,16 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased relative">
 
-    <a href="/auth.html" class="fixed top-3 right-14 md:top-4 md:right-6 z-[100] bg-scsBlue text-white font-extrabold px-5 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-900 transition-all border border-blue-900 flex items-center gap-1.5">
-        Masuk
+    <!-- Tombol Auth Mengambang (Diubah oleh JS kalau sudah Login) -->
+    <a href="/auth.html" id="floatingAuthBtn" class="fixed top-3 right-14 md:top-4 md:right-6 z-[100] bg-scsBlue text-white font-extrabold px-5 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-900 transition-all border border-blue-900 flex items-center gap-1.5">
+        <span id="floatingAuthText">Masuk</span>
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
     </a>
 
     <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
             <div class="flex justify-between items-center h-full">
-                <!-- LOGO YANG UDAH DIGEDEIN -->
+                <!-- LOGO -->
                 <div class="flex-shrink-0 flex items-center h-full py-1">
                     <a href="/" class="block">
                         <img class="max-h-12 md:max-h-14 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo">
@@ -121,7 +122,7 @@
                     Dari pendaftaran, pembayaran, drawing, hingga hasil lomba dalam satu dashboard. Tinggalkan cara manual, mulai otomatisasi event Anda hari ini.
                 </p>
                 <div class="flex flex-col items-center gap-6 pb-4">
-                    <a href="/auth.html" class="bg-blue-900 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-800 transition shadow-[0_10px_20px_rgba(30,58,138,0.2)] inline-block hover:-translate-y-1">Buat Event Pertama (Gratis)</a>
+                    <a href="/auth.html" id="heroAuthBtn" class="bg-blue-900 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-800 transition shadow-[0_10px_20px_rgba(30,58,138,0.2)] inline-block hover:-translate-y-1">Buat Event Pertama (Gratis)</a>
                     
                     <div class="flex flex-wrap justify-center gap-3 md:gap-6 text-xs md:text-sm text-slate-600 font-bold">
                         <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏊‍♂️</span> 3.500+ Atlet</span> 
@@ -133,7 +134,7 @@
                 </div>
             </div>
 
-            <!-- SLIDE 2: Fokus Atlet / Orang Tua (REVISI COPYWRITING) -->
+            <!-- SLIDE 2: Fokus Atlet / Orang Tua -->
             <div class="w-1/3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center shrink-0">
                 <div class="flex justify-center mb-6 md:mb-8">
                     <span class="inline-block bg-blue-50 border border-blue-200 text-blue-700 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-wide shadow-sm flex items-center gap-2">
@@ -148,7 +149,6 @@
                     Koleksi e-certificate, simpan catatan waktu terbaik, dan pantau posisi Anda di Leaderboard Nasional SCS langsung dari genggaman tangan.
                 </p>
                 <div class="flex flex-col items-center gap-6 pb-4">
-                    <!-- LINK MENUJU HALAMAN F1-PROFILE -->
                     <a href="/f1-profile.html" class="bg-blue-600 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-700 transition shadow-[0_10px_20px_rgba(37,99,235,0.2)] inline-block hover:-translate-y-1">Apa itu F1 ID? &raquo;</a>
                 </div>
             </div>
@@ -177,7 +177,7 @@
         </div>
     </section>
 
-    <!-- SECTION: CARA KERJA (REVISI COPYWRITING) -->
+    <!-- SECTION: CARA KERJA -->
     <section class="py-16 md:py-20 bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">Bagaimana Cara Kerja SCS?</h2>
@@ -195,14 +195,12 @@
                     <p class="text-xs text-slate-500 mt-1">1 klik pakai F1 ID</p>
                 </div>
                 
-                <!-- REVISI BAYAR ONLINE -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">💳</div>
                     <h4 class="font-bold text-slate-800 text-sm">Bayar ke Rekening Panitia</h4>
                     <p class="text-xs text-slate-500 mt-1">Aman & verifikasi mudah</p>
                 </div>
                 
-                <!-- REVISI HEAT OTOMATIS -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">📄</div>
                     <h4 class="font-bold text-slate-800 text-sm">Seri Lomba Otomatis</h4>
@@ -215,7 +213,6 @@
                     <p class="text-xs text-slate-500 mt-1">Pantau dari tribun</p>
                 </div>
                 
-                <!-- REVISI RANKING -->
                 <div class="flex flex-col items-center group">
                     <div class="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-yellow-200">🏆</div>
                     <h4 class="font-bold text-scsGold text-sm">Leaderboard</h4>
@@ -261,10 +258,113 @@
         </div>
     </footer>
 
-    <!-- SCRIPT GABUNGAN -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // --- LOGIC BURGER MENU MOBILE ---
+    <!-- ============================================== -->
+    <!-- MODAL CAMPAIGN SURABAYA (FREEMIUM)             -->
+    <!-- ============================================== -->
+    <div id="modalCampaignSby" class="fixed inset-0 bg-slate-900/80 z-[150] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 relative border-2 border-blue-100">
+            
+            <!-- Tombol Close (X) -->
+            <button id="closeCampaignBtn" class="absolute top-4 right-4 text-white/70 hover:text-white z-20 text-3xl font-black transition-colors drop-shadow-md">&times;</button>
+            
+            <!-- Header Edisi Spesial Suroboyo -->
+            <div class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 p-8 text-center relative overflow-hidden">
+                <!-- Ornamen Latar -->
+                <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                <div class="absolute -bottom-10 -right-10 text-9xl opacity-10 rotate-12">🐊</div>
+                
+                <span class="text-5xl block mb-2 relative z-10 drop-shadow-lg">🐊🦈</span>
+                <h2 class="text-2xl font-black text-white relative z-10 tracking-tight drop-shadow-md">Hai Arek-Arek Suroboyo!</h2>
+            </div>
+            
+            <!-- Content Campaign -->
+            <div class="p-6 md:p-8 text-center relative bg-white">
+                
+                <p class="text-sm text-slate-600 font-medium leading-relaxed mb-5">
+                    Setelah SCS sukses memutar roda kejuaraan di berbagai kota, kini saatnya kalian yang kebagian coba <strong>ALL FITUR</strong> kami secara <span class="text-emerald-600 font-black">GRATIS!</span><br>
+                    <span class="text-[10px] text-slate-400 block mt-1">(Kecuali modul cari sponsor ya ✌️)</span>
+                </p>
+                
+                <!-- Box Fitur -->
+                <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl mb-6 text-left inline-block w-full shadow-inner">
+                    <p class="text-xs text-blue-900 font-extrabold mb-2 flex items-center gap-2"><span>✅</span> Live Result Otomatis</p>
+                    <p class="text-xs text-blue-900 font-extrabold mb-2 flex items-center gap-2"><span>✅</span> Auto-Generate Sertifikat & Piagam</p>
+                    <p class="text-xs text-blue-900 font-extrabold flex items-center gap-2"><span>✅</span> Manajemen Heat, Seri & Lintasan</p>
+                </div>
+                
+                <!-- Badge Freemium -->
+                <div class="inline-block bg-gradient-to-r from-amber-200 to-yellow-400 px-5 py-2 rounded-full shadow-[0_0_20px_rgba(251,191,36,0.5)] border border-amber-300 mb-8 transform -rotate-3 hover:rotate-0 transition-transform cursor-default">
+                    <span class="text-sm font-black text-amber-900 uppercase tracking-widest drop-shadow-sm">✨ FREEMIUM ✨<br><span class="text-[9px] block text-center">(Free Tapi Premium)</span></span>
+                </div>
+                
+                <!-- Tombol CTA -->
+                <button onclick="window.location.href='/auth.html'" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-[0_10px_20px_rgba(37,99,235,0.3)] transition-all active:scale-95 flex items-center justify-center gap-2 text-lg">
+                    🚀 Buat Event Sekarang
+                </button>
+                
+                <button id="btnNantiSajaCampaign" class="mt-5 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">Nanti Saja, Masih Mau Liat-lihat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT GABUNGAN: UI, POP-UP & CEK LOGIN SUPABASE -->
+    <script type="module">
+        import { supabaseClient } from '/src/supabase.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            
+            // 1. LOGIC MODAL CAMPAIGN SURABAYA (MUNCUL TIAP REFRESH)
+            const modalCampaign = document.getElementById('modalCampaignSby');
+            const closeBtn = document.getElementById('closeCampaignBtn');
+            const nantiSajaBtn = document.getElementById('btnNantiSajaCampaign');
+
+            if (modalCampaign) {
+                // Munculkan Pop-up otomatis setelah 1.5 detik
+                setTimeout(() => {
+                    modalCampaign.classList.remove('hidden');
+                    setTimeout(() => {
+                        modalCampaign.firstElementChild.classList.remove('scale-95');
+                    }, 50);
+                }, 1500);
+
+                const closeModal = () => {
+                    modalCampaign.firstElementChild.classList.add('scale-95');
+                    setTimeout(() => {
+                        modalCampaign.classList.add('hidden');
+                    }, 300);
+                };
+
+                if (closeBtn) closeBtn.addEventListener('click', closeModal);
+                if (nantiSajaBtn) nantiSajaBtn.addEventListener('click', closeModal);
+            }
+
+            // 2. CEK STATUS LOGIN
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                
+                const floatBtn = document.getElementById('floatingAuthBtn');
+                const floatText = document.getElementById('floatingAuthText');
+                const heroBtn = document.getElementById('heroAuthBtn');
+                
+                if (session) {
+                    floatBtn.href = '/dashboard.html';
+                    floatBtn.classList.replace('bg-scsBlue', 'bg-emerald-600');
+                    floatBtn.classList.replace('border-blue-900', 'border-emerald-700');
+                    floatBtn.classList.replace('hover:bg-blue-900', 'hover:bg-emerald-700');
+                    floatText.innerText = 'Ke Dashboard';
+
+                    if (heroBtn) {
+                        heroBtn.href = '/dashboard.html';
+                        heroBtn.innerText = 'Buka Command Center';
+                        heroBtn.classList.replace('bg-blue-900', 'bg-emerald-600');
+                        heroBtn.classList.replace('hover:bg-blue-800', 'hover:bg-emerald-700');
+                    }
+                }
+            } catch (err) {
+                console.error("Gagal cek auth:", err);
+            }
+
+            // 3. LOGIC BURGER MENU MOBILE
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const mobileMenu = document.getElementById('mobileMenu');
             const closeMobileBtn = document.getElementById('closeMobileBtn');
@@ -282,7 +382,7 @@
             if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
             if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobile);
 
-            // --- LOGIC HERO SLIDER ---
+            // 4. LOGIC HERO SLIDER
             const heroTrack = document.getElementById('heroTrack');
             const heroPrev = document.getElementById('heroPrev');
             const heroNext = document.getElementById('heroNext');

@@ -1,13 +1,55 @@
 import { supabaseClient } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    
+    // --- 1. LOGIKA CEK LOGIN UNTUK NAVBAR ---
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const floatBtn = document.getElementById('floatingAuthBtn');
+        const floatText = document.getElementById('floatingAuthText');
+        
+        if (session) {
+            floatBtn.href = '/dashboard.html';
+            floatBtn.classList.replace('bg-blue-700', 'bg-emerald-600');
+            floatBtn.classList.replace('border-blue-800', 'border-emerald-700');
+            floatBtn.classList.replace('hover:bg-blue-800', 'hover:bg-emerald-700');
+            floatText.innerText = 'Ke Dashboard';
+        }
+    } catch (err) {
+        console.error("Gagal cek auth:", err);
+    }
+
+    // --- 2. LOGIKA BURGER MENU ---
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const closeMobileBtn = document.getElementById('closeMobileBtn');
+
+    function toggleMobile() {
+        if (mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('flex');
+        } else {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+        }
+    }
+
+    if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
+    if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobile);
+
+
+    // --- 3. LOGIKA RENDER GRID EVENT ---
     const gridContainer = document.getElementById('eventGrid');
     
     if (!gridContainer) return;
-    gridContainer.innerHTML = `<p class="text-center text-gray-500 col-span-full py-10 font-bold animate-pulse">Memuat data event seluruh Indonesia...</p>`;
+    gridContainer.innerHTML = `
+        <div class="col-span-full py-20 text-center">
+            <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-slate-500 font-bold animate-pulse">Memuat data event seluruh Indonesia...</p>
+        </div>`;
 
     try {
-        // Tarik semua event, urutkan dari yang terbaru (atau bebas)
+        // Tarik semua event, urutkan dari yang terbaru
         const { data: events, error } = await supabaseClient
             .from('events')
             .select('*')
@@ -22,17 +64,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let html = '';
         events.forEach(ev => {
-            // Logika sederhana: Jika tanggal sekarang melebihi end_date, dianggap SELESAI.
-            // Jika hari ini berada di antara start - end, dianggap LIVE.
-            // Selain itu (masih di masa depan), dianggap BUKA.
             const today = new Date();
             const startDate = new Date(ev.event_date);
             const endDate = new Date(ev.end_date);
             
             let badgeHTML = '';
             let btnHTML = '';
-            let filterClass = ''; // Untuk filter button nanti
+            let filterClass = '';
 
+            // Tentukan Status Event
             if (today > endDate) {
                 // Selesai
                 badgeHTML = `<div class="absolute top-4 left-4 bg-gray-600 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg shadow-sm">SELESAI</div>`;
@@ -48,30 +88,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 // Masih Buka (Pendaftaran)
                 badgeHTML = `<div class="absolute top-4 left-4 bg-green-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg shadow-sm">PENDAFTARAN DIBUKA</div>`;
-                btnHTML = `<a href="https://${ev.subdomain}.funswimming.my.id?id=${ev.id}" class="block text-center w-full bg-blue-50 text-scsBlue font-bold py-2.5 rounded-xl hover:bg-blue-100 transition">Lihat Detail & Daftar</a>`;
+                btnHTML = `<a href="https://${ev.subdomain}.funswimming.my.id?id=${ev.id}" class="block text-center w-full bg-blue-50 text-blue-700 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition">Lihat Detail & Daftar</a>`;
                 filterClass = 'buka';
             }
 
-            // Fallback lokasi jika provinsi/kota kosong
+            // Lokasi
             const lokasiText = (ev.kota && ev.provinsi) ? `${ev.kota}, ${ev.provinsi}` : 'Lokasi Belum Ditentukan';
             
-            // Format Tanggal (Misal: 15 Agustus 2026) - Versi sederhana
+            // Format Tanggal
             const dateText = (ev.event_date === ev.end_date) 
                 ? ev.event_date 
                 : `${ev.event_date} s/d ${ev.end_date}`;
 
+            // LOGIKA GAMBAR DARI CONFIG
+            // Ambil dari JSONB (ev.config), kalau kosong ya kasih gambar default Unsplash
+            let bgImage = "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&q=80"; 
+            if (ev.config && ev.config.header_url) {
+                bgImage = ev.config.header_url;
+            }
+
             html += `
             <div class="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-gray-100 group event-card ${filterClass}">
                 <div class="h-48 overflow-hidden relative bg-blue-900 flex items-center justify-center">
-                    <!-- Gunakan default image dari unsplash -->
-                    <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-overlay" alt="Event">
-                    <h2 class="absolute text-white/20 font-black text-4xl uppercase tracking-tighter mix-blend-overlay pointer-events-none text-center px-4 leading-none">${ev.event_name}</h2>
+                    <!-- Gunakan bgImage hasil tarikan config -->
+                    <img src="${bgImage}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-overlay" alt="${ev.event_name}">
+                    <h2 class="absolute text-white/40 font-black text-4xl uppercase tracking-tighter mix-blend-overlay pointer-events-none text-center px-4 leading-none">${ev.event_name}</h2>
                     ${badgeHTML}
                 </div>
                 <div class="p-6">
-                    <p class="text-xs font-bold text-scsGold mb-1">📅 ${dateText}</p>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2 truncate" title="${ev.event_name}">${ev.event_name}</h3>
-                    <p class="text-sm text-gray-500 mb-4 font-medium flex items-center gap-1.5"><span class="text-red-400">📍</span> ${lokasiText}</p>
+                    <p class="text-xs font-bold text-amber-500 mb-1 flex items-center gap-1.5">🏆 ${dateText}</p>
+                    <h3 class="text-xl font-extrabold text-slate-800 mb-2 truncate" title="${ev.event_name}">${ev.event_name}</h3>
+                    <p class="text-xs text-slate-500 mb-5 font-bold flex items-center gap-1.5"><span class="text-red-400 text-sm">📍</span> ${lokasiText}</p>
                     ${btnHTML}
                 </div>
             </div>

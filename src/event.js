@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
     if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobile);
 
-
     // --- 3. LOGIKA RENDER GRID EVENT ---
     const gridContainer = document.getElementById('eventGrid');
     
@@ -89,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Masih Buka (Pendaftaran)
                 badgeHTML = `<div class="absolute top-4 left-4 bg-green-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg shadow-sm">PENDAFTARAN DIBUKA</div>`;
                 btnHTML = `<a href="https://${ev.subdomain}.funswimming.my.id?id=${ev.id}" class="block text-center w-full bg-blue-50 text-blue-700 font-bold py-2.5 rounded-xl hover:bg-blue-100 transition">Lihat Detail & Daftar</a>`;
-                filterClass = 'buka';
+                filterClass = 'buka'; // Supaya tetap masuk di logic awal
             }
 
             // Lokasi
@@ -101,7 +100,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 : `${ev.event_date} s/d ${ev.end_date}`;
 
             // LOGIKA GAMBAR DARI CONFIG
-            // Ambil dari JSONB (ev.config), kalau kosong ya kasih gambar default Unsplash
             let bgImage = "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&q=80"; 
             if (ev.config && ev.config.header_url) {
                 bgImage = ev.config.header_url;
@@ -110,7 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             html += `
             <div class="bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-gray-100 group event-card ${filterClass}">
                 <div class="h-48 overflow-hidden relative bg-blue-900 flex items-center justify-center">
-                    <!-- Gunakan bgImage hasil tarikan config -->
                     <img src="${bgImage}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 mix-blend-overlay" alt="${ev.event_name}">
                     <h2 class="absolute text-white/40 font-black text-4xl uppercase tracking-tighter mix-blend-overlay pointer-events-none text-center px-4 leading-none">${ev.event_name}</h2>
                     ${badgeHTML}
@@ -126,6 +123,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         gridContainer.innerHTML = html;
+
+        // ==========================================
+        // 4. LOGIKA FILTER & BANNER REKAPITULASI
+        // ==========================================
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const rekapBanner = document.getElementById('rekapBanner');
+        const allCards = document.querySelectorAll('.event-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 1. Reset warna semua tombol jadi abu-abu/putih
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-blue-900', 'text-white', 'shadow-md');
+                    b.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+                });
+                
+                // 2. Warnain tombol yang lagi diklik jadi biru
+                btn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+                btn.classList.add('bg-blue-900', 'text-white', 'shadow-md');
+
+                const filterType = btn.getAttribute('data-filter');
+
+                // 3. Logika munculin/hilangin teks "Server merekapitulasi..."
+                if (filterType === 'semua' || filterType === 'selesai') {
+                    rekapBanner.classList.remove('hidden');
+                } else {
+                    rekapBanner.classList.add('hidden');
+                }
+
+                // 4. Logika filter sembunyiin/munculin kartu event
+                allCards.forEach(card => {
+                    if (filterType === 'semua') {
+                        card.style.display = 'block'; // Tampilkan semua
+                    } else if (filterType === 'live' && card.classList.contains('live')) {
+                        card.style.display = 'block'; // Tampilkan yang sedang berjalan
+                    } else if (filterType === 'selesai' && card.classList.contains('selesai')) {
+                        card.style.display = 'block'; // Tampilkan yang sudah selesai
+                    } else {
+                        card.style.display = 'none'; // Sembunyikan sisanya
+                    }
+                });
+            });
+        });
 
     } catch (err) {
         console.error(err);

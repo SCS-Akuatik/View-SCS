@@ -5,17 +5,18 @@ let dataGaya = [];
 let dataEstafet = []; 
 let currentEventId = null;
 
-// State JSONB Config (Termasuk WA Admin)
+// State JSONB Config (Termasuk WA Admin & Nama Kolam)
 let configForm = {
     header_url: '',
     bg_url: '',
     biaya_normal: '',
     min_diskon: '',
     biaya_diskon: '',
-    admin_wa_1: '', // WA Admin 1 numpang di sini
-    admin_wa_2: '', // WA Admin 2 numpang di sini
+    admin_wa_1: '', 
+    admin_wa_2: '', 
     info_pembayaran: '',
-    qris_url: '' 
+    qris_url: '',
+    nama_kolam: '' // <-- INIT NAMA KOLAM BARU
 };
 
 async function loadDataLomba() {
@@ -52,6 +53,7 @@ async function loadDataLomba() {
         configForm.admin_wa_2 = eventConfig.admin_wa_2 || ''; 
         configForm.info_pembayaran = eventConfig.info_pembayaran || ''; 
         configForm.qris_url = eventConfig.qris_url || ''; 
+        configForm.nama_kolam = eventConfig.nama_kolam || ''; // <-- LOAD NAMA KOLAM BARU
 
         // Default Data jika kosong
         if (dataKU.length === 0) dataKU = [{ id: 1, nama: 'KU A', tahunMulai: 2011, tahunAkhir: 2012, aktif: true }];
@@ -75,37 +77,24 @@ function renderFormConfig() {
     document.getElementById('inputBiayaDiskon').value = configForm.biaya_diskon;
     
     // Tulis WA ke Input Box
-    if (document.getElementById('inputAdminWA1')) {
-        document.getElementById('inputAdminWA1').value = configForm.admin_wa_1;
-    }
-    if (document.getElementById('inputAdminWA2')) {
-        document.getElementById('inputAdminWA2').value = configForm.admin_wa_2;
-    }
-
-    if (document.getElementById('inputInfoPembayaran')) {
-        document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
-    }
+    if (document.getElementById('inputAdminWA1')) document.getElementById('inputAdminWA1').value = configForm.admin_wa_1;
+    if (document.getElementById('inputAdminWA2')) document.getElementById('inputAdminWA2').value = configForm.admin_wa_2;
+    if (document.getElementById('inputInfoPembayaran')) document.getElementById('inputInfoPembayaran').value = configForm.info_pembayaran; 
+    
+    // RENDER NAMA KOLAM BARU
+    if (document.getElementById('inputNamaKolam')) document.getElementById('inputNamaKolam').value = configForm.nama_kolam;
 
     if (configForm.header_url) {
         const imgH = document.getElementById('previewHeader');
-        if (imgH) { 
-            imgH.src = configForm.header_url; 
-            imgH.classList.remove('hidden'); 
-        }
+        if (imgH) { imgH.src = configForm.header_url; imgH.classList.remove('hidden'); }
     }
     if (configForm.bg_url) {
         const imgB = document.getElementById('previewBg');
-        if (imgB) { 
-            imgB.src = configForm.bg_url; 
-            imgB.classList.remove('hidden'); 
-        }
+        if (imgB) { imgB.src = configForm.bg_url; imgB.classList.remove('hidden'); }
     }
     if (configForm.qris_url) {
         const imgQ = document.getElementById('previewQris');
-        if (imgQ) { 
-            imgQ.src = configForm.qris_url; 
-            imgQ.classList.remove('hidden'); 
-        }
+        if (imgQ) { imgQ.src = configForm.qris_url; imgQ.classList.remove('hidden'); }
     }
 }
 
@@ -123,17 +112,12 @@ async function handleImageUpload(event, keyName, previewId) {
         const fileExt = file.name.split('.').pop();
         const fileName = `event_${currentEventId}_${keyName}_${Date.now()}.${fileExt}`;
         
-        const { error: uploadError } = await supabaseClient.storage
-            .from('event-assets')
-            .upload(fileName, file);
-
+        const { error: uploadError } = await supabaseClient.storage.from('event-assets').upload(fileName, file);
         if (uploadError) throw uploadError;
 
-        const { data: urlData } = supabaseClient.storage
-            .from('event-assets')
-            .getPublicUrl(fileName);
-
+        const { data: urlData } = supabaseClient.storage.from('event-assets').getPublicUrl(fileName);
         configForm[keyName] = urlData.publicUrl;
+        
         if (preview) preview.src = urlData.publicUrl;
 
     } catch (err) {
@@ -153,13 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(inputBg) inputBg.addEventListener('change', (e) => handleImageUpload(e, 'bg_url', 'previewBg'));
     
     const inputQris = document.getElementById('inputQris');
-    if (inputQris) {
-        inputQris.addEventListener('change', (e) => handleImageUpload(e, 'qris_url', 'previewQris'));
-    }
+    if (inputQris) inputQris.addEventListener('change', (e) => handleImageUpload(e, 'qris_url', 'previewQris'));
 });
 
 // ==========================================
-// RENDER KU, GAYA, ESTAFET (FORMAT RAPI)
+// RENDER KU, GAYA, ESTAFET
 // ==========================================
 window.renderKU = function() { 
     const container = document.getElementById('kuContainer'); 
@@ -261,17 +243,10 @@ window.renderEstafet = function() {
 }
 
 // ==========================================
-// SEMUA LOGIKA MODAL (FORMAT RAPI)
+// SEMUA LOGIKA MODAL
 // ==========================================
-window.openModal = (id) => { 
-    const el = document.getElementById(id); 
-    if(el) { el.classList.remove('hidden'); el.classList.add('flex'); } 
-}
-
-window.closeModal = (id) => { 
-    const el = document.getElementById(id); 
-    if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } 
-}
+window.openModal = (id) => { const el = document.getElementById(id); if(el) { el.classList.remove('hidden'); el.classList.add('flex'); } }
+window.closeModal = (id) => { const el = document.getElementById(id); if(el) { el.classList.add('hidden'); el.classList.remove('flex'); } }
 
 window.openModalKU = () => { 
     document.getElementById('kuId').value = ''; 
@@ -303,155 +278,66 @@ window.saveKU = () => {
     const nama = document.getElementById('kuNama').value; 
     const tahunMulai = document.getElementById('kuTahunMulai').value; 
     const tahunAkhir = document.getElementById('kuTahunAkhir').value; 
-    
     if(!nama) return alert('Nama KU wajib diisi!'); 
-    
     if(id) { 
         const index = dataKU.findIndex(k => k.id == id); 
         dataKU[index] = { ...dataKU[index], nama, tahunMulai, tahunAkhir }; 
     } else { 
         dataKU.push({ id: Date.now(), nama, tahunMulai, tahunAkhir, aktif: true }); 
     } 
-    
     window.renderKU(); 
     window.closeModal('modalKU'); 
 }
 
-window.deleteKU = (id) => { 
-    if(confirm('Yakin hapus Kelompok Umur ini?')) { 
-        dataKU = dataKU.filter(k => k.id !== id); 
-        window.renderKU(); 
-    } 
-}
+window.deleteKU = (id) => { if(confirm('Yakin hapus Kelompok Umur ini?')) { dataKU = dataKU.filter(k => k.id !== id); window.renderKU(); } }
+window.toggleKU = (id) => { const index = dataKU.findIndex(k => k.id == id); dataKU[index].aktif = !dataKU[index].aktif; }
 
-window.toggleKU = (id) => { 
-    const index = dataKU.findIndex(k => k.id == id); 
-    dataKU[index].aktif = !dataKU[index].aktif; 
-}
-
-window.openModalGaya = () => { 
-    document.getElementById('gayaId').value = ''; 
-    document.getElementById('gayaNama').value = ''; 
-    window.openModal('modalGaya'); 
-}
-
+window.openModalGaya = () => { document.getElementById('gayaId').value = ''; document.getElementById('gayaNama').value = ''; window.openModal('modalGaya'); }
 window.saveGaya = () => { 
     const id = document.getElementById('gayaId').value; 
     const nama = document.getElementById('gayaNama').value; 
-    
     if(!nama) return alert('Nama Gaya wajib diisi!'); 
-    
-    if(id) { 
-        const index = dataGaya.findIndex(g => g.id == id); 
-        dataGaya[index].nama = nama; 
-    } else { 
-        dataGaya.push({ id: Date.now(), nama, jarak: [] }); 
-    } 
-    
+    if(id) { const index = dataGaya.findIndex(g => g.id == id); dataGaya[index].nama = nama; } 
+    else { dataGaya.push({ id: Date.now(), nama, jarak: [] }); } 
     window.renderGaya(); 
     window.closeModal('modalGaya'); 
 }
+window.deleteGaya = (id) => { if(confirm('Hapus Kategori Gaya ini?')) { dataGaya = dataGaya.filter(g => g.id !== id); window.renderGaya(); } }
 
-window.deleteGaya = (id) => { 
-    if(confirm('Hapus Kategori Gaya ini?')) { 
-        dataGaya = dataGaya.filter(g => g.id !== id); 
-        window.renderGaya(); 
-    } 
-}
-
-window.openModalJarak = (gayaId) => { 
-    document.getElementById('jarakParentId').value = gayaId; 
-    document.getElementById('jarakId').value = ''; 
-    document.getElementById('jarakNama').value = ''; 
-    window.openModal('modalJarak'); 
-}
-
+window.openModalJarak = (gayaId) => { document.getElementById('jarakParentId').value = gayaId; document.getElementById('jarakId').value = ''; document.getElementById('jarakNama').value = ''; window.openModal('modalJarak'); }
 window.saveJarak = () => { 
     const gayaId = document.getElementById('jarakParentId').value; 
     let nama = document.getElementById('jarakNama').value; 
-    
     if(!nama) return; 
     nama = nama.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); 
     if (!nama.endsWith('m')) nama += 'm'; 
-    
     const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); 
     dataGaya[gayaIndex].jarak.push({ id: Date.now(), nama, aktif: true }); 
-    
     window.renderGaya(); 
     window.closeModal('modalJarak'); 
 }
+window.deleteJarak = (gayaId, jarakId) => { if(confirm('Hapus jarak ini?')) { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); dataGaya[gayaIndex].jarak = dataGaya[gayaIndex].jarak.filter(j => j.id !== jarakId); window.renderGaya(); } }
+window.toggleJarak = (gayaId, jarakId) => { const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId); dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif; }
 
-window.deleteJarak = (gayaId, jarakId) => { 
-    if(confirm('Hapus jarak ini?')) { 
-        const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); 
-        dataGaya[gayaIndex].jarak = dataGaya[gayaIndex].jarak.filter(j => j.id !== jarakId); 
-        window.renderGaya(); 
-    } 
-}
+window.openModalEstafet = () => { document.getElementById('estafetId').value = ''; document.getElementById('estafetNama').value = ''; window.openModal('modalEstafet'); }
+window.saveEstafet = () => { const nama = document.getElementById('estafetNama').value; if(!nama) return alert('Nama Kategori Estafet wajib diisi!'); dataEstafet.push({ id: Date.now(), nama, list: [] }); window.renderEstafet(); window.closeModal('modalEstafet'); }
+window.deleteEstafet = (id) => { if(confirm('Hapus Kategori Estafet ini?')) { dataEstafet = dataEstafet.filter(e => e.id !== id); window.renderEstafet(); } }
 
-window.toggleJarak = (gayaId, jarakId) => { 
-    const gayaIndex = dataGaya.findIndex(g => g.id == gayaId); 
-    const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId); 
-    dataGaya[gayaIndex].jarak[jarakIndex].aktif = !dataGaya[gayaIndex].jarak[jarakIndex].aktif; 
-}
-
-window.openModalEstafet = () => { 
-    document.getElementById('estafetId').value = ''; 
-    document.getElementById('estafetNama').value = ''; 
-    window.openModal('modalEstafet'); 
-}
-
-window.saveEstafet = () => { 
-    const nama = document.getElementById('estafetNama').value; 
-    if(!nama) return alert('Nama Kategori Estafet wajib diisi!'); 
-    dataEstafet.push({ id: Date.now(), nama, list: [] }); 
-    window.renderEstafet(); 
-    window.closeModal('modalEstafet'); 
-}
-
-window.deleteEstafet = (id) => { 
-    if(confirm('Hapus Kategori Estafet ini?')) { 
-        dataEstafet = dataEstafet.filter(e => e.id !== id); 
-        window.renderEstafet(); 
-    } 
-}
-
-window.openModalItemEstafet = (estafetId) => { 
-    document.getElementById('itemEstafetParentId').value = estafetId; 
-    document.getElementById('itemEstafetJarak').value = ''; 
-    document.getElementById('itemEstafetJenis').value = 'Putra'; 
-    window.openModal('modalItemEstafet'); 
-}
-
+window.openModalItemEstafet = (estafetId) => { document.getElementById('itemEstafetParentId').value = estafetId; document.getElementById('itemEstafetJarak').value = ''; document.getElementById('itemEstafetJenis').value = 'Putra'; window.openModal('modalItemEstafet'); }
 window.saveItemEstafet = () => { 
     const parentId = document.getElementById('itemEstafetParentId').value; 
     let jarak = document.getElementById('itemEstafetJarak').value; 
     const jenis = document.getElementById('itemEstafetJenis').value; 
-    
     if(!jarak) return alert('Jarak wajib diisi!'); 
     jarak = jarak.trim().toLowerCase().replace(/\s*meter\s*$/i, ''); 
     if (!jarak.endsWith('m')) jarak += 'm'; 
-    
     const index = dataEstafet.findIndex(e => e.id == parentId); 
     dataEstafet[index].list.push({ id: Date.now(), jarak, jenis, aktif: true }); 
-    
     window.renderEstafet(); 
     window.closeModal('modalItemEstafet'); 
 }
-
-window.deleteItemEstafet = (parentId, itemId) => { 
-    if(confirm('Hapus Nomor Estafet ini?')) { 
-        const index = dataEstafet.findIndex(e => e.id == parentId); 
-        dataEstafet[index].list = dataEstafet[index].list.filter(i => i.id !== itemId); 
-        window.renderEstafet(); 
-    } 
-}
-
-window.toggleItemEstafet = (parentId, itemId) => { 
-    const parentIndex = dataEstafet.findIndex(e => e.id == parentId); 
-    const itemIndex = dataEstafet[parentIndex].list.findIndex(i => i.id == itemId); 
-    dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif; 
-}
+window.deleteItemEstafet = (parentId, itemId) => { if(confirm('Hapus Nomor Estafet ini?')) { const index = dataEstafet.findIndex(e => e.id == parentId); dataEstafet[index].list = dataEstafet[index].list.filter(i => i.id !== itemId); window.renderEstafet(); } }
+window.toggleItemEstafet = (parentId, itemId) => { const parentIndex = dataEstafet.findIndex(e => e.id == parentId); const itemIndex = dataEstafet[parentIndex].list.findIndex(i => i.id == itemId); dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif; }
 
 // ==========================================
 // SIMPAN SEMUA KE DATABASE
@@ -465,17 +351,14 @@ window.simpanKeDatabase = async function() {
     configForm.min_diskon = document.getElementById('inputMinDiskon').value;
     configForm.biaya_diskon = document.getElementById('inputBiayaDiskon').value;
     
-    // MASUKIN WA KE DALAM CONFIG JSONB
+    // MASUKIN WA & NAMA KOLAM KE DALAM CONFIG JSONB
     if (document.getElementById('inputAdminWA1')) configForm.admin_wa_1 = document.getElementById('inputAdminWA1').value;
     if (document.getElementById('inputAdminWA2')) configForm.admin_wa_2 = document.getElementById('inputAdminWA2').value;
-
-    if (document.getElementById('inputInfoPembayaran')) {
-        configForm.info_pembayaran = document.getElementById('inputInfoPembayaran').value;
-    }
+    if (document.getElementById('inputInfoPembayaran')) configForm.info_pembayaran = document.getElementById('inputInfoPembayaran').value;
+    if (document.getElementById('inputNamaKolam')) configForm.nama_kolam = document.getElementById('inputNamaKolam').value; // <-- SAVE NAMA KOLAM BARU
 
     try {
         const { data: oldData } = await supabaseClient.from('events').select('config').eq('id', currentEventId).single();
-        
         const mergedConfig = { ...(oldData?.config || {}), ...configForm };
 
         const { error } = await supabaseClient

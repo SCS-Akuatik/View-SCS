@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // =========================================================
         // LOGIKA FOMO "BEDA REGION" 
-        // Kalau provinsi event BUKAN Jawa Timur, kasih Pop-Up kaget!
         // =========================================================
         if (currentEvent.provinsi && !currentEvent.provinsi.toUpperCase().includes('JAWA TIMUR')) {
             const modalWarn = document.getElementById('modalRegionWarning');
@@ -35,13 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('warnEventName').innerText = currentEvent.event_name;
                 document.getElementById('warnEventLocation').innerText = `${currentEvent.kota || ''}, ${currentEvent.provinsi}`;
                 
-                // Munculin pop-up setelah delay 1 detik biar dramatis
                 setTimeout(() => {
                     modalWarn.classList.remove('hidden');
                     setTimeout(() => modalWarn.firstElementChild.classList.remove('scale-95'), 50);
                 }, 1000); 
 
-                // Tombol tutup (Tetap izinkan dia lihat form pendaftaran)
                 document.getElementById('btnTutupWarningRegion').addEventListener('click', () => {
                     modalWarn.firstElementChild.classList.add('scale-95');
                     setTimeout(() => modalWarn.classList.add('hidden'), 300);
@@ -52,6 +49,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const config = eventData.config || {};
         document.getElementById('pageTitle').innerText = `${eventData.event_name} | Pendaftaran Resmi`;
         document.getElementById('publicEventName').innerText = eventData.event_name;
+
+        // 📍 INJEK LOKASI LOMBA DI SINI
+        const namaKota = eventData.kota || '';
+        const namaProvinsi = eventData.provinsi || '';
+        const namaKolam = config.nama_kolam || '';
+        
+        let teksLokasiLengkap = '';
+        if (namaKolam) teksLokasiLengkap += `${namaKolam} - `;
+        teksLokasiLengkap += (namaKota && namaProvinsi) ? `${namaKota}, ${namaProvinsi}` : 'Lokasi belum ditentukan';
+        
+        document.getElementById('textLokasi').innerText = teksLokasiLengkap;
 
         if (config.header_url) {
             document.getElementById('headerBannerContainer').style.backgroundImage = `url('${config.header_url}')`;

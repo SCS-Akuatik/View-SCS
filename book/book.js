@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const lanesParam = urlParams.get('lanes');
     if (lanesParam) {
         LINTASAN_MAX = parseInt(lanesParam);
+        document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
+    } else {
+        document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
     }
-    document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
 
     if (!currentEventId) {
         alert("ID Event tidak ditemukan!");
@@ -21,22 +23,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // TARIK NAMA EVENT SEKALIGUS JSONB CONFIG UNTUK SPONSOR
-        const { data: eventData } = await supabaseClient
-            .from('events')
-            .select('event_name, config')
-            .eq('id', currentEventId)
-            .single();
-
-        if (eventData) {
-            document.getElementById('eventName').innerText = eventData.event_name;
-            
-            // CEK DAN TAMPILKAN BAR SPONSOR
-            if (eventData.config && eventData.config.sponsor_name) {
-                document.getElementById('sponsorBar').classList.remove('hidden');
-                document.getElementById('sponsorNameText').innerText = eventData.config.sponsor_name;
-            }
-        }
+        const { data: eventData } = await supabaseClient.from('events').select('event_name').eq('id', currentEventId).single();
+        if (eventData) document.getElementById('eventName').innerText = eventData.event_name;
 
         // Tarik data atlet Lunas
         const { data: peserta, error } = await supabaseClient
@@ -244,13 +232,13 @@ function renderSidebarList() {
 
     orderOfEvents.forEach((ev, index) => {
         listContainer.innerHTML += `
-        <li class="bg-white p-2 border border-slate-200 hover:bg-slate-50 flex justify-between items-center group mb-2 shadow-sm rounded-xl transition-all w-full overflow-hidden">
-            <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
+        <li class="bg-white p-2.5 border border-slate-200 hover:bg-slate-50 flex justify-between items-center group mb-2 shadow-sm rounded-xl transition-all">
+            <div class="flex items-center gap-2 overflow-hidden w-full">
                 <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
                     <span class="text-[10px] font-black text-slate-500">${index + 1}</span>
                 </div>
-                <div class="overflow-hidden flex-1 min-w-0">
-                    <p class="text-[11px] font-black text-slate-800 leading-tight mb-0.5 truncate">${ev.nomor}</p>
+                <div class="overflow-hidden">
+                    <p class="text-[11px] font-black text-slate-800 leading-tight mb-0.5 truncate pr-2">${ev.nomor}</p>
                     <p class="text-[9px] text-slate-500 font-bold truncate">${ev.ku} • ${ev.gender}</p>
                 </div>
             </div>
@@ -306,7 +294,7 @@ function renderKertasA4() {
 
     if (orderOfEvents.length === 0) {
         container.innerHTML = `
-        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-300 rounded-xl print-hidden">
+        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-400 rounded-xl print-hidden">
             👈 Gunakan Panel Builder di sebelah kiri untuk menyusun Buku Acara.
         </div>`;
         return;
@@ -370,24 +358,23 @@ function renderKertasA4() {
                     assignedLanes[targetLane] = heatSwimmers[k];
                 }
 
-                // TABEL DIKUNCI (table-fixed) & ISI KOLOM DI-TRUNCATE BIAR GAK MELAR
                 for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
                     if (assignedLanes[lintasan]) {
                         const swimmer = assignedLanes[lintasan];
                         tbodyHtml += `
                         <tr class="text-[11px] text-black">
-                            <td class="py-1.5 px-2 text-center font-bold border border-black">${lintasan}</td>
-                            <td class="py-1.5 px-2 font-bold border border-black overflow-hidden text-ellipsis whitespace-nowrap">${swimmer.nama.toUpperCase()}</td>
-                            <td class="py-1.5 px-2 font-medium border border-black uppercase overflow-hidden text-ellipsis whitespace-nowrap">${swimmer.klub}</td>
-                            <td class="py-1.5 px-2 text-center font-mono border border-black">${swimmer.seed_time}</td>
+                            <td class="py-1 px-2 text-center font-bold border border-black">${lintasan}</td>
+                            <td class="py-1 px-2 font-bold border border-black">${swimmer.nama.toUpperCase()}</td>
+                            <td class="py-1 px-2 font-medium border border-black uppercase">${swimmer.klub}</td>
+                            <td class="py-1 px-2 text-center font-mono border border-black">${swimmer.seed_time}</td>
                         </tr>`;
                     } else {
                         tbodyHtml += `
                         <tr class="text-[11px] text-gray-500">
-                            <td class="py-1.5 px-2 text-center border border-black">${lintasan}</td>
-                            <td class="py-1.5 px-2 italic border border-black"></td>
-                            <td class="py-1.5 px-2 border border-black"></td>
-                            <td class="py-1.5 px-2 border border-black"></td>
+                            <td class="py-1 px-2 text-center border border-black">${lintasan}</td>
+                            <td class="py-1 px-2 italic border border-black"></td>
+                            <td class="py-1 px-2 border border-black"></td>
+                            <td class="py-1 px-2 border border-black"></td>
                         </tr>`;
                     }
                 }
@@ -398,13 +385,13 @@ function renderKertasA4() {
                         <h3 class="font-black text-[12px] uppercase text-black">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku}</h3>
                         <span class="font-bold text-[10px] text-black uppercase border border-black px-2 py-0.5 bg-gray-100">HEAT ${heatNumber} / ${totalHeats}</span>
                     </div>
-                    <table class="w-full text-left border-collapse border border-black table-fixed">
+                    <table class="w-full text-left border-collapse border border-black">
                         <thead class="bg-gray-100 print:bg-gray-100">
                             <tr class="text-[10px] text-black uppercase tracking-widest">
-                                <th class="py-1.5 px-2 w-[10%] text-center font-black border border-black">LINT</th>
-                                <th class="py-1.5 px-2 w-[45%] font-black border border-black">NAMA ATLET</th>
-                                <th class="py-1.5 px-2 w-[30%] font-black border border-black">KLUB / SEKOLAH</th>
-                                <th class="py-1.5 px-2 w-[15%] text-center font-black border border-black">SEED TIME</th>
+                                <th class="py-1.5 px-2 w-10 text-center font-black border border-black">LINT</th>
+                                <th class="py-1.5 px-2 font-black border border-black">NAMA ATLET</th>
+                                <th class="py-1.5 px-2 font-black border border-black w-2/5">KLUB / SEKOLAH</th>
+                                <th class="py-1.5 px-2 w-20 text-center font-black border border-black">SEED TIME</th>
                             </tr>
                         </thead>
                         <tbody>${tbodyHtml}</tbody>

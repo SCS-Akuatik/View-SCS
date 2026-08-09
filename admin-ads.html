@@ -23,35 +23,59 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-8">
         
         <div class="mb-8 border-b border-slate-800 pb-5">
-            <h1 class="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+            <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
                 <span>💰</span> Ad Network & Sponsorship
             </h1>
             <p class="text-slate-400 text-sm mt-2">Pusat kontrol distribusi iklan ke Buku Acara (A4), Live Result, dan Leaderboard.</p>
         </div>
 
-        <!-- 1. PILIH EVENT -->
-        <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-6 mb-8">
-            <label class="block text-sm font-black text-amber-400 mb-2 uppercase tracking-widest">1. Target Event Lomba</label>
-            <p class="text-xs text-slate-400 mb-4">Pilih event yang akan disuntikkan iklan sponsor.</p>
-            
-            <div class="relative">
-                <select id="eventSelector" class="w-full bg-slate-900 border border-slate-600 text-white font-bold px-4 py-3 rounded-xl appearance-none outline-none focus:ring-2 focus:ring-amber-500 transition-shadow cursor-pointer">
-                    <option value="">⏳ Memuat daftar event...</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        <!-- 1. TABEL PILIH EVENT (PENGGANTI DROPDOWN) -->
+        <div class="bg-slate-800/80 rounded-2xl shadow-xl border border-slate-700 p-5 md:p-6 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-black text-amber-400 uppercase tracking-widest">1. Target Event Lomba</label>
+                    <p class="text-[11px] text-slate-400 mt-1">Pilih event dari database. Gunakan pencarian untuk hasil cepat.</p>
                 </div>
+                
+                <!-- Kotak Pencarian -->
+                <div class="relative w-full md:w-72">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="searchEvent" class="bg-slate-900/50 border border-slate-600 text-white text-sm rounded-xl focus:ring-amber-500 focus:border-amber-500 block w-full pl-10 p-2.5 outline-none transition-colors" placeholder="Cari nama event / kota...">
+                </div>
+            </div>
+            
+            <!-- Tabel Data Event (Bisa scroll horizontal di HP) -->
+            <div class="overflow-x-auto rounded-xl border border-slate-700 shadow-inner bg-slate-900/30 max-h-[400px] overflow-y-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse whitespace-nowrap min-w-[700px]">
+                    <thead class="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-wider border-b border-slate-700 sticky top-0 z-10">
+                        <tr>
+                            <th class="p-4 font-black w-12 text-center">NO</th>
+                            <th class="p-4 font-black w-[40%]">NAMA EVENT</th>
+                            <th class="p-4 font-black w-[30%]">URL / LOKASI</th>
+                            <th class="p-4 font-black text-center">STATUS ADS</th>
+                            <th class="p-4 font-black text-center w-24">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventTableBody" class="text-sm divide-y divide-slate-800/50">
+                        <tr><td colspan="5" class="p-6 text-center text-slate-500 italic">⏳ Memuat database event...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- 2. WORKSPACE ADS BUILDER (Hidden by default) -->
+        <!-- 2. WORKSPACE ADS BUILDER -->
         <div id="adsWorkspace" class="hidden space-y-6 animate-fade-in">
             
-            <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-6">
-                <label class="block text-sm font-black text-amber-400 mb-4 uppercase tracking-widest border-b border-slate-700 pb-2">2. Materi Iklan Sponsor</label>
+            <div class="bg-slate-800/80 rounded-2xl shadow-xl border border-slate-700 p-5 md:p-6">
+                <label class="block text-sm font-black text-amber-400 mb-4 uppercase tracking-widest border-b border-slate-700 pb-2 flex items-center gap-2">
+                    <span>2. Materi Iklan Sponsor Untuk:</span>
+                    <span id="labelSelectedEvent" class="text-white bg-slate-900 px-2 py-0.5 rounded text-xs border border-slate-600"></span>
+                </label>
                 
                 <div class="space-y-6">
                     <!-- Text Sponsor -->
@@ -68,7 +92,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-700">
                         <!-- Asset 1: Logo Banner -->
-                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
                             <label class="block text-xs font-bold text-slate-300 mb-1 flex justify-between">
                                 <span>Logo Sponsor (Header UI)</span>
                                 <span class="text-slate-500 text-[10px]">PNG Transparan</span>
@@ -76,12 +100,12 @@
                             <input type="file" id="uploadLogo" accept="image/png, image/jpeg" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-slate-700 file:text-white hover:file:bg-slate-600 cursor-pointer text-slate-400 mb-3 outline-none">
                             <div class="w-full h-24 bg-white rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center p-2 relative overflow-hidden">
                                 <span class="text-xs text-slate-400 font-bold z-0">Preview Logo</span>
-                                <img id="previewLogo" src="" class="hidden absolute w-full h-full object-contain z-10">
+                                <img id="previewLogo" src="" class="hidden absolute w-full h-full object-contain z-10 p-1">
                             </div>
                         </div>
 
                         <!-- Asset 2: Sampul A4 -->
-                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
                             <label class="block text-xs font-bold text-slate-300 mb-1 flex justify-between">
                                 <span>Sampul A4 (Buku Acara)</span>
                                 <span class="text-slate-500 text-[10px]">JPG/PNG (Potrait)</span>
@@ -98,18 +122,35 @@
 
             <!-- ACTION BUTTON -->
             <button id="btnSaveAds" class="w-full bg-amber-600 hover:bg-amber-500 text-black font-black py-4 rounded-xl shadow-[0_0_20px_rgba(217,119,6,0.3)] transition-all text-lg flex justify-center items-center gap-2">
-                🚀 SUNTIKKAN IKLAN KE EVENT
+                🚀 SUNTIKKAN IKLAN KE EVENT INI
             </button>
             <div id="statusMsg" class="hidden text-sm font-bold text-center rounded-lg p-3"></div>
 
-        </div>
+            <!-- 3. MASTER BANK SPONSOR -->
+            <div class="bg-slate-800/80 rounded-2xl shadow-xl border border-slate-700 p-5 md:p-6 mt-8">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-4">
+                    <label class="block text-sm font-black text-emerald-400 uppercase tracking-widest">🏦 Master Bank Sponsor</label>
+                    <span class="text-[10px] bg-slate-900 text-slate-400 px-2 py-1 rounded border border-slate-700 font-bold" id="bankCounter">0 Brand</span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Klik sponsor di bawah ini untuk menggunakannya ulang tanpa perlu upload gambar lagi. Otomatis tersimpan saat Anda menyuntikkan iklan baru.</p>
+                
+                <div id="sponsorBankContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    <p class="text-sm text-slate-500 italic col-span-full">Memuat data sponsor tersimpan...</p>
+                </div>
+            </div>
 
+        </div>
     </div>
 
     <script type="module" src="/src/admin-ads.js"></script>
     <style>
         .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Scrollbar khusus untuk tabel biar ganteng */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </body>
 </html>

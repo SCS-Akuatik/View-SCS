@@ -25,7 +25,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const { data, error } = await supabaseClient
             .from('events')
             .select('id, event_name, config')
-            .order('created_at', { ascending: false });
+            .order('id', { ascending: false }); // <--- GANTI JADI 'id'
+
 
         if (error) throw error;
         eventsData = data;

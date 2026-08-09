@@ -8,7 +8,7 @@
     <style>
         /* Presisi Layar Monitor (Layout Kertas Asli 210mm) */
         .a4-container {
-            width: 210mm; /* Lebar mutlak, tidak bisa digencet */
+            width: 210mm; 
             min-width: 210mm; 
             min-height: 297mm; 
             margin: 0 auto;
@@ -22,14 +22,11 @@
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
             
-            /* Lepas semua lock layout khusus saat nge-print */
             body, html { height: auto !important; overflow: visible !important; background: white !important; margin: 0; padding: 0; }
             .print-flex-reset { display: block !important; height: auto !important; overflow: visible !important; }
             
-            /* Sembunyikan elemen UI Web */
             nav, .sidebar-builder, #btnSimpanBuku, .print-hidden { display: none !important; }
             
-            /* Lepas gembok A4 biar ngalir natural ke halaman berikutnya */
             .a4-container { 
                 box-shadow: none !important; 
                 margin: 0 !important; 
@@ -38,20 +35,16 @@
                 min-width: 100% !important;
             }
             
-            /* Pastikan satu heat/tabel tidak terpotong di tengah kertas */
             .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 6mm; }
-            
-            /* Warna solid print FINA */
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
         }
     </style>
 </head>
-<!-- LAYOUT DIPERBAIKI: h-screen dan overflow-hidden dihapus. Balik pakai min-h-screen biar scroll atas bawah natural! -->
 <body class="bg-slate-200 font-sans text-slate-800 min-h-screen flex flex-col print-flex-reset">
 
-    <!-- Top Action Bar -->
-    <nav class="bg-slate-900 text-white shadow-md z-50 shrink-0 sticky top-0 print-hidden">
-        <div class="px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+    <!-- Top Action Bar (Tinggi diset fix 56px biar sticky sidebar ga meleset) -->
+    <nav class="bg-slate-900 text-white shadow-md z-50 shrink-0 sticky top-0 h-[56px] print-hidden">
+        <div class="px-4 h-full flex flex-wrap justify-between items-center gap-3">
             <div class="flex items-center gap-4">
                 <button onclick="window.history.back()" class="text-slate-300 hover:text-white flex items-center gap-1 text-sm font-bold transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -60,7 +53,7 @@
                 <div class="h-4 w-px bg-slate-600 hidden md:block"></div>
                 <h1 class="text-[11px] md:text-sm font-black tracking-widest text-emerald-400">FINA GENERATOR <span id="infoLintasan" class="text-white ml-2 bg-slate-700 px-2 py-0.5 rounded text-[10px]">10 Lintasan</span></h1>
             </div>
-            <div class="flex items-center gap-2 w-full md:w-auto">
+            <div class="flex items-center gap-2">
                 <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
                     🖨️ Cetak PDF
                 </button>
@@ -71,12 +64,11 @@
         </div>
     </nav>
 
-    <!-- MAIN WORKSPACE -->
-    <div class="flex flex-col md:flex-row flex-1 items-start w-full relative print-flex-reset">
+    <!-- MAIN WORKSPACE: DIKUNCI MATI MODE DESKTOP -->
+    <div class="flex flex-1 items-start w-full relative print-flex-reset">
         
-        <!-- SIDEBAR: PANEL BUILDER -->
-        <!-- Di Desktop: Dia sticky (nempel) dan punya scroll sendiri. Di Mobile: Disembunyikan biar ga nutupin -->
-        <div class="sidebar-builder w-full md:w-[280px] shrink-0 bg-white border-b md:border-b-0 md:border-r border-slate-200 flex-col z-40 hidden md:flex md:sticky md:top-[56px] md:h-[calc(100vh-56px)] overflow-y-auto pb-4">
+        <!-- SIDEBAR: DILOCK LEBARNYA DI 250PX, GAK BISA MELAR GAK BISA MENGKERUT -->
+        <div class="sidebar-builder w-[250px] min-w-[250px] max-w-[250px] shrink-0 bg-white border-r border-slate-200 flex flex-col z-40 sticky top-[56px] h-[calc(100vh-56px)] overflow-y-auto pb-4">
             <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0">
                 <h2 class="font-extrabold text-slate-800 text-sm mb-1">Susunan Acara</h2>
                 <p class="text-[10px] text-slate-500 leading-relaxed">Susun jadwal lomba yang akan di-generate oleh sistem.</p>
@@ -130,8 +122,8 @@
             </div>
 
             <!-- Daftar Acara -->
-            <div class="p-4 border-t border-slate-100 bg-slate-50 flex-1 flex flex-col">
-                <div class="flex justify-between items-center mb-3">
+            <div class="p-3 border-t border-slate-100 bg-slate-50 flex-1 flex flex-col">
+                <div class="flex justify-between items-center mb-3 px-1">
                     <h3 class="font-bold text-slate-600 text-[10px] uppercase tracking-widest">Daftar Acara:</h3>
                     <button onclick="kosongkanSemuaAcara()" class="text-[10px] text-red-500 font-bold hover:underline">Reset</button>
                 </div>
@@ -141,9 +133,9 @@
             </div>
         </div>
 
-        <!-- RIGHT AREA: KERTAS A4 PREVIEW (Horizontal Scroll Area) -->
-        <!-- overflow-x-auto dipasang di sini biar geser kanan kiri aktif kalau kertasnya kegedean -->
-        <div class="flex-1 w-full overflow-x-auto bg-slate-300/50 p-4 md:p-8 print:p-0 print-flex-reset" id="printWrapper">
+        <!-- RIGHT AREA: KERTAS A4 PREVIEW -->
+        <!-- min-w-0 adalah kunci rahasia Tailwind biar Kertas A4 gak nge-push Sidebar -->
+        <div class="flex-1 min-w-0 overflow-x-auto bg-slate-300/50 p-4 md:p-8 print:p-0 print-flex-reset" id="printWrapper">
             <div class="a4-container relative" id="kertasA4">
                 
                 <!-- HEADER SPONSOR & EVENT -->

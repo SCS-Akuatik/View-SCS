@@ -31,28 +31,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('eventName').innerText = eventData.event_name;
 
             // ==========================================
-            // INJEKSI SPONSOR DINAMIS VIA JS (GARIS HIJAU)
+            // INJEKSI SPONSOR DINAMIS VIA JS
             // ==========================================
             const config = eventData.config || {};
-            // Default ke logo SCS, nanti bisa diganti dari admin-ads
+            // Default ke logo SCS, nanti bisa diganti URL-nya dari settingan admin
             const sponsorLogo = config.sponsor_logo || '/images/logo.png'; 
             const sponsorNameText = config.sponsor_name || ''; 
             
-            const kertasA4 = document.getElementById('kertasA4');
             const heatContainer = document.getElementById('heatContainer');
-            
-            // Hapus banner lama kalau ada (mencegah duplikat pas re-render)
             const oldBanner = document.getElementById('dynamicSponsorBanner');
             if (oldBanner) oldBanner.remove();
 
             const bannerHtml = `
-                <div id="dynamicSponsorBanner" class="w-full flex items-center justify-center gap-3 border-b-2 border-slate-800 pb-3 mb-6 mt-[-15px]">
+                <div id="dynamicSponsorBanner" class="w-full flex items-center justify-center gap-3 border-b-2 border-slate-200 pb-4 mb-6 mt-[-10px] print:mt-0">
                     <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Official Sponsor:</span>
                     <img src="${sponsorLogo}" alt="Sponsor" class="h-6 object-contain grayscale opacity-80">
                     ${sponsorNameText ? `<span class="text-[10px] font-black text-slate-700 uppercase">${sponsorNameText}</span>` : ''}
                 </div>
             `;
-            // Sisipkan persis di atas Heat Container (di bawah Header Event)
             heatContainer.insertAdjacentHTML('beforebegin', bannerHtml);
         }
 
@@ -320,7 +316,7 @@ function generateSpearheadPattern(lanes) {
 }
 
 // ==========================================
-// RENDER KERTAS A4 (FIX ALIGNMENT & ELEGANT CSS)
+// RENDER KERTAS A4 DENGAN KUNCI MATI KOLOM
 // ==========================================
 function renderKertasA4() {
     const container = document.getElementById('heatContainer');
@@ -343,7 +339,6 @@ function renderKertasA4() {
     });
 
     Object.keys(groupedBySesi).forEach(namaSesi => {
-        // STYLE ELEGAN BALIK LAGI
         container.innerHTML += `
         <div class="bg-slate-800 text-white p-2 text-center font-black uppercase tracking-widest text-sm mb-4 mt-8 print:mt-4 rounded-md print:rounded-none">
             --- ${namaSesi} ---
@@ -393,29 +388,29 @@ function renderKertasA4() {
                     assignedLanes[targetLane] = heatSwimmers[k];
                 }
 
+                // max-w-0 DAN truncate DI SINI ADALAH KUNCI UTAMANYA!
                 for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
                     if (assignedLanes[lintasan]) {
                         const swimmer = assignedLanes[lintasan];
-                        // TRUNCATE ACTIVE: Panjang nama tidak akan melebarkan kolom
                         tbodyHtml += `
                         <tr class="border-b border-slate-200 text-xs text-slate-800">
-                            <td class="py-1 px-2 text-center font-bold">${lintasan}</td>
-                            <td class="py-1 px-2 font-bold truncate overflow-hidden text-ellipsis whitespace-nowrap" title="${swimmer.nama.toUpperCase()}">${swimmer.nama.toUpperCase()}</td>
-                            <td class="py-1 px-2 font-medium text-slate-600 truncate overflow-hidden text-ellipsis whitespace-nowrap uppercase" title="${swimmer.klub}">${swimmer.klub}</td>
-                            <td class="py-1 px-2 text-center font-mono text-slate-500">${swimmer.seed_time}</td>
+                            <td class="py-1.5 px-2 text-center font-bold">${lintasan}</td>
+                            <td class="py-1.5 px-2 font-bold truncate max-w-0" title="${swimmer.nama.toUpperCase()}">${swimmer.nama.toUpperCase()}</td>
+                            <td class="py-1.5 px-2 font-medium text-slate-600 truncate max-w-0 uppercase" title="${swimmer.klub}">${swimmer.klub}</td>
+                            <td class="py-1.5 px-2 text-center font-mono text-slate-500">${swimmer.seed_time}</td>
                         </tr>`;
                     } else {
                         tbodyHtml += `
                         <tr class="border-b border-slate-200 text-xs text-slate-300">
-                            <td class="py-1 px-2 text-center">${lintasan}</td>
-                            <td class="py-1 px-2 italic">--- Kosong ---</td>
-                            <td class="py-1 px-2"></td>
-                            <td class="py-1 px-2"></td>
+                            <td class="py-1.5 px-2 text-center">${lintasan}</td>
+                            <td class="py-1.5 px-2 italic truncate max-w-0">--- Kosong ---</td>
+                            <td class="py-1.5 px-2 truncate max-w-0"></td>
+                            <td class="py-1.5 px-2"></td>
                         </tr>`;
                     }
                 }
 
-                // TABLE-FIXED ACTIVE: Menjamin keselarasan (Red Line Fix)
+                // w-10, w-1/2, w-1/3 mengunci proporsi kolom dengan sempurna
                 heatHtml += `
                 <div class="avoid-break mb-6 mt-4">
                     <div class="flex justify-between items-end border-b-2 border-slate-700 pb-1 mb-1">
@@ -425,10 +420,10 @@ function renderKertasA4() {
                     <table class="w-full text-left border-collapse table-fixed">
                         <thead>
                             <tr class="text-[9px] text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50 print:bg-transparent">
-                                <th class="py-1.5 px-2 w-[10%] text-center font-bold">LINT</th>
-                                <th class="py-1.5 px-2 w-[45%] font-bold">NAMA ATLET</th>
-                                <th class="py-1.5 px-2 w-[30%] font-bold">KLUB / SEKOLAH</th>
-                                <th class="py-1.5 px-2 w-[15%] text-center font-bold">SEED TIME</th>
+                                <th class="py-1.5 px-2 w-10 text-center font-bold">LINT</th>
+                                <th class="py-1.5 px-2 w-1/2 font-bold">NAMA ATLET</th>
+                                <th class="py-1.5 px-2 w-1/3 font-bold">KLUB / SEKOLAH</th>
+                                <th class="py-1.5 px-2 text-center font-bold">SEED TIME</th>
                             </tr>
                         </thead>
                         <tbody>${tbodyHtml}</tbody>

@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // 2. LOAD SEMUA EVENT
+        // 2. LOAD SEMUA EVENT (Pake 'id' descending)
         const { data: events, error: errEvents } = await supabaseClient
             .from('events')
             .select('id, event_name, subdomain, kota, provinsi, config')
@@ -58,7 +58,7 @@ document.getElementById('searchEvent').addEventListener('input', (e) => {
     renderEventTable();
 });
 
-// RENDER TABEL EVENT GANTENG
+// RENDER TABEL EVENT
 function renderEventTable() {
     const tbody = document.getElementById('eventTableBody');
     tbody.innerHTML = '';
@@ -69,7 +69,6 @@ function renderEventTable() {
     }
 
     filteredEvents.forEach((ev, index) => {
-        // Cek Status Ads
         const hasAds = ev.config && ev.config.ads_sponsor_name;
         const statusBadge = hasAds 
             ? `<span class="bg-emerald-900/40 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest">Active</span>`
@@ -77,7 +76,6 @@ function renderEventTable() {
         
         const sponsorName = hasAds ? `<p class="text-[9px] text-emerald-500/70 font-bold mt-1 truncate max-w-[200px]">Ads: ${ev.config.ads_sponsor_name}</p>` : '';
 
-        // Tentukan kelas baris (kalau terpilih, warnanya beda)
         const isSelected = currentSelectedEventId == ev.id;
         const rowClass = isSelected 
             ? "bg-amber-900/20 border-l-4 border-amber-500 transition-colors" 
@@ -86,7 +84,7 @@ function renderEventTable() {
         const tr = document.createElement('tr');
         tr.className = rowClass;
         tr.id = `row-event-${ev.id}`;
-        tr.onclick = () => window.pilihEventLomba(ev.id); // Baris bisa di-klik di mana aja
+        tr.onclick = () => window.pilihEventLomba(ev.id);
         
         tr.innerHTML = `
             <td class="p-4 text-center text-slate-500 font-bold">${index + 1}</td>
@@ -111,20 +109,18 @@ function renderEventTable() {
     });
 }
 
-// FUNGSI SAAT EVENT DIPILIH DARI TABEL
+// FUNGSI SAAT EVENT DIPILIH
 window.pilihEventLomba = function(eventId) {
     currentSelectedEventId = eventId;
-    renderEventTable(); // Re-render buat update highlight warna baris
+    renderEventTable();
 
     const workspace = document.getElementById('adsWorkspace');
     const event = eventsData.find(ev => ev.id == eventId);
     
     if (!event) return;
 
-    // Set Label Event Terpilih
     document.getElementById('labelSelectedEvent').innerText = event.event_name;
 
-    // Reset Reuse URL
     reusedLogoUrl = null;
     reusedCoverUrl = null;
     document.getElementById('uploadLogo').value = '';
@@ -133,11 +129,9 @@ window.pilihEventLomba = function(eventId) {
 
     selectedEventConfig = event.config || {};
 
-    // Isi Form dengan data lama
     document.getElementById('inputSponsorName').value = selectedEventConfig.ads_sponsor_name || '';
     document.getElementById('inputSponsorUrl').value = selectedEventConfig.ads_link_url || '';
 
-    // Render Preview Logo
     const previewLogo = document.getElementById('previewLogo');
     if (selectedEventConfig.ads_sponsor_logo) {
         previewLogo.src = selectedEventConfig.ads_sponsor_logo;
@@ -148,7 +142,6 @@ window.pilihEventLomba = function(eventId) {
         previewLogo.classList.add('hidden');
     }
 
-    // Render Preview Cover
     const previewCover = document.getElementById('previewCover');
     if (selectedEventConfig.ads_cover_a4) {
         previewCover.src = selectedEventConfig.ads_cover_a4;
@@ -160,8 +153,6 @@ window.pilihEventLomba = function(eventId) {
     }
 
     workspace.classList.remove('hidden');
-    
-    // Smooth scroll ke area kerja
     workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
@@ -207,11 +198,6 @@ async function loadMasterBank() {
 
 // FUNGSI SAAT SPONSOR DARI BANK DIKLIK
 window.useMasterSponsor = function(encodedData) {
-    if (!currentSelectedEventId) {
-        alert("Pilih Target Event di tabel atas terlebih dahulu!");
-        return;
-    }
-
     const sponsor = JSON.parse(decodeURIComponent(encodedData));
     
     document.getElementById('inputSponsorName').value = sponsor.sponsor_name || '';
@@ -239,7 +225,7 @@ window.useMasterSponsor = function(encodedData) {
     
     const statusMsg = document.getElementById('statusMsg');
     statusMsg.classList.remove('hidden');
-    statusMsg.innerHTML = `✅ Aset <b>${sponsor.sponsor_name}</b> di-load dari Bank Sponsor! Tinggal klik tombol Suntikkan di bawah.`;
+    statusMsg.innerHTML = `✅ Aset <b>${sponsor.sponsor_name}</b> di-load dari Bank Sponsor!`;
     statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-emerald-900/30 text-emerald-400 block mt-4 border border-emerald-500/30";
 };
 
@@ -266,7 +252,23 @@ function setupPreview(inputId, imgId, type) {
 setupPreview('uploadLogo', 'previewLogo', 'logo');
 setupPreview('uploadCover', 'previewCover', 'cover');
 
-// TOMBOL SUNTIK
+// ==========================================
+// FUNGSI HELPER UPLOAD (DIPAKAI 2 TOMBOL)
+// ==========================================
+async function uploadAdAsset(file, brandName, type) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `brand_${brandName.replace(/\s+/g, '_')}_${type}_${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabaseClient.storage.from('sponsor-ads').upload(fileName, file);
+    if (uploadError) throw uploadError;
+
+    const { data: urlData } = supabaseClient.storage.from('sponsor-ads').getPublicUrl(fileName);
+    return urlData.publicUrl;
+}
+
+// ==========================================
+// TOMBOL 1: SUNTIKKAN IKLAN KE EVENT
+// ==========================================
 document.getElementById('btnSaveAds').addEventListener('click', async () => {
     if (!currentSelectedEventId) return alert("Pilih event dari tabel dulu!");
 
@@ -291,25 +293,14 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
         let finalCoverUrl = reusedCoverUrl || '';
         let isNewUpload = false;
 
-        const uploadAdAsset = async (file, type) => {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `brand_${valName.replace(/\s+/g, '_')}_${type}_${Date.now()}.${fileExt}`;
-            
-            const { error: uploadError } = await supabaseClient.storage.from('sponsor-ads').upload(fileName, file);
-            if (uploadError) throw uploadError;
-
-            const { data: urlData } = supabaseClient.storage.from('sponsor-ads').getPublicUrl(fileName);
-            return urlData.publicUrl;
-        };
-
         if (fileLogo) {
             statusMsg.innerText = "Mengunggah Logo Sponsor Baru...";
-            finalLogoUrl = await uploadAdAsset(fileLogo, 'logo');
+            finalLogoUrl = await uploadAdAsset(fileLogo, valName, 'logo');
             isNewUpload = true;
         }
         if (fileCover) {
             statusMsg.innerText = "Mengunggah Sampul A4 Baru...";
-            finalCoverUrl = await uploadAdAsset(fileCover, 'cover');
+            finalCoverUrl = await uploadAdAsset(fileCover, valName, 'cover');
             isNewUpload = true;
         }
 
@@ -330,21 +321,21 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
 
         if (updateError) throw updateError;
 
-        // JIKA ADA FILE BARU ATAU NAMA BARU, SIMPAN OTOMATIS KE MASTER BANK
+        // SIMPAN OTOMATIS KE MASTER BANK
         if (valName && (isNewUpload || !masterSponsors.some(s => s.sponsor_name === valName))) {
-            const { error: bankErr } = await supabaseClient
-                .from('master_sponsors')
-                .insert([{
-                    sponsor_name: valName,
-                    link_url: valLink,
-                    logo_url: finalLogoUrl,
-                    cover_url: finalCoverUrl
+            const existing = masterSponsors.find(s => s.sponsor_name.toLowerCase() === valName.toLowerCase());
+            if (existing) {
+                await supabaseClient.from('master_sponsors').update({
+                    link_url: valLink, logo_url: finalLogoUrl, cover_url: finalCoverUrl
+                }).eq('id', existing.id);
+            } else {
+                await supabaseClient.from('master_sponsors').insert([{
+                    sponsor_name: valName, link_url: valLink, logo_url: finalLogoUrl, cover_url: finalCoverUrl
                 }]);
-            
-            if (!bankErr) loadMasterBank(); // Refresh bank
+            }
+            loadMasterBank(); 
         }
 
-        // Update Data Lokal
         selectedEventConfig = newConfig;
         reusedLogoUrl = finalLogoUrl;
         reusedCoverUrl = finalCoverUrl;
@@ -352,9 +343,7 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
         const eventIndex = eventsData.findIndex(ev => ev.id == currentSelectedEventId);
         if (eventIndex !== -1) eventsData[eventIndex].config = newConfig;
         
-        // Filter ulang array dan render tabel biar "STATUS ADS" langsung update jadi "Active"
         filteredEvents = [...eventsData]; 
-        document.getElementById('searchEvent').value = '';
         renderEventTable();
 
         statusMsg.innerText = "✅ BOOM! Iklan berhasil disuntikkan ke Event!";
@@ -366,6 +355,72 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
         statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-900/30 text-red-400 block mt-4 border border-red-500/30";
     } finally {
         btn.innerHTML = "🚀 SUNTIKKAN IKLAN KE EVENT INI";
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+});
+
+// ==========================================
+// TOMBOL 2: SIMPAN KE MASTER BANK SAJA
+// ==========================================
+document.getElementById('btnSaveToBankOnly').addEventListener('click', async () => {
+    const valName = document.getElementById('inputSponsorName').value.trim();
+    const valLink = document.getElementById('inputSponsorUrl').value.trim();
+    
+    const fileLogo = document.getElementById('uploadLogo').files[0];
+    const fileCover = document.getElementById('uploadCover').files[0];
+
+    if (!valName) return alert("Nama Sponsor wajib diisi untuk disimpan ke Bank!");
+    if (!fileLogo && !fileCover && !reusedLogoUrl && !reusedCoverUrl) {
+        return alert("Pilih minimal 1 gambar (Logo atau Sampul) untuk disimpan!");
+    }
+
+    const btn = document.getElementById('btnSaveToBankOnly');
+    const statusMsg = document.getElementById('statusMsg');
+
+    btn.innerHTML = "⏳ MENYIMPAN KE BANK...";
+    btn.disabled = true;
+    btn.classList.add('opacity-50', 'cursor-not-allowed');
+    statusMsg.classList.remove('hidden');
+    statusMsg.innerText = "Mengunggah aset...";
+    statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-slate-800 text-slate-300 block mt-4 border border-slate-600";
+
+    try {
+        let finalLogoUrl = reusedLogoUrl || '';
+        let finalCoverUrl = reusedCoverUrl || '';
+
+        if (fileLogo) finalLogoUrl = await uploadAdAsset(fileLogo, valName, 'logo');
+        if (fileCover) finalCoverUrl = await uploadAdAsset(fileCover, valName, 'cover');
+
+        // Cek apakah sponsor sudah ada di bank
+        const existing = masterSponsors.find(s => s.sponsor_name.toLowerCase() === valName.toLowerCase());
+        
+        if (existing) {
+            await supabaseClient.from('master_sponsors').update({
+                link_url: valLink,
+                logo_url: finalLogoUrl,
+                cover_url: finalCoverUrl
+            }).eq('id', existing.id);
+        } else {
+            await supabaseClient.from('master_sponsors').insert([{
+                sponsor_name: valName,
+                link_url: valLink,
+                logo_url: finalLogoUrl,
+                cover_url: finalCoverUrl
+            }]);
+        }
+
+        loadMasterBank(); 
+
+        statusMsg.innerText = "✅ Mantap! Aset berhasil masuk ke Master Bank.";
+        statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-emerald-900/30 text-emerald-400 block mt-4 border border-emerald-500/30";
+
+    } catch (err) {
+        console.error(err);
+        statusMsg.innerText = "❌ Error: " + err.message;
+        statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-red-900/30 text-red-400 block mt-4 border border-red-500/30";
+    } finally {
+        btn.innerHTML = "📥 Simpan Aset ke Master Bank Dulu";
         btn.disabled = false;
         btn.classList.remove('opacity-50', 'cursor-not-allowed');
     }

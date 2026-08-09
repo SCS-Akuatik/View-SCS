@@ -6,21 +6,25 @@
     <title>Buku Acara (Heat Sheet) | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
     <style>
-        /* Presisi Layar Monitor (Layout Kertas Asli) */
+        /* Presisi Layar Monitor (Layout Kertas Asli 210mm) */
         .a4-container {
-            width: 210mm; /* WAJIB WIDTH FIX BIAR GAK KESQUISH */
+            width: 210mm; /* Lebar mutlak, tidak bisa digencet */
             min-width: 210mm; 
             min-height: 297mm; 
             margin: 0 auto;
             background: white;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             padding: 15mm;
+            flex-shrink: 0; /* Mencegah penyusutan paksa dari Flexbox */
         }
 
-        /* Presisi Saat di-Print ke Kertas A4 / PDF */
+        /* Presisi Mutlak Saat di-Print ke Kertas A4 / PDF */
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
-            body, html { background: white !important; margin: 0; padding: 0; }
+            
+            /* Lepas semua lock layout khusus saat nge-print */
+            body, html { height: auto !important; overflow: visible !important; background: white !important; margin: 0; padding: 0; }
+            .print-flex-reset { display: block !important; height: auto !important; overflow: visible !important; }
             
             /* Sembunyikan elemen UI Web */
             nav, .sidebar-builder, #btnSimpanBuku, .print-hidden { display: none !important; }
@@ -37,15 +41,16 @@
             /* Pastikan satu heat/tabel tidak terpotong di tengah kertas */
             .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 6mm; }
             
-            /* Warna solid print */
+            /* Warna solid print FINA */
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
         }
     </style>
 </head>
-<body class="bg-slate-200 font-sans text-slate-800 min-h-screen flex flex-col">
+<!-- LAYOUT PRO: h-screen dan overflow-hidden agar aplikasi tidak scroll bodinya -->
+<body class="bg-slate-200 font-sans text-slate-800 h-screen overflow-hidden flex flex-col print-flex-reset">
 
-    <!-- Top Action Bar (Dibuat Sticky biar selalu di atas) -->
-    <nav class="bg-slate-900 text-white shadow-md z-50 sticky top-0 print-hidden">
+    <!-- Top Action Bar -->
+    <nav class="bg-slate-900 text-white shadow-md z-50 shrink-0 print-hidden">
         <div class="px-4 py-3 flex flex-wrap justify-between items-center gap-3">
             <div class="flex items-center gap-4">
                 <button onclick="window.history.back()" class="text-slate-300 hover:text-white flex items-center gap-1 text-sm font-bold transition-colors">
@@ -56,7 +61,7 @@
                 <h1 class="text-[11px] md:text-sm font-black tracking-widest text-emerald-400">FINA GENERATOR <span id="infoLintasan" class="text-white ml-2 bg-slate-700 px-2 py-0.5 rounded text-[10px]">10 Lintasan</span></h1>
             </div>
             <div class="flex items-center gap-2 w-full md:w-auto">
-                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2">
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shadow-sm">
                     🖨️ Cetak PDF
                 </button>
                 <button id="btnSimpanBuku" onclick="simpanKeDatabase()" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 px-5 py-2 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
@@ -66,18 +71,17 @@
         </div>
     </nav>
 
-    <!-- MAIN WORKSPACE -->
-    <div class="flex flex-col md:flex-row flex-1 items-start">
+    <!-- MAIN WORKSPACE: DUAL SCROLL SYSTEM -->
+    <div class="flex flex-1 overflow-hidden w-full relative print-flex-reset">
         
-        <!-- SIDEBAR: PANEL BUILDER -->
-        <div class="sidebar-builder w-full md:w-80 bg-white border-b md:border-b-0 md:border-r border-slate-200 flex flex-col shrink-0 z-40 md:sticky md:top-[60px] md:h-[calc(100vh-60px)]">
-            <div class="p-4 border-b border-slate-100 bg-slate-50">
+        <!-- SIDEBAR: PANEL BUILDER (Dipersempit jadi 280px) -->
+        <div class="sidebar-builder w-[280px] shrink-0 h-full overflow-y-auto bg-white border-r border-slate-200 flex flex-col z-40 hidden md:flex pb-10">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0">
                 <h2 class="font-extrabold text-slate-800 text-sm mb-1">Susunan Acara</h2>
                 <p class="text-[10px] text-slate-500 leading-relaxed">Susun jadwal lomba yang akan di-generate oleh sistem.</p>
             </div>
             
-            <div class="p-4 flex flex-col gap-4 overflow-y-auto">
-                
+            <div class="p-4 flex flex-col gap-4 shrink-0">
                 <!-- TOMBOL ACTION -->
                 <div class="flex flex-col gap-2">
                     <button id="btnAutoLoad" onclick="autoGenerateSemua()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-2.5 rounded-lg text-xs transition-colors shadow-md flex items-center justify-center gap-2">
@@ -124,19 +128,20 @@
                 </button>
             </div>
 
-            <div class="p-4 border-t border-slate-100 bg-slate-50 flex-1 overflow-y-auto">
+            <!-- Daftar Acara (Scrollable) -->
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex-1 flex flex-col">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-slate-600 text-[10px] uppercase tracking-widest">Daftar Acara:</h3>
                     <button onclick="kosongkanSemuaAcara()" class="text-[10px] text-red-500 font-bold hover:underline">Reset</button>
                 </div>
-                <ul id="listOrderEvents" class="space-y-2">
+                <ul id="listOrderEvents" class="space-y-2 flex-1">
                     <li class="text-xs text-slate-400 text-center italic mt-10">Belum ada acara ditambahkan.</li>
                 </ul>
             </div>
         </div>
 
-        <!-- RIGHT AREA: KERTAS A4 PREVIEW (Dikasih overflow-auto) -->
-        <div class="flex-1 w-full p-4 md:p-8 print:p-0 overflow-auto" id="printWrapper">
+        <!-- RIGHT AREA: KERTAS A4 PREVIEW (Horizontal & Vertical Scroll Area) -->
+        <div class="flex-1 h-full overflow-auto bg-slate-300/50 p-4 md:p-8 print:p-0 print-flex-reset" id="printWrapper">
             <div class="a4-container relative" id="kertasA4">
                 
                 <!-- HEADER SPONSOR & EVENT -->
@@ -152,7 +157,7 @@
 
                 <!-- CONTAINER HEAT SHEET DI RENDER KE SINI -->
                 <div id="heatContainer" class="space-y-6">
-                    <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-300 rounded-xl print-hidden">
+                    <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-400 rounded-xl print-hidden">
                         👈 Susun Buku Acara.
                     </div>
                 </div>

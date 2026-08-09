@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (lanesParam) {
         LINTASAN_MAX = parseInt(lanesParam);
         document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
+    } else {
+        document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
     }
 
     if (!currentEventId) {
@@ -165,7 +167,7 @@ window.autoGenerateSemua = function() {
 
     uniqueCombos.sort((a, b) => {
         if (a.nomor !== b.nomor) return a.nomor.localeCompare(b.nomor);
-        if (a.gender !== b.gender) return a.gender.localeCompare(b.gender); 
+        if (a.gender !== b.gender) return a.gender.localeCompare(b.gender);
         return a.ku.localeCompare(b.ku);
     });
 
@@ -230,16 +232,18 @@ function renderSidebarList() {
 
     orderOfEvents.forEach((ev, index) => {
         listContainer.innerHTML += `
-        <li class="bg-white px-3 py-2 border-b border-slate-100 hover:bg-slate-50 flex justify-between items-center group mb-1 shadow-sm rounded-lg">
-            <div class="flex items-center gap-3">
-                <span class="text-[10px] font-mono text-slate-400 w-4">${index + 1}.</span>
-                <div>
-                    <p class="text-[11px] font-bold text-slate-800 leading-none mb-1">${ev.nomor}</p>
-                    <p class="text-[9px] text-slate-500 font-medium">${ev.ku} • ${ev.gender} • <span class="text-blue-600">${ev.sesi}</span></p>
+        <li class="bg-white p-2.5 border border-slate-200 hover:bg-slate-50 flex justify-between items-center group mb-2 shadow-sm rounded-xl transition-all">
+            <div class="flex items-center gap-2 overflow-hidden w-full">
+                <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                    <span class="text-[10px] font-black text-slate-500">${index + 1}</span>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-[11px] font-black text-slate-800 leading-tight mb-0.5 truncate pr-2">${ev.nomor}</p>
+                    <p class="text-[9px] text-slate-500 font-bold truncate">${ev.ku} • ${ev.gender}</p>
                 </div>
             </div>
-            <button onclick="hapusEventLomba(${ev.id})" class="text-slate-300 hover:text-red-500 transition-colors p-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            <button onclick="hapusEventLomba(${ev.id})" class="text-slate-300 hover:text-red-600 transition-colors p-1.5 shrink-0 bg-white hover:bg-red-50 rounded-lg border border-transparent hover:border-red-200 shadow-sm ml-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             </button>
         </li>`;
     });
@@ -290,7 +294,7 @@ function renderKertasA4() {
 
     if (orderOfEvents.length === 0) {
         container.innerHTML = `
-        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-300 rounded-xl print-hidden">
+        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-400 rounded-xl print-hidden">
             👈 Gunakan Panel Builder di sebelah kiri untuk menyusun Buku Acara.
         </div>`;
         return;
@@ -306,7 +310,7 @@ function renderKertasA4() {
 
     Object.keys(groupedBySesi).forEach(namaSesi => {
         container.innerHTML += `
-        <div class="bg-slate-800 text-white p-2 text-center font-black uppercase tracking-widest text-sm mb-4 mt-8 print:mt-4 rounded-md print:rounded-none">
+        <div class="bg-black text-white p-2 text-center font-black uppercase tracking-widest text-[11px] mb-4 mt-8 print:mt-4 rounded-sm print:rounded-none">
             --- ${namaSesi} ---
         </div>`;
 
@@ -325,7 +329,7 @@ function renderKertasA4() {
             });
 
             if (swimmers.length === 0) {
-                container.innerHTML += `<div class="mb-6 text-sm text-red-500 font-bold italic">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku} (Tidak ada peserta)</div>`;
+                container.innerHTML += `<div class="mb-6 text-[11px] text-red-500 font-bold italic">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku} (Tidak ada peserta)</div>`;
                 return;
             }
 
@@ -358,36 +362,36 @@ function renderKertasA4() {
                     if (assignedLanes[lintasan]) {
                         const swimmer = assignedLanes[lintasan];
                         tbodyHtml += `
-                        <tr class="border-b border-slate-200 text-xs text-slate-800 bg-white">
-                            <td class="py-1 px-2 text-center font-bold">${lintasan}</td>
-                            <td class="py-1 px-2 font-bold">${swimmer.nama.toUpperCase()}</td>
-                            <td class="py-1 px-2 font-medium text-slate-600">${swimmer.klub}</td>
-                            <td class="py-1 px-2 text-center font-mono text-slate-500">${swimmer.seed_time}</td>
+                        <tr class="text-[11px] text-black">
+                            <td class="py-1 px-2 text-center font-bold border border-black">${lintasan}</td>
+                            <td class="py-1 px-2 font-bold border border-black">${swimmer.nama.toUpperCase()}</td>
+                            <td class="py-1 px-2 font-medium border border-black uppercase">${swimmer.klub}</td>
+                            <td class="py-1 px-2 text-center font-mono border border-black">${swimmer.seed_time}</td>
                         </tr>`;
                     } else {
                         tbodyHtml += `
-                        <tr class="border-b border-slate-200 text-xs text-slate-300 bg-white">
-                            <td class="py-1 px-2 text-center">${lintasan}</td>
-                            <td class="py-1 px-2 italic">--- Kosong ---</td>
-                            <td class="py-1 px-2"></td>
-                            <td class="py-1 px-2"></td>
+                        <tr class="text-[11px] text-gray-500">
+                            <td class="py-1 px-2 text-center border border-black">${lintasan}</td>
+                            <td class="py-1 px-2 italic border border-black"></td>
+                            <td class="py-1 px-2 border border-black"></td>
+                            <td class="py-1 px-2 border border-black"></td>
                         </tr>`;
                     }
                 }
 
                 heatHtml += `
-                <div class="avoid-break mb-4">
-                    <div class="flex justify-between items-end border-b-2 border-slate-700 pb-1 mb-1 mt-3">
-                        <h3 class="font-extrabold text-[11px] uppercase text-slate-900">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku}</h3>
-                        <span class="font-bold text-[10px] text-slate-600 uppercase">HEAT ${heatNumber} of ${totalHeats}</span>
+                <div class="avoid-break mb-4 mt-4">
+                    <div class="flex justify-between items-end pb-1 mb-1">
+                        <h3 class="font-black text-[12px] uppercase text-black">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku}</h3>
+                        <span class="font-bold text-[10px] text-black uppercase border border-black px-2 py-0.5 bg-gray-100">HEAT ${heatNumber} / ${totalHeats}</span>
                     </div>
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="text-[9px] text-slate-400 uppercase tracking-widest border-b border-slate-200">
-                                <th class="py-1 px-2 w-10 text-center font-bold">LINT</th>
-                                <th class="py-1 px-2 font-bold">NAMA ATLET</th>
-                                <th class="py-1 px-2 font-bold">KLUB / SEKOLAH</th>
-                                <th class="py-1 px-2 w-20 text-center font-bold">SEED TIME</th>
+                    <table class="w-full text-left border-collapse border border-black">
+                        <thead class="bg-gray-100 print:bg-gray-100">
+                            <tr class="text-[10px] text-black uppercase tracking-widest">
+                                <th class="py-1.5 px-2 w-10 text-center font-black border border-black">LINT</th>
+                                <th class="py-1.5 px-2 font-black border border-black">NAMA ATLET</th>
+                                <th class="py-1.5 px-2 font-black border border-black w-2/5">KLUB / SEKOLAH</th>
+                                <th class="py-1.5 px-2 w-20 text-center font-black border border-black">SEED TIME</th>
                             </tr>
                         </thead>
                         <tbody>${tbodyHtml}</tbody>

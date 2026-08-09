@@ -3,7 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apa itu F1 ID? | SCS</title>
+    <title>Apa itu F1 ID? | KTP Digital Atlet SCS</title>
+    
+    <!-- ============================================== -->
+    <!-- META SEO & SOCIAL MEDIA SHARE (OG/TWITTER)     -->
+    <!-- ============================================== -->
+    <meta name="description" content="F1 ID adalah identitas digital unik (KTP Atlet) yang merekam rekam jejak, histori waktu, dan e-certificate atlet renang di ekosistem SCS.">
+    
+    <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
+    <meta property="og:title" content="Apa itu F1 ID? | KTP Digital Atlet SCS" />
+    <meta property="og:description" content="Cek profil, histori catatan waktu terbaik, dan koleksi e-certificate atlet renang melalui F1 ID SCS." />
+    <meta property="og:image" content="https://funswimming.my.id/images/f1id.jpg" />
+    <meta property="og:url" content="https://funswimming.my.id/f1-profile.html" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Apa itu F1 ID? | KTP Digital Atlet SCS">
+    <meta name="twitter:description" content="Cek profil, histori catatan waktu terbaik, dan koleksi e-certificate atlet renang melalui F1 ID SCS.">
+    <meta name="twitter:image" content="https://funswimming.my.id/images/f1id.jpg">
+
     <link rel="stylesheet" href="/src/style.css">
 </head>
 <body class="bg-slate-50 antialiased font-sans text-slate-800 pb-20">
@@ -23,7 +42,7 @@
     </nav>
 
     <!-- HEADER SECTION -->
-    <section class="pt-32 pb-16 bg-blue-950 text-center relative overflow-hidden">
+    <section class="pt-32 pb-28 bg-blue-950 text-center relative overflow-hidden">
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 C 20 0 50 0 100 100 Z" fill="#ffffff"/></svg>
         </div>
@@ -35,20 +54,66 @@
                 Apa itu <span class="text-scsGold drop-shadow-md">F1 ID?</span>
             </h1>
             <p class="text-lg md:text-xl text-blue-200 leading-relaxed max-w-2xl mx-auto">
-                F1 ID adalah identitas digital unik (NIM) bagi setiap atlet renang yang merekam seluruh perjalanan, prestasi, dan keanggotaan klub di ekosistem SCS.
+                F1 ID adalah identitas digital unik bagi setiap atlet renang yang merekam seluruh perjalanan, prestasi, dan keanggotaan klub di ekosistem SCS.
             </p>
         </div>
     </section>
 
-    <!-- KENAPA HARUS PUNYA F1 ID? -->
-    <section class="py-16 md:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
+    <!-- SEARCH SECTION (OVERLAP KE ATAS BIAR CANTIK & MENCEGAH DROP OFF) -->
+    <section class="relative z-20 -mt-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-10 text-center">
+            
+            <h2 class="text-2xl font-black text-blue-900 mb-2">Cek Profil & Histori Atlet</h2>
+            <p class="text-slate-500 mb-8 text-sm font-medium">Cari berdasarkan Nama Atlet, Asal Klub, atau ketik langsung nomor F1 ID.</p>
+            
+            <!-- Input & Dropdown -->
+            <div class="relative max-w-xl mx-auto z-30">
+                <div class="flex shadow-md rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 p-2 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                    <input type="text" id="searchInput" placeholder="Contoh: Bima atau F1-1308207" class="w-full px-4 py-3 bg-transparent outline-none text-slate-700 font-bold tracking-wide">
+                    <button id="searchBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition whitespace-nowrap">Cari Atlet</button>
+                </div>
+                
+                <!-- DROPDOWN HASIL PENCARIAN -->
+                <div id="searchResults" class="absolute top-full left-0 w-full mt-2 bg-white border border-slate-200 shadow-2xl rounded-2xl overflow-hidden hidden max-h-[50vh] overflow-y-auto text-left z-50">
+                    <div id="searchStatus" class="p-4 text-center text-sm font-bold text-slate-500">Mencari...</div>
+                    <ul id="searchList" class="divide-y divide-slate-100">
+                        <!-- Disuntik JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <p class="mt-4 mb-8 text-[11px] md:text-xs text-slate-400">Belum punya F1 ID? Hubungi pelatih klub Anda untuk mendaftar.</p>
+
+            <!-- TOMBOL SHARE (WA, FB, X) -->
+            <div class="flex flex-col items-center gap-3 pt-6 border-t border-slate-100">
+                <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Bagikan Halaman Ini</p>
+                <div class="flex gap-4">
+                    <!-- WhatsApp -->
+                    <a href="https://api.whatsapp.com/send?text=Cek profil, sertifikat, dan histori catatan waktu atlet renang kamu di SCS! %0A%0Ahttps://funswimming.my.id/f1-profile.html" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-full flex items-center justify-center transition-colors shadow-sm border border-emerald-100">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    </a>
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://funswimming.my.id/f1-profile.html" target="_blank" class="w-10 h-10 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-full flex items-center justify-center transition-colors shadow-sm border border-blue-100">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <!-- X / Twitter -->
+                    <a href="https://twitter.com/intent/tweet?text=Cek profil dan histori waktu renang atlet di SCS F1 ID!&url=https://funswimming.my.id/f1-profile.html" target="_blank" class="w-10 h-10 bg-slate-100 text-slate-600 hover:bg-black hover:text-white rounded-full flex items-center justify-center transition-colors shadow-sm border border-slate-200">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- KENAPA HARUS PUNYA F1 ID? (Merapat rapi ke atas) -->
+    <section class="pb-16 md:pb-20 pt-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
             <h2 class="text-3xl font-extrabold text-slate-800">Kenapa F1 ID Sangat Penting?</h2>
             <p class="mt-4 text-slate-500">Sistem yang dirancang untuk melindungi atlet dan memudahkan panitia.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
             <!-- Benefit 1 -->
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6 hover:shadow-md hover:-translate-y-1 transition-all">
                 <div class="w-16 h-16 shrink-0 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl">🛡️</div>
@@ -62,8 +127,8 @@
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex gap-6 hover:shadow-md hover:-translate-y-1 transition-all">
                 <div class="w-16 h-16 shrink-0 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl">📈</div>
                 <div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Histori Catatan Waktu (Best Time)</h3>
-                    <p class="text-slate-500 leading-relaxed text-sm">Tidak perlu lagi mencatat manual di buku. Setiap atlet bertanding di event SCS, catatan waktu terbaiknya otomatis tersimpan dan membentuk grafik progres yang bisa dipantau pelatih & orang tua.</p>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Histori Waktu (Best Time)</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">Tidak perlu lagi mencatat manual di buku. Setiap atlet bertanding di event SCS, catatan waktu terbaiknya otomatis tersimpan dan membentuk grafik progres yang bisa dipantau.</p>
                 </div>
             </div>
 
@@ -72,7 +137,7 @@
                 <div class="w-16 h-16 shrink-0 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-3xl">🪪</div>
                 <div>
                     <h3 class="text-xl font-bold text-slate-800 mb-2">Bebas Salah Input Data</h3>
-                    <p class="text-slate-500 leading-relaxed text-sm">Panitia tidak perlu lagi memverifikasi ulang akta kelahiran atau salah memasukkan nama di piagam. Saat mendaftar lomba, cukup masukkan F1 ID, dan seluruh biodata valid akan terisi otomatis.</p>
+                    <p class="text-slate-500 leading-relaxed text-sm">Panitia tidak perlu lagi memverifikasi ulang akta kelahiran atau salah memasukkan nama di piagam. Saat mendaftar lomba, cukup masukkan F1 ID, biodata otomatis terisi.</p>
                 </div>
             </div>
 
@@ -84,38 +149,11 @@
                     <p class="text-slate-500 leading-relaxed text-sm">Sertifikat lomba tidak akan hilang atau rusak. Seluruh sertifikat keikutsertaan maupun piagam juara akan tersimpan rapi secara digital di dalam profil F1 ID atlet.</p>
                 </div>
             </div>
-
         </div>
     </section>
 
-    <!-- SEARCH SECTION (AKTIF) -->
-    <section class="py-16 bg-blue-50 border-y border-blue-100">
-        <div class="max-w-3xl mx-auto px-4 text-center relative">
-            <h2 class="text-2xl font-bold text-blue-900 mb-4">Coba Cek Profil F1 ID</h2>
-            <p class="text-slate-600 mb-8 text-sm">Cari berdasarkan Nama Atlet, Asal Klub, atau ketik langsung nomor F1 ID.</p>
-            
-            <div class="relative max-w-xl mx-auto z-20">
-                <div class="flex shadow-lg rounded-2xl overflow-hidden bg-white border border-slate-200 p-2">
-                    <input type="text" id="searchInput" placeholder="Contoh: Bima atau F1-1308207" class="w-full px-4 py-3 outline-none text-slate-700 font-bold tracking-wide">
-                    <button id="searchBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition whitespace-nowrap">Cari Atlet</button>
-                </div>
-                
-                <!-- DROPDOWN HASIL PENCARIAN -->
-                <div id="searchResults" class="absolute top-full left-0 w-full mt-2 bg-white border border-slate-200 shadow-xl rounded-2xl overflow-hidden hidden max-h-[60vh] overflow-y-auto text-left">
-                    <div id="searchStatus" class="p-4 text-center text-sm font-bold text-slate-500">Mencari...</div>
-                    <ul id="searchList" class="divide-y divide-slate-100">
-                        <!-- Disuntik JS -->
-                    </ul>
-                </div>
-            </div>
-            
-            <p class="mt-8 text-xs text-slate-400">Belum punya F1 ID? Hubungi pelatih klub Anda untuk didaftarkan secara resmi ke sistem SCS.</p>
-        </div>
-    </section>
-
-    <!-- TAMBAHIN SCRIPT INI DI BAWAH SEBELUM </body> -->
+    <!-- SCRIPT PENCARIAN -->
     <script type="module" src="/src/f1-profile.js"></script>
-
 
 </body>
 </html>

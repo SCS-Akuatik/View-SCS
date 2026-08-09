@@ -12,10 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const lanesParam = urlParams.get('lanes');
     if (lanesParam) {
         LINTASAN_MAX = parseInt(lanesParam);
-        document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
-    } else {
-        document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
     }
+    document.getElementById('infoLintasan').innerText = `${LINTASAN_MAX} Lintasan`;
 
     if (!currentEventId) {
         alert("ID Event tidak ditemukan!");
@@ -23,8 +21,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const { data: eventData } = await supabaseClient.from('events').select('event_name').eq('id', currentEventId).single();
-        if (eventData) document.getElementById('eventName').innerText = eventData.event_name;
+        const { data: eventData } = await supabaseClient
+            .from('events')
+            .select('event_name, config')
+            .eq('id', currentEventId)
+            .single();
+
+        if (eventData) {
+            document.getElementById('eventName').innerText = eventData.event_name;
+
+            // ==========================================
+            // INJEKSI SPONSOR DINAMIS VIA JS (GARIS HIJAU)
+            // ==========================================
+            const config = eventData.config || {};
+            // Default ke logo SCS, nanti bisa diganti dari admin-ads
+            const sponsorLogo = config.sponsor_logo || '/images/logo.png'; 
+            const sponsorNameText = config.sponsor_name || ''; 
+            
+            const kertasA4 = document.getElementById('kertasA4');
+            const heatContainer = document.getElementById('heatContainer');
+            
+            // Hapus banner lama kalau ada (mencegah duplikat pas re-render)
+            const oldBanner = document.getElementById('dynamicSponsorBanner');
+            if (oldBanner) oldBanner.remove();
+
+            const bannerHtml = `
+                <div id="dynamicSponsorBanner" class="w-full flex items-center justify-center gap-3 border-b-2 border-slate-800 pb-3 mb-6 mt-[-15px]">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Official Sponsor:</span>
+                    <img src="${sponsorLogo}" alt="Sponsor" class="h-6 object-contain grayscale opacity-80">
+                    ${sponsorNameText ? `<span class="text-[10px] font-black text-slate-700 uppercase">${sponsorNameText}</span>` : ''}
+                </div>
+            `;
+            // Sisipkan persis di atas Heat Container (di bawah Header Event)
+            heatContainer.insertAdjacentHTML('beforebegin', bannerHtml);
+        }
 
         // Tarik data atlet Lunas
         const { data: peserta, error } = await supabaseClient
@@ -232,18 +262,19 @@ function renderSidebarList() {
 
     orderOfEvents.forEach((ev, index) => {
         listContainer.innerHTML += `
-        <li class="bg-white p-2.5 border border-slate-200 hover:bg-slate-50 flex justify-between items-center group mb-2 shadow-sm rounded-xl transition-all">
-            <div class="flex items-center gap-2 overflow-hidden w-full">
-                <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
-                    <span class="text-[10px] font-black text-slate-500">${index + 1}</span>
+        <li class="bg-white p-3 border border-slate-200 hover:bg-slate-50 hover:border-blue-200 flex justify-between items-center group mb-2 shadow-sm rounded-xl mx-1 transition-all">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">
+                    <span class="text-[10px] font-black">${index + 1}</span>
                 </div>
-                <div class="overflow-hidden">
-                    <p class="text-[11px] font-black text-slate-800 leading-tight mb-0.5 truncate pr-2">${ev.nomor}</p>
-                    <p class="text-[9px] text-slate-500 font-bold truncate">${ev.ku} • ${ev.gender}</p>
+                <div class="truncate">
+                    <p class="text-xs font-black text-slate-800 leading-none mb-1 truncate">${ev.nomor}</p>
+                    <p class="text-[10px] text-slate-500 font-bold truncate">${ev.ku} • ${ev.gender}</p>
                 </div>
             </div>
-            <button onclick="hapusEventLomba(${ev.id})" class="text-slate-300 hover:text-red-600 transition-colors p-1.5 shrink-0 bg-white hover:bg-red-50 rounded-lg border border-transparent hover:border-red-200 shadow-sm ml-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            
+            <button onclick="hapusEventLomba(${ev.id})" class="text-slate-400 hover:text-red-600 transition-colors p-2 shrink-0 bg-slate-50 hover:bg-red-50 rounded-lg border border-transparent hover:border-red-200 ml-2 shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             </button>
         </li>`;
     });
@@ -288,13 +319,16 @@ function generateSpearheadPattern(lanes) {
     return pattern;
 }
 
+// ==========================================
+// RENDER KERTAS A4 (FIX ALIGNMENT & ELEGANT CSS)
+// ==========================================
 function renderKertasA4() {
     const container = document.getElementById('heatContainer');
     container.innerHTML = '';
 
     if (orderOfEvents.length === 0) {
         container.innerHTML = `
-        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-400 rounded-xl print-hidden">
+        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-300 rounded-xl print-hidden">
             👈 Gunakan Panel Builder di sebelah kiri untuk menyusun Buku Acara.
         </div>`;
         return;
@@ -309,8 +343,9 @@ function renderKertasA4() {
     });
 
     Object.keys(groupedBySesi).forEach(namaSesi => {
+        // STYLE ELEGAN BALIK LAGI
         container.innerHTML += `
-        <div class="bg-black text-white p-2 text-center font-black uppercase tracking-widest text-[11px] mb-4 mt-8 print:mt-4 rounded-sm print:rounded-none">
+        <div class="bg-slate-800 text-white p-2 text-center font-black uppercase tracking-widest text-sm mb-4 mt-8 print:mt-4 rounded-md print:rounded-none">
             --- ${namaSesi} ---
         </div>`;
 
@@ -329,7 +364,7 @@ function renderKertasA4() {
             });
 
             if (swimmers.length === 0) {
-                container.innerHTML += `<div class="mb-6 text-[11px] text-red-500 font-bold italic">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku} (Tidak ada peserta)</div>`;
+                container.innerHTML += `<div class="mb-6 text-sm text-red-500 font-bold italic">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku} (Tidak ada peserta)</div>`;
                 return;
             }
 
@@ -361,37 +396,39 @@ function renderKertasA4() {
                 for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
                     if (assignedLanes[lintasan]) {
                         const swimmer = assignedLanes[lintasan];
+                        // TRUNCATE ACTIVE: Panjang nama tidak akan melebarkan kolom
                         tbodyHtml += `
-                        <tr class="text-[11px] text-black">
-                            <td class="py-1 px-2 text-center font-bold border border-black">${lintasan}</td>
-                            <td class="py-1 px-2 font-bold border border-black">${swimmer.nama.toUpperCase()}</td>
-                            <td class="py-1 px-2 font-medium border border-black uppercase">${swimmer.klub}</td>
-                            <td class="py-1 px-2 text-center font-mono border border-black">${swimmer.seed_time}</td>
+                        <tr class="border-b border-slate-200 text-xs text-slate-800">
+                            <td class="py-1 px-2 text-center font-bold">${lintasan}</td>
+                            <td class="py-1 px-2 font-bold truncate overflow-hidden text-ellipsis whitespace-nowrap" title="${swimmer.nama.toUpperCase()}">${swimmer.nama.toUpperCase()}</td>
+                            <td class="py-1 px-2 font-medium text-slate-600 truncate overflow-hidden text-ellipsis whitespace-nowrap uppercase" title="${swimmer.klub}">${swimmer.klub}</td>
+                            <td class="py-1 px-2 text-center font-mono text-slate-500">${swimmer.seed_time}</td>
                         </tr>`;
                     } else {
                         tbodyHtml += `
-                        <tr class="text-[11px] text-gray-500">
-                            <td class="py-1 px-2 text-center border border-black">${lintasan}</td>
-                            <td class="py-1 px-2 italic border border-black"></td>
-                            <td class="py-1 px-2 border border-black"></td>
-                            <td class="py-1 px-2 border border-black"></td>
+                        <tr class="border-b border-slate-200 text-xs text-slate-300">
+                            <td class="py-1 px-2 text-center">${lintasan}</td>
+                            <td class="py-1 px-2 italic">--- Kosong ---</td>
+                            <td class="py-1 px-2"></td>
+                            <td class="py-1 px-2"></td>
                         </tr>`;
                     }
                 }
 
+                // TABLE-FIXED ACTIVE: Menjamin keselarasan (Red Line Fix)
                 heatHtml += `
-                <div class="avoid-break mb-4 mt-4">
-                    <div class="flex justify-between items-end pb-1 mb-1">
-                        <h3 class="font-black text-[12px] uppercase text-black">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku}</h3>
-                        <span class="font-bold text-[10px] text-black uppercase border border-black px-2 py-0.5 bg-gray-100">HEAT ${heatNumber} / ${totalHeats}</span>
+                <div class="avoid-break mb-6 mt-4">
+                    <div class="flex justify-between items-end border-b-2 border-slate-700 pb-1 mb-1">
+                        <h3 class="font-extrabold text-[11px] uppercase text-slate-900">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku}</h3>
+                        <span class="font-bold text-[10px] text-slate-600 uppercase">HEAT ${heatNumber} of ${totalHeats}</span>
                     </div>
-                    <table class="w-full text-left border-collapse border border-black">
-                        <thead class="bg-gray-100 print:bg-gray-100">
-                            <tr class="text-[10px] text-black uppercase tracking-widest">
-                                <th class="py-1.5 px-2 w-10 text-center font-black border border-black">LINT</th>
-                                <th class="py-1.5 px-2 font-black border border-black">NAMA ATLET</th>
-                                <th class="py-1.5 px-2 font-black border border-black w-2/5">KLUB / SEKOLAH</th>
-                                <th class="py-1.5 px-2 w-20 text-center font-black border border-black">SEED TIME</th>
+                    <table class="w-full text-left border-collapse table-fixed">
+                        <thead>
+                            <tr class="text-[9px] text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50 print:bg-transparent">
+                                <th class="py-1.5 px-2 w-[10%] text-center font-bold">LINT</th>
+                                <th class="py-1.5 px-2 w-[45%] font-bold">NAMA ATLET</th>
+                                <th class="py-1.5 px-2 w-[30%] font-bold">KLUB / SEKOLAH</th>
+                                <th class="py-1.5 px-2 w-[15%] text-center font-bold">SEED TIME</th>
                             </tr>
                         </thead>
                         <tbody>${tbodyHtml}</tbody>

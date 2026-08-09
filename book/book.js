@@ -1,6 +1,6 @@
 import { supabaseClient } from '../src/supabase.js';
 
-let LINTASAN_MAX = 8; 
+let LINTASAN_MAX = 10; 
 let currentEventId = null;
 let allFlattenedData = []; 
 let orderOfEvents = []; 
@@ -90,9 +90,6 @@ function prepareData(rawRegistrations) {
     });
 }
 
-// ==========================================
-// FITUR BARU: LOAD DATA TERSIMPAN (UX POIN 2)
-// ==========================================
 window.loadUrutanTersimpan = async function() {
     try {
         const btn = document.getElementById('btnLoadDB');
@@ -117,7 +114,6 @@ window.loadUrutanTersimpan = async function() {
             }
         }
 
-        // Ekstrak event_number yang unik untuk merekonstruksi urutan
         let uniqueEvents = [];
         let seen = new Set();
         data.forEach(row => {
@@ -145,9 +141,6 @@ window.loadUrutanTersimpan = async function() {
     }
 };
 
-// ==========================================
-// FITUR BARU: AUTO-GENERATE & ANTI BACK-TO-BACK (UX POIN 3)
-// ==========================================
 window.autoGenerateSemua = function() {
     if (allFlattenedData.length === 0) return alert("Belum ada data pendaftar untuk event ini.");
     if (orderOfEvents.length > 0) {
@@ -158,7 +151,6 @@ window.autoGenerateSemua = function() {
     let comboSet = new Set();
     let uniqueCombos = [];
 
-    // Cari kombinasi unik yang ADA PESERTANYA
     allFlattenedData.forEach(s => {
         let key = `${s.nomor_lomba}|${s.gender}|${s.ku}`;
         if (!comboSet.has(key)) {
@@ -171,11 +163,9 @@ window.autoGenerateSemua = function() {
         }
     });
 
-    // PENGURUTAN LOGIS UNTUK MENCEGAH BACK-TO-BACK:
-    // 1. Gaya Lomba -> 2. Gender -> 3. Kelompok Umur
     uniqueCombos.sort((a, b) => {
         if (a.nomor !== b.nomor) return a.nomor.localeCompare(b.nomor);
-        if (a.gender !== b.gender) return a.gender.localeCompare(b.gender); // Putra duluan
+        if (a.gender !== b.gender) return a.gender.localeCompare(b.gender); 
         return a.ku.localeCompare(b.ku);
     });
 
@@ -200,17 +190,12 @@ window.kosongkanSemuaAcara = function() {
     renderKertasA4();
 };
 
-
-// ==========================================
-// LOGIKA BUILDER MANUAL & CEGAH DUPLIKAT (UX POIN 1)
-// ==========================================
 window.tambahkanEventLomba = function() {
     const sesi = document.getElementById('buildSesi').value;
     const nomor = document.getElementById('buildNomor').value;
     const ku = document.getElementById('buildKU').value;
     const gender = document.getElementById('buildGender').value;
 
-    // CEGAH DUPLIKAT: Cek apakah lomba ini sudah ada di daftar
     const isDuplicate = orderOfEvents.some(ev => ev.nomor === nomor && ev.ku === ku && ev.gender === gender);
     if (isDuplicate) {
         return alert(`Kombinasi Lomba ini (${nomor}, ${gender}, ${ku}) sudah ditambahkan ke daftar!`);
@@ -245,21 +230,21 @@ function renderSidebarList() {
 
     orderOfEvents.forEach((ev, index) => {
         listContainer.innerHTML += `
-        <li class="bg-white p-2.5 rounded border border-slate-200 shadow-sm flex justify-between items-center group">
-            <div>
-                <p class="text-[10px] font-black text-slate-800">#${index + 1}: ${ev.nomor}</p>
-                <p class="text-[9px] text-slate-500 font-bold">${ev.ku} • ${ev.gender} • <span class="text-blue-600">${ev.sesi}</span></p>
+        <li class="bg-white px-3 py-2 border-b border-slate-100 hover:bg-slate-50 flex justify-between items-center group mb-1 shadow-sm rounded-lg">
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] font-mono text-slate-400 w-4">${index + 1}.</span>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-800 leading-none mb-1">${ev.nomor}</p>
+                    <p class="text-[9px] text-slate-500 font-medium">${ev.ku} • ${ev.gender} • <span class="text-blue-600">${ev.sesi}</span></p>
+                </div>
             </div>
-            <button onclick="hapusEventLomba(${ev.id})" class="text-slate-300 hover:text-red-500 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            <button onclick="hapusEventLomba(${ev.id})" class="text-slate-300 hover:text-red-500 transition-colors p-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             </button>
         </li>`;
     });
 }
 
-// ==========================================
-// ALGORITMA DEWA: FINA SEEDING (Distribusi Kekosongan)
-// ==========================================
 function calculateFinaHeats(totalPeserta, jumlahLintasan) {
     if (totalPeserta === 0) return [];
     let totalHeats = Math.ceil(totalPeserta / jumlahLintasan);
@@ -275,9 +260,6 @@ function calculateFinaHeats(totalPeserta, jumlahLintasan) {
     return heats; 
 }
 
-// ==========================================
-// ALGORITMA SPEARHEADING (Pengisian dari Tengah)
-// ==========================================
 function generateSpearheadPattern(lanes) {
     let pattern = [];
     let start = Math.floor((lanes + 1) / 2); 
@@ -302,16 +284,13 @@ function generateSpearheadPattern(lanes) {
     return pattern;
 }
 
-// ==========================================
-// RENDER DATA KE KERTAS
-// ==========================================
 function renderKertasA4() {
     const container = document.getElementById('heatContainer');
     container.innerHTML = '';
 
     if (orderOfEvents.length === 0) {
         container.innerHTML = `
-        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-300 rounded-xl">
+        <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-300 rounded-xl print-hidden">
             👈 Gunakan Panel Builder di sebelah kiri untuk menyusun Buku Acara.
         </div>`;
         return;
@@ -338,7 +317,6 @@ function renderKertasA4() {
                 s.gender === ev.gender
             );
 
-            // LOGIKA 1: NT Paling Lambat
             swimmers.sort((a, b) => {
                 if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
                 if (a.seed_time === 'NT') return -1; 
@@ -363,7 +341,6 @@ function renderKertasA4() {
                 let heatSwimmers = swimmers.slice(swimmerIndex, swimmerIndex + jumlahOrangDalamHeat);
                 swimmerIndex += jumlahOrangDalamHeat;
 
-                // LOGIKA 2: Dalam Heat, Tercepat di tengah (Spearheading)
                 heatSwimmers.sort((a, b) => {
                     if (a.seed_time === 'NT' && b.seed_time === 'NT') return a.nama.localeCompare(b.nama);
                     if (a.seed_time === 'NT') return 1; 
@@ -381,7 +358,7 @@ function renderKertasA4() {
                     if (assignedLanes[lintasan]) {
                         const swimmer = assignedLanes[lintasan];
                         tbodyHtml += `
-                        <tr class="border-b border-slate-200 text-xs text-slate-800">
+                        <tr class="border-b border-slate-200 text-xs text-slate-800 bg-white">
                             <td class="py-1 px-2 text-center font-bold">${lintasan}</td>
                             <td class="py-1 px-2 font-bold">${swimmer.nama.toUpperCase()}</td>
                             <td class="py-1 px-2 font-medium text-slate-600">${swimmer.klub}</td>
@@ -389,7 +366,7 @@ function renderKertasA4() {
                         </tr>`;
                     } else {
                         tbodyHtml += `
-                        <tr class="border-b border-slate-200 text-xs text-slate-300">
+                        <tr class="border-b border-slate-200 text-xs text-slate-300 bg-white">
                             <td class="py-1 px-2 text-center">${lintasan}</td>
                             <td class="py-1 px-2 italic">--- Kosong ---</td>
                             <td class="py-1 px-2"></td>
@@ -399,7 +376,7 @@ function renderKertasA4() {
                 }
 
                 heatHtml += `
-                <div class="break-inside-avoid mb-4">
+                <div class="avoid-break mb-4">
                     <div class="flex justify-between items-end border-b-2 border-slate-700 pb-1 mb-1 mt-3">
                         <h3 class="font-extrabold text-[11px] uppercase text-slate-900">Event #${ev.eventNumber}: ${ev.nomor} - ${ev.gender} - ${ev.ku}</h3>
                         <span class="font-bold text-[10px] text-slate-600 uppercase">HEAT ${heatNumber} of ${totalHeats}</span>
@@ -423,9 +400,6 @@ function renderKertasA4() {
     });
 }
 
-// ==========================================
-// SIMPAN KE DATABASE (Tabel: event_heats)
-// ==========================================
 window.simpanKeDatabase = async function() {
     if (orderOfEvents.length === 0) {
         return alert("Belum ada acara yang ditambahkan ke Buku Acara!");
@@ -524,7 +498,7 @@ window.simpanKeDatabase = async function() {
         console.error("Gagal simpan:", err);
         alert("Gagal menyimpan ke database: " + err.message);
     } finally {
-        btnSimpan.innerText = "💾 Simpan & Kunci Start List";
+        btnSimpan.innerText = "💾 Kunci Start List";
         btnSimpan.disabled = false;
     }
 }

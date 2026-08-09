@@ -6,9 +6,10 @@
     <title>Buku Acara (Heat Sheet) | SCS</title>
     <link rel="stylesheet" href="/src/style.css">
     <style>
-        /* Presisi Layar Monitor */
+        /* Presisi Layar Monitor (Layout Kertas Asli) */
         .a4-container {
-            max-width: 210mm; 
+            width: 210mm; /* WAJIB WIDTH FIX BIAR GAK KESQUISH */
+            min-width: 210mm; 
             min-height: 297mm; 
             margin: 0 auto;
             background: white;
@@ -19,7 +20,7 @@
         /* Presisi Saat di-Print ke Kertas A4 / PDF */
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
-            body { background: white !important; margin: 0; padding: 0; }
+            body, html { background: white !important; margin: 0; padding: 0; }
             
             /* Sembunyikan elemen UI Web */
             nav, .sidebar-builder, #btnSimpanBuku, .print-hidden { display: none !important; }
@@ -29,12 +30,15 @@
                 box-shadow: none !important; 
                 margin: 0 !important; 
                 padding: 0 !important; 
-                max-width: 100% !important; 
                 width: 100% !important; 
+                min-width: 100% !important;
             }
             
             /* Pastikan satu heat/tabel tidak terpotong di tengah kertas */
-            .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+            .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 6mm; }
+            
+            /* Warna solid print */
+            * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
         }
     </style>
 </head>
@@ -49,7 +53,7 @@
                     Kembali
                 </button>
                 <div class="h-4 w-px bg-slate-600 hidden md:block"></div>
-                <h1 class="text-[11px] md:text-sm font-black tracking-widest text-emerald-400">FINA GENERATOR <span id="infoLintasan" class="text-white ml-2 bg-slate-700 px-2 py-0.5 rounded text-[10px]">8 Lintasan</span></h1>
+                <h1 class="text-[11px] md:text-sm font-black tracking-widest text-emerald-400">FINA GENERATOR <span id="infoLintasan" class="text-white ml-2 bg-slate-700 px-2 py-0.5 rounded text-[10px]">10 Lintasan</span></h1>
             </div>
             <div class="flex items-center gap-2 w-full md:w-auto">
                 <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2">
@@ -131,8 +135,8 @@
             </div>
         </div>
 
-        <!-- RIGHT AREA: KERTAS A4 PREVIEW -->
-        <div class="flex-1 w-full p-4 md:p-8 print:p-0" id="printWrapper">
+        <!-- RIGHT AREA: KERTAS A4 PREVIEW (Dikasih overflow-auto) -->
+        <div class="flex-1 w-full p-4 md:p-8 print:p-0 overflow-auto" id="printWrapper">
             <div class="a4-container relative" id="kertasA4">
                 
                 <!-- HEADER SPONSOR & EVENT -->

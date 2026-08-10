@@ -11,8 +11,6 @@ let reusedLogoUrl = null;
 let reusedCoverUrl = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    
-    // 1. GERBANG SATPAM SUPER ADMIN
     try {
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
         
@@ -27,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // 2. LOAD SEMUA EVENT (Pake 'id' descending)
         const { data: events, error: errEvents } = await supabaseClient
             .from('events')
             .select('id, event_name, subdomain, kota, provinsi, config')
@@ -39,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         filteredEvents = [...eventsData];
         renderEventTable();
 
-        // 3. LOAD MASTER BANK SPONSOR
         loadMasterBank();
 
     } catch (err) {
@@ -47,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// FITUR PENCARIAN REALTIME
 document.getElementById('searchEvent').addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     filteredEvents = eventsData.filter(ev => 
@@ -58,7 +53,6 @@ document.getElementById('searchEvent').addEventListener('input', (e) => {
     renderEventTable();
 });
 
-// RENDER TABEL EVENT
 function renderEventTable() {
     const tbody = document.getElementById('eventTableBody');
     tbody.innerHTML = '';
@@ -109,7 +103,6 @@ function renderEventTable() {
     });
 }
 
-// FUNGSI SAAT EVENT DIPILIH
 window.pilihEventLomba = function(eventId) {
     currentSelectedEventId = eventId;
     renderEventTable();
@@ -132,6 +125,7 @@ window.pilihEventLomba = function(eventId) {
     document.getElementById('inputSponsorName').value = selectedEventConfig.ads_sponsor_name || '';
     document.getElementById('inputSponsorUrl').value = selectedEventConfig.ads_link_url || '';
 
+    // FIX VISUAL: Hide preview kalau kosong
     const previewLogo = document.getElementById('previewLogo');
     if (selectedEventConfig.ads_sponsor_logo) {
         previewLogo.src = selectedEventConfig.ads_sponsor_logo;
@@ -156,9 +150,6 @@ window.pilihEventLomba = function(eventId) {
     workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-// ==========================================
-// FUNGSI LOAD MASTER BANK SPONSOR (UPDATE: ADA TOMBOL HAPUS)
-// ==========================================
 async function loadMasterBank() {
     const container = document.getElementById('sponsorBankContainer');
     const counter = document.getElementById('bankCounter');
@@ -185,13 +176,9 @@ async function loadMasterBank() {
             
             container.innerHTML += `
                 <div class="relative bg-slate-800 rounded-xl p-2 hover:ring-2 hover:ring-amber-500 transition-all shadow-md group border border-slate-700">
-                    
-                    <!-- TOMBOL HAPUS (Muncul pas di-hover) -->
                     <button onclick="hapusMasterSponsor(${sponsor.id}, '${sponsor.sponsor_name}', event)" class="absolute top-1 right-1 bg-red-600/90 hover:bg-red-500 text-white p-1 rounded z-20 opacity-0 group-hover:opacity-100 transition-opacity shadow" title="Hapus Sponsor">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
-
-                    <!-- AREA KLIK UNTUK PAKAI SPONSOR (EDIT/SUNTIK) -->
                     <div onclick="useMasterSponsor('${sponsorDataString}')" class="cursor-pointer">
                         <div class="h-14 w-full flex items-center justify-center mb-2 overflow-hidden bg-slate-900 rounded border border-slate-800">
                             <img src="${sponsor.logo_url || '/images/logo.png'}" class="h-full w-full object-contain opacity-50 group-hover:opacity-100 transition-all">
@@ -201,33 +188,27 @@ async function loadMasterBank() {
                 </div>
             `;
         });
-
     } catch (err) {
         console.error("Gagal load Master Bank:", err);
     }
 }
 
-// FUNGSI HAPUS SPONSOR
 window.hapusMasterSponsor = async function(id, nama, event) {
-    event.stopPropagation(); // Biar formnya gak ke-klik pas mencet tombol hapus
-    
-    if(!confirm(`Yakin mau menghapus ${nama} dari Master Bank?\n\n(Tenang, event yang sudah disuntik iklan ini tidak akan hilang logonya)`)) return;
-
+    event.stopPropagation();
+    if(!confirm(`Yakin mau menghapus ${nama} dari Master Bank?`)) return;
     try {
         const { error } = await supabaseClient.from('master_sponsors').delete().eq('id', id);
         if (error) throw error;
-        
-        loadMasterBank(); // Refresh galeri
-
-    } catch (err) {
-        alert("Gagal menghapus: " + err.message);
-    }
+        loadMasterBank(); 
+    } catch (err) { alert("Gagal menghapus: " + err.message); }
 };
 
-
-
-// FUNGSI SAAT SPONSOR DARI BANK DIKLIK
 window.useMasterSponsor = function(encodedData) {
+    if (!currentSelectedEventId) {
+        alert("Pilih Target Event di tabel atas terlebih dahulu!");
+        return;
+    }
+
     const sponsor = JSON.parse(decodeURIComponent(encodedData));
     
     document.getElementById('inputSponsorName').value = sponsor.sponsor_name || '';
@@ -239,16 +220,23 @@ window.useMasterSponsor = function(encodedData) {
     reusedLogoUrl = sponsor.logo_url || '';
     reusedCoverUrl = sponsor.cover_url || '';
     
+    // FIX VISUAL: Sembunyikan jika kosong
     const previewLogo = document.getElementById('previewLogo');
     if (reusedLogoUrl) {
         previewLogo.src = reusedLogoUrl;
         previewLogo.classList.remove('hidden');
+    } else {
+        previewLogo.src = '';
+        previewLogo.classList.add('hidden');
     }
     
     const previewCover = document.getElementById('previewCover');
     if (reusedCoverUrl) {
         previewCover.src = reusedCoverUrl;
         previewCover.classList.remove('hidden');
+    } else {
+        previewCover.src = '';
+        previewCover.classList.add('hidden');
     }
 
     document.getElementById('adsWorkspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -259,7 +247,6 @@ window.useMasterSponsor = function(encodedData) {
     statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-emerald-900/30 text-emerald-400 block mt-4 border border-emerald-500/30";
 };
 
-// PREVIEW GAMBAR LOKAL
 function setupPreview(inputId, imgId, type) {
     document.getElementById(inputId).addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -282,9 +269,6 @@ function setupPreview(inputId, imgId, type) {
 setupPreview('uploadLogo', 'previewLogo', 'logo');
 setupPreview('uploadCover', 'previewCover', 'cover');
 
-// ==========================================
-// FUNGSI HELPER UPLOAD (DIPAKAI 2 TOMBOL)
-// ==========================================
 async function uploadAdAsset(file, brandName, type) {
     const fileExt = file.name.split('.').pop();
     const fileName = `brand_${brandName.replace(/\s+/g, '_')}_${type}_${Date.now()}.${fileExt}`;
@@ -296,9 +280,6 @@ async function uploadAdAsset(file, brandName, type) {
     return urlData.publicUrl;
 }
 
-// ==========================================
-// TOMBOL 1: SUNTIKKAN IKLAN KE EVENT
-// ==========================================
 document.getElementById('btnSaveAds').addEventListener('click', async () => {
     if (!currentSelectedEventId) return alert("Pilih event dari tabel dulu!");
 
@@ -351,7 +332,6 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
 
         if (updateError) throw updateError;
 
-        // SIMPAN OTOMATIS KE MASTER BANK
         if (valName && (isNewUpload || !masterSponsors.some(s => s.sponsor_name === valName))) {
             const existing = masterSponsors.find(s => s.sponsor_name.toLowerCase() === valName.toLowerCase());
             if (existing) {
@@ -390,9 +370,6 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
     }
 });
 
-// ==========================================
-// TOMBOL 2: SIMPAN KE MASTER BANK SAJA
-// ==========================================
 document.getElementById('btnSaveToBankOnly').addEventListener('click', async () => {
     const valName = document.getElementById('inputSponsorName').value.trim();
     const valLink = document.getElementById('inputSponsorUrl').value.trim();
@@ -422,7 +399,6 @@ document.getElementById('btnSaveToBankOnly').addEventListener('click', async () 
         if (fileLogo) finalLogoUrl = await uploadAdAsset(fileLogo, valName, 'logo');
         if (fileCover) finalCoverUrl = await uploadAdAsset(fileCover, valName, 'cover');
 
-        // Cek apakah sponsor sudah ada di bank
         const existing = masterSponsors.find(s => s.sponsor_name.toLowerCase() === valName.toLowerCase());
         
         if (existing) {

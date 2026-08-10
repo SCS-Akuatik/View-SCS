@@ -156,7 +156,9 @@ window.pilihEventLomba = function(eventId) {
     workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-// FUNGSI LOAD MASTER BANK SPONSOR
+// ==========================================
+// FUNGSI LOAD MASTER BANK SPONSOR (UPDATE: ADA TOMBOL HAPUS)
+// ==========================================
 async function loadMasterBank() {
     const container = document.getElementById('sponsorBankContainer');
     const counter = document.getElementById('bankCounter');
@@ -182,11 +184,20 @@ async function loadMasterBank() {
             const sponsorDataString = encodeURIComponent(JSON.stringify(sponsor));
             
             container.innerHTML += `
-                <div onclick="useMasterSponsor('${sponsorDataString}')" class="bg-slate-800 rounded-xl p-2 cursor-pointer hover:ring-2 hover:ring-amber-500 hover:-translate-y-1 transition-all shadow-md group border border-slate-700">
-                    <div class="h-14 w-full flex items-center justify-center mb-2 overflow-hidden bg-slate-900 rounded border border-slate-800">
-                        <img src="${sponsor.logo_url || '/images/logo.png'}" class="h-full w-full object-contain opacity-50 group-hover:opacity-100 transition-all">
+                <div class="relative bg-slate-800 rounded-xl p-2 hover:ring-2 hover:ring-amber-500 transition-all shadow-md group border border-slate-700">
+                    
+                    <!-- TOMBOL HAPUS (Muncul pas di-hover) -->
+                    <button onclick="hapusMasterSponsor(${sponsor.id}, '${sponsor.sponsor_name}', event)" class="absolute top-1 right-1 bg-red-600/90 hover:bg-red-500 text-white p-1 rounded z-20 opacity-0 group-hover:opacity-100 transition-opacity shadow" title="Hapus Sponsor">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+
+                    <!-- AREA KLIK UNTUK PAKAI SPONSOR (EDIT/SUNTIK) -->
+                    <div onclick="useMasterSponsor('${sponsorDataString}')" class="cursor-pointer">
+                        <div class="h-14 w-full flex items-center justify-center mb-2 overflow-hidden bg-slate-900 rounded border border-slate-800">
+                            <img src="${sponsor.logo_url || '/images/logo.png'}" class="h-full w-full object-contain opacity-50 group-hover:opacity-100 transition-all">
+                        </div>
+                        <p class="text-[10px] font-black text-slate-300 truncate text-center">${sponsor.sponsor_name}</p>
                     </div>
-                    <p class="text-[10px] font-black text-slate-300 truncate text-center">${sponsor.sponsor_name}</p>
                 </div>
             `;
         });
@@ -195,6 +206,25 @@ async function loadMasterBank() {
         console.error("Gagal load Master Bank:", err);
     }
 }
+
+// FUNGSI HAPUS SPONSOR
+window.hapusMasterSponsor = async function(id, nama, event) {
+    event.stopPropagation(); // Biar formnya gak ke-klik pas mencet tombol hapus
+    
+    if(!confirm(`Yakin mau menghapus ${nama} dari Master Bank?\n\n(Tenang, event yang sudah disuntik iklan ini tidak akan hilang logonya)`)) return;
+
+    try {
+        const { error } = await supabaseClient.from('master_sponsors').delete().eq('id', id);
+        if (error) throw error;
+        
+        loadMasterBank(); // Refresh galeri
+
+    } catch (err) {
+        alert("Gagal menghapus: " + err.message);
+    }
+};
+
+
 
 // FUNGSI SAAT SPONSOR DARI BANK DIKLIK
 window.useMasterSponsor = function(encodedData) {

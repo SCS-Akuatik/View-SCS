@@ -24,10 +24,34 @@ async function fetchEventName() {
     try {
         const { data, error } = await supabaseClient
             .from('events')
-            .select('event_name')
+            .select('event_name, config') // <-- UPDATE: Tarik config sponsor
             .eq('id', currentEventId)
             .single();
-        if (data) document.getElementById('headerEventName').innerText = data.event_name;
+            
+        if (data) {
+            document.getElementById('headerEventName').innerText = data.event_name;
+            
+            // ==========================================
+            // INJEKSI IKLAN SPONSOR (SCS AD NETWORK)
+            // ==========================================
+            if (data.config && data.config.ads_sponsor_name) {
+                const config = data.config;
+                const sponsorLogo = config.ads_sponsor_logo || '/images/logo.png';
+                const sponsorLink = config.ads_link_url || '#';
+                
+                // Bikin elemen banner yang bisa diklik
+                const bannerHtml = `
+                    <a href="${sponsorLink}" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-900 border-b border-amber-500/30 py-2.5 hover:bg-slate-800 transition-colors group cursor-pointer z-[60] relative">
+                        <div class="max-w-4xl mx-auto px-4 flex items-center justify-center gap-3">
+                            <span class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Sponsor</span>
+                            <img src="${sponsorLogo}" alt="Sponsor" class="h-6 md:h-8 object-contain drop-shadow-md">
+                        </div>
+                    </a>
+                `;
+                // Tempel di posisi paling atas layar
+                document.body.insertAdjacentHTML('afterbegin', bannerHtml);
+            }
+        }
     } catch (err) { console.error(err); }
 }
 
@@ -124,7 +148,7 @@ function renderResults(eventNumber) {
             }
 
             lanesHtml += `
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2">
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2 hover:bg-slate-100 transition-colors">
                 <div class="flex items-center gap-3">
                     <div class="w-7 h-7 rounded bg-slate-300 text-slate-700 text-xs font-black flex items-center justify-center shrink-0">${atlet.lane}</div>
                     <div>
@@ -133,7 +157,7 @@ function renderResults(eventNumber) {
                     </div>
                 </div>
                 <div class="shrink-0 pl-2">
-                    <span class="inline-block px-3 py-1.5 rounded-lg font-mono text-sm font-black tracking-wider ${timeColorClass} ${timeBgClass}">
+                    <span class="inline-block px-3 py-1.5 rounded-lg font-mono text-sm font-black tracking-wider ${timeColorClass} ${timeBgClass} shadow-sm">
                         ${timeDisplay}
                     </span>
                 </div>

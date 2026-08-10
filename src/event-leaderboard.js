@@ -13,13 +13,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: event, error: errEvent } = await supabaseClient
             .from('events')
-            .select('event_name') 
+            .select('event_name, config') // <-- UPDATE: Tarik config sponsor
             .eq('id', eventId)
             .single();
         
         if (event) {
             document.getElementById('eventName').innerText = event.event_name;
             eventData = event;
+
+            // ==========================================
+            // INJEKSI IKLAN SPONSOR (SCS AD NETWORK)
+            // ==========================================
+            if (event.config && event.config.ads_sponsor_name) {
+                const config = event.config;
+                const sponsorLogo = config.ads_sponsor_logo || '/images/logo.png';
+                const sponsorLink = config.ads_link_url || '#';
+                
+                const bannerHtml = `
+                    <a href="${sponsorLink}" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-900 border-b border-amber-500/30 py-2.5 hover:bg-slate-800 transition-colors group cursor-pointer z-[60] relative">
+                        <div class="max-w-4xl mx-auto px-4 flex items-center justify-center gap-3">
+                            <span class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Sponsor</span>
+                            <img src="${sponsorLogo}" alt="Sponsor" class="h-6 md:h-8 object-contain drop-shadow-md">
+                        </div>
+                    </a>
+                `;
+                document.body.insertAdjacentHTML('afterbegin', bannerHtml);
+            }
         }
 
         // Ambil Template Juara (atau fallback ke Peserta)
@@ -37,7 +56,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 baseConfig = cert.config_json;
                 certTemplateUrl = cert.template_url;
                 templateImage.crossOrigin = "anonymous"; 
-                // KEMBALIKAN KE NORMAL: Hapus trik anti-cache karena bisa merusak URL Supabase
                 templateImage.src = certTemplateUrl;
             }
         }
@@ -95,8 +113,6 @@ function renderLeaderboard(data) {
         `;
 
         listJuara.forEach(j => {
-            
-            // --- LOGIKA BARU BADGE PERINGKAT ---
             let rankBadge = '';
             if (j.peringkat === 1) {
                 rankBadge = `<div class="text-4xl text-amber-500 drop-shadow-sm">🥇</div>`;
@@ -159,7 +175,6 @@ window.downloadSertifikatJuara = function(encodedData) {
         const fontName = baseConfig?.sharedStyle?.font || baseConfig?.nama?.font || "'Great Vibes', cursive";
         const colorName = baseConfig?.sharedStyle?.color || baseConfig?.nama?.color || "#1e293b";
 
-        // 1. TULIS JUARA ("1 (Satu)")
         let strJuara = j.peringkat;
         if (j.peringkat == 1) strJuara = "1 (Satu)";
         else if (j.peringkat == 2) strJuara = "2 (Dua)";
@@ -170,10 +185,9 @@ window.downloadSertifikatJuara = function(encodedData) {
         const preddY = predd?.y ? parseInt(predd.y) : 500;
         const preddSize = predd?.size || "45";
         ctx.font = `bold ${preddSize}px Arial`;
-        ctx.fillStyle = colorName; // Disamakan dengan shared color biar rapi
+        ctx.fillStyle = colorName; 
         ctx.fillText(strJuara, preddX, preddY);
 
-        // 2. TULIS NAMA ("Nama Lengkap Peserta")
         const nX = baseConfig?.nama?.x ? parseInt(baseConfig.nama.x) : centerX;
         const nY = baseConfig?.nama?.y ? parseInt(baseConfig.nama.y) : 400;
         const nSize = baseConfig?.nama?.size || "110";
@@ -186,7 +200,6 @@ window.downloadSertifikatJuara = function(encodedData) {
         const namaCantik = j.nama_peserta.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         ctx.fillText(namaCantik, nX, nY);
 
-        // 3. TULIS NOMOR LOMBA ("50 M Gaya Bebas")
         const strNomor = j.nomor_lomba; 
         const nom = baseConfig?.extra?.nomorLomba;
         const nomX = nom?.x ? parseInt(nom.x) : centerX;
@@ -196,7 +209,6 @@ window.downloadSertifikatJuara = function(encodedData) {
         ctx.fillStyle = colorName; 
         ctx.fillText(strNomor, nomX, nomY);
 
-        // 4. TULIS KU/WAKTU ("KU C Putra")
         const strKU = `${j.kelompok_umur} ${j.gender}`;
         const ku = baseConfig?.extra?.kelompokUmur;
         const kuX = ku?.x ? parseInt(ku.x) : centerX;

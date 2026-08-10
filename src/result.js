@@ -212,6 +212,7 @@ function renderResults(eventNumber) {
         }
 
         // ==========================================
+        // ==========================================
         // NEW: INJEKSI HEADER SPONSOR KHUSUS (ROUND ROBIN)
         // ==========================================
         let eventSponsorHeader = '';
@@ -222,10 +223,16 @@ function renderResults(eventNumber) {
             
             eventSponsorHeader = `
                 <a href="${sp.link_url || '#'}" target="_blank" class="flex items-center justify-between bg-slate-50 hover:bg-amber-50/80 transition-colors border-b border-slate-200 px-4 py-2.5 -mx-3 -mt-3 md:-mx-4 md:-mt-4 mb-3 rounded-t-xl group">
-                    <span class="text-[9px] md:text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase tracking-widest transition-colors flex items-center gap-1">
-                        Supported By
-                    </span>
-                    <img src="${sp.logo_url || '/images/logo.png'}" class="h-5 md:h-6 object-contain opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div class="flex items-center gap-1.5 flex-1 min-w-0 pr-3">
+                        <span class="text-[9px] md:text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase tracking-widest transition-colors shrink-0">
+                            Supported By:
+                        </span>
+                        <!-- NAMA SPONSOR / TAGLINE DISUNTIK DI SINI -->
+                        <span class="text-[10px] md:text-xs font-bold text-slate-600 group-hover:text-amber-700 truncate transition-colors">
+                            ${sp.sponsor_name}
+                        </span>
+                    </div>
+                    <img src="${sp.logo_url || '/images/logo.png'}" class="h-5 md:h-6 object-contain opacity-80 group-hover:opacity-100 transition-opacity shrink-0">
                 </a>
             `;
         }

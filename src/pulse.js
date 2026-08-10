@@ -1,82 +1,88 @@
 import { supabaseClient } from './supabase.js';
 
-let currentF1Count = 124058; // Angka awal (Base F1 ID)
-let currentClubCount = 24;
-let currentEventCount = 42;
+let currentF1Count = 0;
+let currentClubCount = 0;
+let currentEventCount = 0;
 
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // 1. Inisialisasi Layar Awal
-    updateCounterDisplay();
+    // 1. TARIK DATA BENERAN DARI SUPABASE (AWAL LOAD)
+    // Kita panggil fungsi khusus buat narik total row dari database
+    await fetchRealCounts();
 
-    // 2. KONEKSI SUPABASE REALTIME (Tarik Data Beneran)
+    // 2. KONEKSI SUPABASE REALTIME (Mantau Pendaftar Asli)
     try {
         const channel = supabaseClient.channel('realtime-f1-id')
             .on(
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'profiles' }, 
                 (payload) => {
-                    triggerNewRegistration(payload.new.full_name || 'Atlet Baru', payload.new.club_name || 'Klub Renang Indonesia');
+                    // Tarik info nama dari database pas ada yang daftar beneran!
+                    const namaAtlet = payload.new.full_name || 'Atlet Baru';
+                    const namaKlub = payload.new.club_name || 'Klub Renang Indonesia';
+                    
+                    triggerNewRegistration(namaAtlet, namaKlub);
                 }
             )
             .subscribe();
-    } catch(err) { console.log("Realtime standby..."); }
+    } catch(err) { console.log("Realtime error:", err); }
 
-    // ==========================================
-    // 3. AUTO-PILOT MODE (Simulasi Natural)
-    // ==========================================
-    function autoPilot() {
-        // Jeda waktu acak antara 2.5 sampai 6 detik biar kelihatan nyata
-        const randomDelay = Math.floor(Math.random() * 3500) + 2500;
-        
-        setTimeout(() => {
-            simulateLiveTraffic();
-            autoPilot(); // Muter terus tanpa henti
-        }, randomDelay);
-    }
-    
-    // Mulai auto-pilot 2 detik setelah halaman dibuka
-    setTimeout(autoPilot, 2000);
-
-    // ==========================================
-    // 4. HACKER PITCHING MODE (Manual Trigger)
-    // ==========================================
-    
-    // Lewat Keyboard (Spasi) - Buat Desktop
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            e.preventDefault();
-            simulateLiveTraffic();
-        }
-    });
-
-    // Lewat Ketukan Layar (Tap/Click) - Buat HP!
-    document.addEventListener('click', () => {
-        simulateLiveTraffic();
-    });
 });
+
+// ==========================================
+// FUNGSI PENARIKAN DATA ASLI (SUPABASE)
+// ==========================================
+async function fetchRealCounts() {
+    try {
+        // Tampilkan status loading di feed
+        addLiveFeed("Menghubungkan ke pusat data SCS...");
+
+        // A. Hitung total Profil (F1 ID) - Pakai { count: 'exact', head: true } biar query-nya super ringan
+        const { count: f1Count, error: errF1 } = await supabaseClient
+            .from('profiles')
+            .select('*', { count: 'exact', head: true });
+        if (!errF1 && f1Count !== null) currentF1Count = f1Count;
+
+        // B. Hitung total Klub
+        const { count: clubCount, error: errClub } = await supabaseClient
+            .from('clubs')
+            .select('*', { count: 'exact', head: true });
+        if (!errClub && clubCount !== null) currentClubCount = clubCount;
+
+        // C. Hitung total Event
+        const { count: eventCount, error: errEvent } = await supabaseClient
+            .from('events')
+            .select('*', { count: 'exact', head: true });
+        if (!errEvent && eventCount !== null) currentEventCount = eventCount;
+
+        // Update ke Layar Utama
+        updateCounterDisplay();
+        document.getElementById('clubCounter').innerText = currentClubCount;
+        document.getElementById('eventCounter').innerText = currentEventCount;
+        
+        addLiveFeed("🟢 Sinkronisasi data real-time berhasil.");
+
+    } catch (error) {
+        console.error("Gagal menarik data real:", error);
+        addLiveFeed("🔴 Gagal terhubung ke Database SCS.");
+    }
+}
 
 // ==========================================
 // FUNGSI ANIMASI COUNTER & FEED
 // ==========================================
-
 function updateCounterDisplay() {
     const counterEl = document.getElementById('mainCounter');
-    
-    // Format angka pakai koma: 1,000,000
     const formattedNum = currentF1Count.toLocaleString('en-US');
     
-    // Bikin efek kedip/glow dikit tiap angkanya ganti
     counterEl.innerText = formattedNum;
-    counterEl.style.textShadow = "0 0 60px rgba(245,158,11,1)"; // Glow Emas (SCS Gold)
+    counterEl.style.textShadow = "0 0 60px rgba(245,158,11,1)"; 
     counterEl.classList.replace('text-white', 'text-amber-100');
-    
-    // Efek scale membesar sedikit
     counterEl.style.transform = "scale(1.05)";
     counterEl.style.transition = "all 0.1s ease-out";
     
     setTimeout(() => {
-        counterEl.style.textShadow = "0 0 40px rgba(59,130,246,0.6)"; // Balik ke Glow Biru
+        counterEl.style.textShadow = "0 0 40px rgba(59,130,246,0.6)"; 
         counterEl.classList.replace('text-amber-100', 'text-white');
         counterEl.style.transform = "scale(1)";
     }, 250);
@@ -84,11 +90,9 @@ function updateCounterDisplay() {
 
 function addLiveFeed(message) {
     const feedContainer = document.getElementById('liveFeedContainer');
-    
     const feedItem = document.createElement('div');
     feedItem.className = 'feed-enter flex items-center gap-3 text-xs md:text-sm font-mono border-l-2 border-emerald-500 pl-3 bg-white/5 py-1.5 rounded-r-md w-max max-w-full truncate';
     
-    // Timestamp (Jam:Menit:Detik)
     const now = new Date();
     const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
 
@@ -99,55 +103,20 @@ function addLiveFeed(message) {
 
     feedContainer.appendChild(feedItem);
 
-    // Hapus feed paling lama biar gak numpuk (Max 4 baris di layar)
     if (feedContainer.children.length > 4) {
         feedContainer.removeChild(feedContainer.firstElementChild);
     }
 }
 
+// Ter-trigger HANYA KETIKA ada data beneran masuk ke Supabase
 function triggerNewRegistration(namaAtlet, namaKlub) {
-    // 1. Tambah Angka Counter
     currentF1Count += 1;
     updateCounterDisplay();
 
-    // 2. Munculkan Teks di Feed
     const msgs = [
-        `Verified: F1 ID diterbitkan untuk <span class="text-white font-bold uppercase">${namaAtlet}</span>`,
-        `<span class="text-white font-bold uppercase">${namaAtlet}</span> terhubung ke jaringan via ${namaKlub}`,
-        `Ping: Sinkronisasi data atlet <span class="text-white font-bold uppercase">${namaAtlet}</span> berhasil.`
+        `Realtime: F1 ID resmi diterbitkan untuk <span class="text-white font-bold uppercase">${namaAtlet}</span>`,
+        `<span class="text-white font-bold uppercase">${namaAtlet}</span> bergabung ke jaringan dari klub ${namaKlub}`,
     ];
-    // Pilih pesan acak
     const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
     addLiveFeed(randomMsg);
-}
-
-// ==========================================
-// DATA DUMMY UNTUK SIMULASI SAAT PITCHING
-// ==========================================
-const dummyNames = [
-    "Aditya Fajar", "Bima Sakti", "Citra Kirana", "Dian Sastro", "Eko Yuli", 
-    "Kevin Sanjaya", "Lalu M. Zohri", "Azzahra Permata", "I Gede Siman", "Glenn Victor", 
-    "Fellicia Angelica", "Aflah Fadlan"
-];
-const dummyClubs = [
-    "Jago Renang Academy", "Sidoarjo Aquatic", "Surabaya Swim Club", "Petrokimia Gresik", 
-    "Millenium Aquatic", "HIU Surabaya", "Suryanaga", "Tirta Taruna", "Bali Pari"
-];
-
-function simulateLiveTraffic() {
-    const randomName = dummyNames[Math.floor(Math.random() * dummyNames.length)];
-    const randomClub = dummyClubs[Math.floor(Math.random() * dummyClubs.length)];
-    
-    triggerNewRegistration(randomName, randomClub);
-    
-    // Acak naik event/klub (probabilitas kecil)
-    if (Math.random() > 0.85) {
-        currentClubCount++;
-        const el = document.getElementById('clubCounter');
-        if(el) {
-            el.innerText = currentClubCount;
-            el.style.color = "#fff";
-            setTimeout(() => el.style.color = "#34d399", 300);
-        }
-    }
 }

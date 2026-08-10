@@ -85,25 +85,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ==========================================
-    // LOGIKA LOGIN GOOGLE
+    // LOGIKA LOGIN GOOGLE (VERSI CUSTOM DOMAIN)
     // ==========================================
     if (btnGoogleLogin) {
-        btnGoogleLogin.addEventListener('click', async () => {
-            btnGoogleLogin.innerHTML = `<span class="animate-spin text-xl">↻</span> Menghubungkan...`;
-            
-            const { error } = await supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin + '/dashboard.html'
+        // Kita timpa tombol lama dengan tombol resmi Google yang anti-redirect
+        btnGoogleLogin.innerHTML = ''; 
+        btnGoogleLogin.className = 'flex justify-center w-full'; // Merapikan posisi
+
+        window.onload = () => {
+            // 1. Inisialisasi Google Auth
+            google.accounts.id.initialize({
+                client_id: '1047924463495-3virdj082194chl013ia1js0ls8c99rv.apps.googleusercontent.com', // Client ID milikmu
+                callback: async (response) => {
+                    // response.credential berisi token JWT langsung dari Google
+                    console.log("Token dari Google didapat, memproses ke Supabase...");
+                    
+                    try {
+                        // 2. Kirim token ke Supabase (Tanpa perlu redirect halaman!)
+                        const { data, error } = await supabaseClient.auth.signInWithIdToken({
+                            provider: 'google',
+                            token: response.credential,
+                        });
+
+                        if (error) throw error;
+                        
+                        // 3. Login berhasil! Langsung lempar ke dashboard
+                        window.location.replace('/dashboard.html');
+                    } catch (err) {
+                        alert("Gagal login Google: " + translateAuthError(err));
+                    }
                 }
             });
 
-            if (error) {
-                alert("Gagal menghubungkan ke Google: " + translateAuthError(error));
-                btnGoogleLogin.innerHTML = "Lanjutkan dengan Google";
-            }
-        });
+            // 4. Munculkan tombol Google yang profesional di frontend
+            google.accounts.id.renderButton(
+                btnGoogleLogin, 
+                { theme: "outline", size: "large", type: "standard", width: "100%", text: "continue_with" } 
+            );
+        };
     }
+
 
     // ==========================================
     // LOGIKA LOGIN EMAIL

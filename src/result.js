@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!currentEventId) return alert("Halaman tidak valid. ID Event tidak ditemukan!");
 
     await fetchEventName();
+    await fetchSponsors(); // <-- TRIGGER JALAN TOL SPONSOR BARU LU!
     await fetchHeatsData(true); 
 
     startAutoRefresh();
@@ -24,54 +25,73 @@ async function fetchEventName() {
     try {
         const { data, error } = await supabaseClient
             .from('events')
-            .select('event_name, config')
+            .select('event_name')
             .eq('id', currentEventId)
             .single();
             
         if (data) {
-            document.getElementById('headerEventName').innerText = data.event_name + " (✅ V3)";
-            
-            // ==========================================
-            // KAMERA X-RAY: CEK ISI ASLI DATABASE
-            // ==========================================
-            let configObj = data.config;
-            if (typeof configObj === 'string') {
-                try { configObj = JSON.parse(configObj); } catch(e) {}
-            }
-
-            const resultContainer = document.getElementById('resultContainer');
-
-            if (configObj && configObj.ads_sponsor_name) {
-                const partnerLogo = configObj.ads_sponsor_logo || '/images/logo.png';
-                const partnerLink = configObj.ads_link_url || '#';
-                
-                // Kalau sukses, munculin banner elit
-                if (resultContainer && !document.getElementById('scs-box-utama')) {
-                    const infoHtml = `
-                        <div id="scs-box-utama" class="w-full bg-slate-900 rounded-2xl border-2 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)] mb-6 py-3 px-4 flex justify-center items-center">
-                            <a href="${partnerLink}" target="_blank" class="flex items-center gap-4">
-                                <span class="text-xs font-black text-amber-500 tracking-widest uppercase">Official Partner</span>
-                                <img src="${partnerLogo}" class="h-10 md:h-12 object-contain bg-white p-1 rounded-lg">
-                            </a>
-                        </div>
-                    `;
-                    resultContainer.insertAdjacentHTML('beforebegin', infoHtml);
-                }
-            } else {
-                // Kalau gagal, aktifkan X-Ray pelapor!
-                if (resultContainer && !document.getElementById('error-ads')) {
-                    const debugConfig = data.config === null ? "KOSONG (NULL)" : JSON.stringify(data.config);
-                    resultContainer.insertAdjacentHTML('beforebegin', `
-                        <div id="error-ads" class="w-full bg-red-900/90 text-red-100 text-xs font-bold rounded-xl p-4 mb-6 text-center border-2 border-red-500 shadow-md">
-                            ❌ SPONSOR GAGAL MUNCUL.<br><br>
-                            Mengecek Event ID: <span class="bg-black text-amber-400 px-2 py-1 rounded font-mono">${currentEventId}</span><br>
-                            Isi Config di DB: <span class="bg-black text-amber-400 px-2 py-1 rounded font-mono break-all mt-1 inline-block">${debugConfig}</span>
-                        </div>
-                    `);
-                }
-            }
+            document.getElementById('headerEventName').innerText = data.event_name;
         }
     } catch (err) { console.error(err); }
+}
+
+// ==========================================
+// NEW: SISTEM PENARIKAN MULTI-SPONSOR
+// ==========================================
+async function fetchSponsors() {
+    const wrapper = document.getElementById('partnerWrapper');
+    if (!wrapper) return;
+
+    try {
+        // 1. Cek jembatan event_sponsors
+        const { data: linkData, error: linkErr } = await supabaseClient
+            .from('event_sponsors')
+            .select('sponsor_ids')
+            .eq('event_id', currentEventId)
+            .single();
+
+        // Kalau belum ada sponsor disuntik, biarin kosong (gak usah error merah lagi)
+        if (linkErr || !linkData || !linkData.sponsor_ids || linkData.sponsor_ids.length === 0) return;
+
+        // 2. Tarik data asli dari Master Bank pakai array ID
+        const { data: sponsors, error: spErr } = await supabaseClient
+            .from('master_sponsors')
+            .select('*')
+            .in('id', linkData.sponsor_ids);
+
+        if (spErr || !sponsors || sponsors.length === 0) return;
+
+        // 3. Render ke layar (Bisa nampung 1 atau banyak sponsor sekaligus)
+        let html = `
+            <div class="w-full bg-slate-900 rounded-2xl border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.15)] mb-6 py-4 px-4 overflow-hidden relative">
+                <!-- Aksen Cahaya -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-amber-500 rounded-b-full shadow-[0_0_10px_rgba(245,158,11,0.8)]"></div>
+                
+                <div class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-center mb-3">Official Partners</div>
+                
+                <div class="flex items-center justify-center gap-6 md:gap-8 flex-wrap">
+        `;
+
+        sponsors.forEach(sp => {
+            const logo = sp.logo_url || '/images/logo.png';
+            const link = sp.link_url || '#';
+            html += `
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="group block transition-transform hover:scale-110 hover:-translate-y-1">
+                    <img src="${logo}" alt="${sp.sponsor_name}" title="${sp.sponsor_name}" class="h-8 md:h-10 object-contain drop-shadow-md opacity-80 group-hover:opacity-100 transition-all duration-300">
+                </a>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        wrapper.innerHTML = html;
+
+    } catch (err) {
+        console.error("Gagal menarik data sponsor:", err);
+    }
 }
 
 async function fetchHeatsData(isFirstLoad = false) {

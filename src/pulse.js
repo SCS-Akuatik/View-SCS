@@ -10,24 +10,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCounterDisplay();
 
     // 2. KONEKSI SUPABASE REALTIME (Tarik Data Beneran)
-    // Subscribe ke perubahan tabel 'profiles' (atau tabel F1 ID lu)
-    const channel = supabaseClient.channel('realtime-f1-id')
-        .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'profiles' }, 
-            (payload) => {
-                // Tiap ada data asli masuk ke database:
-                triggerNewRegistration(payload.new.full_name || 'Atlet Baru', payload.new.club_name || 'Klub Renang Indonesia');
-            }
-        )
-        .subscribe();
+    try {
+        const channel = supabaseClient.channel('realtime-f1-id')
+            .on(
+                'postgres_changes',
+                { event: 'INSERT', schema: 'public', table: 'profiles' }, 
+                (payload) => {
+                    triggerNewRegistration(payload.new.full_name || 'Atlet Baru', payload.new.club_name || 'Klub Renang Indonesia');
+                }
+            )
+            .subscribe();
+    } catch(err) { console.log("Realtime standby..."); }
 
-    // 3. HACKER PITCHING MODE (Tekan SPASI buat nyimulasiin pendaftar masuk!)
+    // ==========================================
+    // 3. AUTO-PILOT MODE (Simulasi Natural)
+    // ==========================================
+    function autoPilot() {
+        // Jeda waktu acak antara 2.5 sampai 6 detik biar kelihatan nyata
+        const randomDelay = Math.floor(Math.random() * 3500) + 2500;
+        
+        setTimeout(() => {
+            simulateLiveTraffic();
+            autoPilot(); // Muter terus tanpa henti
+        }, randomDelay);
+    }
+    
+    // Mulai auto-pilot 2 detik setelah halaman dibuka
+    setTimeout(autoPilot, 2000);
+
+    // ==========================================
+    // 4. HACKER PITCHING MODE (Manual Trigger)
+    // ==========================================
+    
+    // Lewat Keyboard (Spasi) - Buat Desktop
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
             e.preventDefault();
             simulateLiveTraffic();
         }
+    });
+
+    // Lewat Ketukan Layar (Tap/Click) - Buat HP!
+    document.addEventListener('click', () => {
+        simulateLiveTraffic();
     });
 });
 
@@ -46,31 +71,36 @@ function updateCounterDisplay() {
     counterEl.style.textShadow = "0 0 60px rgba(245,158,11,1)"; // Glow Emas (SCS Gold)
     counterEl.classList.replace('text-white', 'text-amber-100');
     
+    // Efek scale membesar sedikit
+    counterEl.style.transform = "scale(1.05)";
+    counterEl.style.transition = "all 0.1s ease-out";
+    
     setTimeout(() => {
         counterEl.style.textShadow = "0 0 40px rgba(59,130,246,0.6)"; // Balik ke Glow Biru
         counterEl.classList.replace('text-amber-100', 'text-white');
-    }, 300);
+        counterEl.style.transform = "scale(1)";
+    }, 250);
 }
 
 function addLiveFeed(message) {
     const feedContainer = document.getElementById('liveFeedContainer');
     
     const feedItem = document.createElement('div');
-    feedItem.className = 'feed-enter flex items-center gap-3 text-sm font-mono border-l-2 border-emerald-500 pl-3 bg-white/5 py-1.5 rounded-r-md w-max';
+    feedItem.className = 'feed-enter flex items-center gap-3 text-xs md:text-sm font-mono border-l-2 border-emerald-500 pl-3 bg-white/5 py-1.5 rounded-r-md w-max max-w-full truncate';
     
     // Timestamp (Jam:Menit:Detik)
     const now = new Date();
     const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
 
     feedItem.innerHTML = `
-        <span class="text-emerald-500 font-bold">[${timeString}]</span>
-        <span class="text-slate-300">${message}</span>
+        <span class="text-emerald-500 font-bold shrink-0">[${timeString}]</span>
+        <span class="text-slate-300 truncate">${message}</span>
     `;
 
     feedContainer.appendChild(feedItem);
 
-    // Hapus feed paling lama biar gak numpuk kepanjangan (Max 4 feed di layar)
-    if (feedContainer.children.length > 5) {
+    // Hapus feed paling lama biar gak numpuk (Max 4 baris di layar)
+    if (feedContainer.children.length > 4) {
         feedContainer.removeChild(feedContainer.firstElementChild);
     }
 }
@@ -83,7 +113,7 @@ function triggerNewRegistration(namaAtlet, namaKlub) {
     // 2. Munculkan Teks di Feed
     const msgs = [
         `Verified: F1 ID diterbitkan untuk <span class="text-white font-bold uppercase">${namaAtlet}</span>`,
-        `<span class="text-white font-bold uppercase">${namaAtlet}</span> terhubung ke jaringan F1 ID via ${namaKlub}`,
+        `<span class="text-white font-bold uppercase">${namaAtlet}</span> terhubung ke jaringan via ${namaKlub}`,
         `Ping: Sinkronisasi data atlet <span class="text-white font-bold uppercase">${namaAtlet}</span> berhasil.`
     ];
     // Pilih pesan acak
@@ -94,8 +124,15 @@ function triggerNewRegistration(namaAtlet, namaKlub) {
 // ==========================================
 // DATA DUMMY UNTUK SIMULASI SAAT PITCHING
 // ==========================================
-const dummyNames = ["Aditya Fajar", "Bima Sakti", "Citra Kirana", "Dian Sastro", "Eko Yuli", "Kevin Sanjaya", "Lalu Muhammad Zohri"];
-const dummyClubs = ["Jago Renang Academy", "Sidoarjo Aquatic", "Surabaya Swim Club", "Petrokimia Gresik", "Millenium Aquatic"];
+const dummyNames = [
+    "Aditya Fajar", "Bima Sakti", "Citra Kirana", "Dian Sastro", "Eko Yuli", 
+    "Kevin Sanjaya", "Lalu M. Zohri", "Azzahra Permata", "I Gede Siman", "Glenn Victor", 
+    "Fellicia Angelica", "Aflah Fadlan"
+];
+const dummyClubs = [
+    "Jago Renang Academy", "Sidoarjo Aquatic", "Surabaya Swim Club", "Petrokimia Gresik", 
+    "Millenium Aquatic", "HIU Surabaya", "Suryanaga", "Tirta Taruna", "Bali Pari"
+];
 
 function simulateLiveTraffic() {
     const randomName = dummyNames[Math.floor(Math.random() * dummyNames.length)];
@@ -103,9 +140,14 @@ function simulateLiveTraffic() {
     
     triggerNewRegistration(randomName, randomClub);
     
-    // Acak juga naik event/klub sesekali
-    if (Math.random() > 0.8) {
+    // Acak naik event/klub (probabilitas kecil)
+    if (Math.random() > 0.85) {
         currentClubCount++;
-        document.getElementById('clubCounter').innerText = currentClubCount;
+        const el = document.getElementById('clubCounter');
+        if(el) {
+            el.innerText = currentClubCount;
+            el.style.color = "#fff";
+            setTimeout(() => el.style.color = "#34d399", 300);
+        }
     }
 }

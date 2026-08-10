@@ -7,7 +7,6 @@ let currentEventCount = 0;
 document.addEventListener('DOMContentLoaded', async () => {
     
     // 1. TARIK DATA BENERAN DARI SUPABASE (AWAL LOAD)
-    // Kita panggil fungsi khusus buat narik total row dari database
     await fetchRealCounts();
 
     // 2. KONEKSI SUPABASE REALTIME (Mantau Pendaftar Asli)
@@ -17,7 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'postgres_changes',
                 { event: 'INSERT', schema: 'public', table: 'profiles' }, 
                 (payload) => {
-                    // Tarik info nama dari database pas ada yang daftar beneran!
                     const namaAtlet = payload.new.full_name || 'Atlet Baru';
                     const namaKlub = payload.new.club_name || 'Klub Renang Indonesia';
                     
@@ -34,10 +32,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ==========================================
 async function fetchRealCounts() {
     try {
-        // Tampilkan status loading di feed
         addLiveFeed("Menghubungkan ke pusat data SCS...");
 
-        // A. Hitung total Profil (F1 ID) - Pakai { count: 'exact', head: true } biar query-nya super ringan
+        // A. Hitung total Profil (Total Athlete Registered)
         const { count: f1Count, error: errF1 } = await supabaseClient
             .from('profiles')
             .select('*', { count: 'exact', head: true });
@@ -55,7 +52,6 @@ async function fetchRealCounts() {
             .select('*', { count: 'exact', head: true });
         if (!errEvent && eventCount !== null) currentEventCount = eventCount;
 
-        // Update ke Layar Utama
         updateCounterDisplay();
         document.getElementById('clubCounter').innerText = currentClubCount;
         document.getElementById('eventCounter').innerText = currentEventCount;
@@ -108,14 +104,14 @@ function addLiveFeed(message) {
     }
 }
 
-// Ter-trigger HANYA KETIKA ada data beneran masuk ke Supabase
+// COPYWRITING UDAH DISINKRONKAN JADI "REGISTRASI"
 function triggerNewRegistration(namaAtlet, namaKlub) {
     currentF1Count += 1;
     updateCounterDisplay();
 
     const msgs = [
-        `Realtime: F1 ID resmi diterbitkan untuk <span class="text-white font-bold uppercase">${namaAtlet}</span>`,
-        `<span class="text-white font-bold uppercase">${namaAtlet}</span> bergabung ke jaringan dari klub ${namaKlub}`,
+        `Realtime: Atlet baru teregistrasi atas nama <span class="text-white font-bold uppercase">${namaAtlet}</span>`,
+        `<span class="text-white font-bold uppercase">${namaAtlet}</span> berhasil registrasi ke dalam jaringan dari klub ${namaKlub}`,
     ];
     const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
     addLiveFeed(randomMsg);

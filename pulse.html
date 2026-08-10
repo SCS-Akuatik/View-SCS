@@ -49,22 +49,23 @@
 
     <!-- CENTERPIECE: The Social Network Counter -->
     <div class="relative z-10 flex-1 flex flex-col items-center justify-center -mt-10">
-        <p class="text-slate-400 font-bold uppercase tracking-[0.3em] mb-4 text-sm md:text-base text-center">Total Verified Athletes</p>
+        <!-- COPYWRITING DIUBAH DI SINI SESUAI REQUEST LU -->
+        <p class="text-slate-400 font-bold uppercase tracking-[0.3em] mb-4 text-sm md:text-base text-center">Total Athlete Registered</p>
         
         <!-- ODOMETER COUNTER -->
         <div class="flex items-center gap-2 md:gap-4 font-mono font-black text-6xl md:text-[9rem] leading-none text-white drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]" id="mainCounter">
             <!-- Angka akan disuntik JS -->
-            0,000,000
+            0
         </div>
         
         <div class="flex gap-12 mt-10 opacity-70">
             <div class="text-center">
                 <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Clubs Registered</p>
-                <p class="text-2xl font-black text-emerald-400 font-mono" id="clubCounter">24</p>
+                <p class="text-2xl font-black text-emerald-400 font-mono" id="clubCounter">0</p>
             </div>
             <div class="text-center">
                 <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Events Executed</p>
-                <p class="text-2xl font-black text-amber-400 font-mono" id="eventCounter">42</p>
+                <p class="text-2xl font-black text-amber-400 font-mono" id="eventCounter">0</p>
             </div>
         </div>
     </div>
@@ -77,9 +78,6 @@
             <div class="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black z-10 pointer-events-none"></div>
         </div>
     </div>
-
-    <!-- Petunjuk Rahasia Buat Pitching -->
-    <div class="absolute bottom-2 left-2 text-[8px] text-slate-800 font-mono opacity-50">Press [SPACE] to simulate traffic.</div>
 
     <script type="module" src="/src/pulse.js"></script>
 </body>

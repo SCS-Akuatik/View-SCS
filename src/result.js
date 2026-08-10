@@ -32,7 +32,7 @@ async function fetchEventName() {
             document.getElementById('headerEventName').innerText = data.event_name;
             
             // ==========================================
-            // INJEKSI IKLAN SPONSOR (STEALTH MODE - ADBLOCK BYPASS)
+            // INJEKSI BANNER (ULTRA STEALTH MODE)
             // ==========================================
             let configObj = data.config;
             if (typeof configObj === 'string') {
@@ -40,20 +40,20 @@ async function fetchEventName() {
             }
 
             if (configObj && configObj.ads_sponsor_name) {
-                const sponsorLogo = configObj.ads_sponsor_logo || '/images/logo.png';
-                const sponsorLink = configObj.ads_link_url || '#';
+                const partnerLogo = configObj.ads_sponsor_logo || '/images/logo.png';
+                const partnerLink = configObj.ads_link_url || '#';
                 
-                // ID disamarkan biar gak dibunuh AdBlocker!
-                if(!document.getElementById('scs-exclusive-partner')) {
-                    const partnerHtml = `
-                        <div id="scs-exclusive-partner" class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-amber-500/50 shadow-[0_-10px_20px_rgba(0,0,0,0.4)] z-[99999] py-2 md:py-3 px-4">
-                            <a href="${sponsorLink}" target="_blank" rel="noopener noreferrer" class="max-w-4xl mx-auto flex items-center justify-center gap-4 cursor-pointer group">
+                // Namanya disamarkan jadi scs-global-info biar AdGuard buta
+                if(!document.getElementById('scs-global-info')) {
+                    const infoHtml = `
+                        <div id="scs-global-info" class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-amber-500/50 shadow-[0_-10px_20px_rgba(0,0,0,0.4)] z-[99999] py-2 md:py-3 px-4">
+                            <a href="${partnerLink}" target="_blank" rel="noopener noreferrer" class="max-w-4xl mx-auto flex items-center justify-center gap-4 cursor-pointer group">
                                 <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Partner</span>
-                                <img src="${sponsorLogo}" alt="Brand" class="h-8 md:h-10 object-contain drop-shadow-lg">
+                                <img src="${partnerLogo}" alt="Official" class="h-8 md:h-10 object-contain drop-shadow-lg">
                             </a>
                         </div>
                     `;
-                    document.body.insertAdjacentHTML('beforeend', partnerHtml);
+                    document.body.insertAdjacentHTML('beforeend', infoHtml);
                     document.body.style.paddingBottom = '70px';
                 }
             }

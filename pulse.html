@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS Pulse | Live F1 ID Network</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        /* Efek grid radar di background */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+        /* Animasi text masuk buat Live Feed */
+        .feed-enter { animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideIn { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-black text-white h-screen w-screen overflow-hidden font-sans relative flex flex-col selection:bg-amber-500 selection:text-black">
+
+    <!-- Latar Belakang -->
+    <div class="absolute inset-0 bg-grid z-0"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-0 pointer-events-none"></div>
+
+    <!-- Header / Sponsor Watermark -->
+    <div class="relative z-10 p-6 md:p-10 flex justify-between items-start">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                <span class="text-red-500 font-mono font-bold tracking-widest text-xs uppercase">SCS Live Pulse Active</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-300 tracking-widest uppercase opacity-50">Global F1 ID Network</h1>
+        </div>
+        
+        <!-- Watermark Sponsor -->
+        <div class="text-right">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Infrastructure Supported By:</span>
+            <div class="bg-white/10 backdrop-blur-sm p-3 rounded-xl border border-white/10 inline-block">
+                <!-- Ganti logo ini pas pitching ke sponsor tertentu! -->
+                <h2 class="text-xl font-black text-amber-400 tracking-widest uppercase">YOUR BRAND HERE</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTERPIECE: The Social Network Counter -->
+    <div class="relative z-10 flex-1 flex flex-col items-center justify-center -mt-10">
+        <p class="text-slate-400 font-bold uppercase tracking-[0.3em] mb-4 text-sm md:text-base text-center">Total Verified Athletes</p>
+        
+        <!-- ODOMETER COUNTER -->
+        <div class="flex items-center gap-2 md:gap-4 font-mono font-black text-6xl md:text-[9rem] leading-none text-white drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]" id="mainCounter">
+            <!-- Angka akan disuntik JS -->
+            0,000,000
+        </div>
+        
+        <div class="flex gap-12 mt-10 opacity-70">
+            <div class="text-center">
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Clubs Registered</p>
+                <p class="text-2xl font-black text-emerald-400 font-mono" id="clubCounter">24</p>
+            </div>
+            <div class="text-center">
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Events Executed</p>
+                <p class="text-2xl font-black text-amber-400 font-mono" id="eventCounter">42</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM LIVE FEED -->
+    <div class="relative z-10 w-full max-w-4xl mx-auto mb-8 px-6">
+        <p class="text-[9px] text-slate-500 uppercase tracking-widest font-bold mb-3 border-b border-slate-800 pb-2">Live Activity Log</p>
+        <div id="liveFeedContainer" class="h-[120px] overflow-hidden flex flex-col justify-end space-y-2 relative">
+            <!-- Feed akan muncul di sini dari bawah ke atas -->
+            <div class="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black z-10 pointer-events-none"></div>
+        </div>
+    </div>
+
+    <!-- Petunjuk Rahasia Buat Pitching -->
+    <div class="absolute bottom-2 left-2 text-[8px] text-slate-800 font-mono opacity-50">Press [SPACE] to simulate traffic.</div>
+
+    <script type="module" src="/src/pulse.js"></script>
+</body>
+</html>

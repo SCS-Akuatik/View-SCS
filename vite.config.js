@@ -12,6 +12,7 @@ export default defineConfig({
         pricing: resolve(__dirname, 'pricing.html'), // Halaman Harga SCS
         promosi: resolve(__dirname, 'promosi.html'), // Halaman Promosi
         event: resolve(__dirname, 'event.html'), // Kalender Event Publik Nasional
+        pulse: resolve(__dirname, 'pulse.html'),
         eventPublic: resolve(__dirname, 'event-public.html'), // Landing page spesifik 1 event
         liveResult: resolve(__dirname, 'live-result.html'), // Live scoreboard pertandingan
         eventLeaderboard: resolve(__dirname, 'event-leaderboard.html'), // Halaman Cetak Piagam Juara

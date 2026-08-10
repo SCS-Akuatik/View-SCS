@@ -36,7 +36,7 @@ async function fetchEventName() {
 }
 
 // ==========================================
-// NEW: SISTEM PENARIKAN MULTI-SPONSOR (FIXED GRID SIZE)
+// NEW: SISTEM PENARIKAN MULTI-SPONSOR (GRID FIX & NO BLUR)
 // ==========================================
 async function fetchSponsors() {
     const wrapper = document.getElementById('partnerWrapper');
@@ -59,25 +59,30 @@ async function fetchSponsors() {
         if (spErr || !sponsors || sponsors.length === 0) return;
 
         let html = `
-            <div class="w-full mb-5 flex flex-col items-center justify-center">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">This event supported by:</span>
+            <div class="w-full mb-6 flex flex-col items-center justify-center">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">This event supported by:</span>
                 
-                <!-- GRID FIXED: Biar semua logo dipaksa sejajar proporsional -->
-                <div class="flex items-center justify-center gap-3 md:gap-5 flex-wrap w-full">
+                <!-- GRID FIXED: Pakai flex-wrap dan gap yang proporsional -->
+                <div class="flex items-center justify-center gap-4 md:gap-6 flex-wrap w-full px-2">
         `;
 
-        // Logika: Kalo cuma 1 dibikin agak gede (tinggi 40px), kalo >1 dikecilin (tinggi 32px)
-        const containerClass = sponsors.length === 1 
-            ? "h-10 md:h-12 w-auto max-w-[200px]" 
-            : "h-8 md:h-10 w-auto max-w-[140px]";
+        // Ukuran Dinamis tapi DIKUNCI biar gak menciut. Transparansi (opacity) DIHAPUS TOTAL.
+        let imgClass = "object-contain drop-shadow-sm rounded transition-transform hover:scale-105";
+        if (sponsors.length === 1) {
+            imgClass += " h-14 md:h-16 max-w-[250px]";
+        } else if (sponsors.length === 2) {
+            imgClass += " h-12 md:h-14 max-w-[180px]";
+        } else {
+            // Kalau > 2 sponsor (misal 3, 4, 5, dst)
+            imgClass += " h-10 md:h-12 max-w-[120px] sm:max-w-[140px]";
+        }
 
         sponsors.forEach(sp => {
             const logo = sp.logo_url || '/images/logo.png';
             const link = sp.link_url || '#';
             html += `
-                <a href="${link}" target="_blank" rel="noopener noreferrer" class="block transition-transform hover:scale-110">
-                    <!-- img dibungkus dan di set object-contain biar dimensinya gak meleber -->
-                    <img src="${logo}" alt="${sp.sponsor_name}" title="${sp.sponsor_name}" class="${containerClass} object-contain opacity-90 hover:opacity-100 transition-opacity drop-shadow-sm bg-white/5 p-1 rounded">
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="block shrink-0">
+                    <img src="${logo}" alt="${sp.sponsor_name}" title="${sp.sponsor_name}" class="${imgClass}">
                 </a>
             `;
         });
@@ -93,7 +98,6 @@ async function fetchSponsors() {
         console.error("Gagal menarik data sponsor:", err);
     }
 }
-
 
 async function fetchHeatsData(isFirstLoad = false) {
     const icon = document.getElementById('iconRefresh');

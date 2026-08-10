@@ -24,7 +24,7 @@ async function fetchEventName() {
     try {
         const { data, error } = await supabaseClient
             .from('events')
-            .select('event_name, config') // <-- UPDATE: Tarik config sponsor
+            .select('event_name, config')
             .eq('id', currentEventId)
             .single();
             
@@ -32,24 +32,31 @@ async function fetchEventName() {
             document.getElementById('headerEventName').innerText = data.event_name;
             
             // ==========================================
-            // INJEKSI IKLAN SPONSOR (SCS AD NETWORK)
+            // INJEKSI IKLAN SPONSOR (FLOATING BOTTOM)
             // ==========================================
-            if (data.config && data.config.ads_sponsor_name) {
-                const config = data.config;
-                const sponsorLogo = config.ads_sponsor_logo || '/images/logo.png';
-                const sponsorLink = config.ads_link_url || '#';
+            let configObj = data.config;
+            if (typeof configObj === 'string') {
+                try { configObj = JSON.parse(configObj); } catch(e) {}
+            }
+
+            if (configObj && configObj.ads_sponsor_name) {
+                const sponsorLogo = configObj.ads_sponsor_logo || '/images/logo.png';
+                const sponsorLink = configObj.ads_link_url || '#';
                 
-                // Bikin elemen banner yang bisa diklik
-                const bannerHtml = `
-                    <a href="${sponsorLink}" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-900 border-b border-amber-500/30 py-2.5 hover:bg-slate-800 transition-colors group cursor-pointer z-[60] relative">
-                        <div class="max-w-4xl mx-auto px-4 flex items-center justify-center gap-3">
-                            <span class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Sponsor</span>
-                            <img src="${sponsorLogo}" alt="Sponsor" class="h-6 md:h-8 object-contain drop-shadow-md">
+                if(!document.getElementById('scs-ads-banner')) {
+                    // Posisi Fixed Bottom: Gak bakal ketiban navbar atas, sponsor seneng!
+                    const bannerHtml = `
+                        <div id="scs-ads-banner" class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-amber-500/50 shadow-[0_-10px_20px_rgba(0,0,0,0.4)] z-[99999] py-2 md:py-3 px-4">
+                            <a href="${sponsorLink}" target="_blank" rel="noopener noreferrer" class="max-w-4xl mx-auto flex items-center justify-center gap-4 cursor-pointer group">
+                                <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Sponsor</span>
+                                <img src="${sponsorLogo}" alt="Sponsor" class="h-8 md:h-10 object-contain drop-shadow-lg">
+                            </a>
                         </div>
-                    </a>
-                `;
-                // Tempel di posisi paling atas layar
-                document.body.insertAdjacentHTML('afterbegin', bannerHtml);
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', bannerHtml);
+                    // Kasih jarak di body bawah biar heat terakhir gak ketutup iklan
+                    document.body.style.paddingBottom = '70px';
+                }
             }
         }
     } catch (err) { console.error(err); }
@@ -99,7 +106,6 @@ function populateEventDropdown() {
         renderResults(currentSelectedEventNumber);
     });
 
-    // LISTENER TOMBOL UX BARU
     document.getElementById('btnShowAll').addEventListener('click', () => {
         selectEvent.value = ""; 
         currentSelectedEventNumber = 'ALL';
@@ -119,7 +125,6 @@ function renderResults(eventNumber) {
         return;
     }
 
-    // FILTER ATAU TAMPILKAN SEMUA
     let heatsToShow = [];
     if (eventNumber === 'ALL') {
         heatsToShow = allHeats;

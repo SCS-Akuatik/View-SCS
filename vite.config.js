@@ -19,6 +19,7 @@ export default defineConfig({
         rank: resolve(__dirname, 'rank.html'), // Leaderboard Peringkat Klub/Atlet
         result: resolve(__dirname, 'result.html'), // Hasil resmi perlombaan
         cetakSertifikat: resolve(__dirname, 'cetak-sertifikat.html'), // Halaman Cetak Sertifikat Peserta
+        sponsorship: resolve(__dirname, 'sponsorship.html'),
 
         // --- 2. DASHBOARD KLUB / PELATIH ---
         dashboard: resolve(__dirname, 'dashboard.html'), // Command Center Manajemen Klub

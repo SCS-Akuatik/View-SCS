@@ -32,7 +32,7 @@ async function fetchEventName() {
             document.getElementById('headerEventName').innerText = data.event_name;
             
             // ==========================================
-            // INJEKSI BANNER (ULTRA STEALTH MODE)
+            // INJEKSI BANNER (POSISI STATIS DI BAWAH FILTER)
             // ==========================================
             let configObj = data.config;
             if (typeof configObj === 'string') {
@@ -43,18 +43,21 @@ async function fetchEventName() {
                 const partnerLogo = configObj.ads_sponsor_logo || '/images/logo.png';
                 const partnerLink = configObj.ads_link_url || '#';
                 
-                // Namanya disamarkan jadi scs-global-info biar AdGuard buta
                 if(!document.getElementById('scs-global-info')) {
                     const infoHtml = `
-                        <div id="scs-global-info" class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-amber-500/50 shadow-[0_-10px_20px_rgba(0,0,0,0.4)] z-[99999] py-2 md:py-3 px-4">
-                            <a href="${partnerLink}" target="_blank" rel="noopener noreferrer" class="max-w-4xl mx-auto flex items-center justify-center gap-4 cursor-pointer group">
+                        <div id="scs-global-info" class="w-full bg-slate-900 rounded-2xl border border-amber-500/50 shadow-md mb-6 py-3 px-4 overflow-hidden">
+                            <a href="${partnerLink}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-4 cursor-pointer group">
                                 <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Partner</span>
                                 <img src="${partnerLogo}" alt="Official" class="h-8 md:h-10 object-contain drop-shadow-lg">
                             </a>
                         </div>
                     `;
-                    document.body.insertAdjacentHTML('beforeend', infoHtml);
-                    document.body.style.paddingBottom = '70px';
+                    
+                    // Menyisipkan tepat di atas container hasil lomba (sesuai garis hijau)
+                    const resultContainer = document.getElementById('resultContainer');
+                    if (resultContainer) {
+                        resultContainer.insertAdjacentHTML('beforebegin', infoHtml);
+                    }
                 }
             }
         }

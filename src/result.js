@@ -29,15 +29,10 @@ async function fetchEventName() {
             .single();
             
         if (data) {
-            // ==========================================
-            // KAMERA PENGINTAI 1: CEK APAKAH JS BARU JALAN
-            // ==========================================
-            // Kalau di layar HP lu judulnya TETAP "JR TIME TRIAL VOL. 1" tanpa tulisan V3, 
-            // berarti fix 100% server hosting lu belum update file-nya!
             document.getElementById('headerEventName').innerText = data.event_name + " (✅ V3)";
             
             // ==========================================
-            // KAMERA PENGINTAI 2: INJEKSI IKLAN BRUTAL
+            // KAMERA X-RAY: CEK ISI ASLI DATABASE
             // ==========================================
             let configObj = data.config;
             if (typeof configObj === 'string') {
@@ -50,7 +45,7 @@ async function fetchEventName() {
                 const partnerLogo = configObj.ads_sponsor_logo || '/images/logo.png';
                 const partnerLink = configObj.ads_link_url || '#';
                 
-                // Tembak paksa di atas hasil lomba, tanpa butuh div khusus dari HTML
+                // Kalau sukses, munculin banner elit
                 if (resultContainer && !document.getElementById('scs-box-utama')) {
                     const infoHtml = `
                         <div id="scs-box-utama" class="w-full bg-slate-900 rounded-2xl border-2 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)] mb-6 py-3 px-4 flex justify-center items-center">
@@ -63,11 +58,14 @@ async function fetchEventName() {
                     resultContainer.insertAdjacentHTML('beforebegin', infoHtml);
                 }
             } else {
-                // Kalau ternyata config-nya kosong dari Supabase, munculkan peringatan MERAH!
+                // Kalau gagal, aktifkan X-Ray pelapor!
                 if (resultContainer && !document.getElementById('error-ads')) {
+                    const debugConfig = data.config === null ? "KOSONG (NULL)" : JSON.stringify(data.config);
                     resultContainer.insertAdjacentHTML('beforebegin', `
-                        <div id="error-ads" class="w-full bg-red-900/80 text-red-100 text-xs font-bold rounded-xl p-4 mb-6 text-center border-2 border-red-500 shadow-md">
-                            ❌ DATABASE CONFIG KOSONG.<br>Sponsor belum ter-injeksi di event ini lewat Admin Panel.
+                        <div id="error-ads" class="w-full bg-red-900/90 text-red-100 text-xs font-bold rounded-xl p-4 mb-6 text-center border-2 border-red-500 shadow-md">
+                            ❌ SPONSOR GAGAL MUNCUL.<br><br>
+                            Mengecek Event ID: <span class="bg-black text-amber-400 px-2 py-1 rounded font-mono">${currentEventId}</span><br>
+                            Isi Config di DB: <span class="bg-black text-amber-400 px-2 py-1 rounded font-mono break-all mt-1 inline-block">${debugConfig}</span>
                         </div>
                     `);
                 }

@@ -3,6 +3,7 @@ import { supabaseClient } from './supabase.js';
 let currentEventId = null;
 let allHeats = []; 
 let currentSelectedEventNumber = null;
+let activeSponsors = []; // NEW: Wadah penyimpan sponsor buat dibagi rata
 
 let refreshInterval = 30; 
 let timeLeft = refreshInterval;
@@ -35,9 +36,6 @@ async function fetchEventName() {
     } catch (err) { console.error(err); }
 }
 
-// ==========================================
-// NEW: SISTEM PENARIKAN MULTI-SPONSOR (GRID FIX & NO BLUR)
-// ==========================================
 async function fetchSponsors() {
     const wrapper = document.getElementById('partnerWrapper');
     if (!wrapper) return;
@@ -57,23 +55,21 @@ async function fetchSponsors() {
             .in('id', linkData.sponsor_ids);
 
         if (spErr || !sponsors || sponsors.length === 0) return;
+        
+        activeSponsors = sponsors; // Simpan ke global buat dibagi-bagi di per-Event
 
         let html = `
             <div class="w-full mb-6 flex flex-col items-center justify-center">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">This event supported by:</span>
-                
-                <!-- GRID FIXED: Pakai flex-wrap dan gap yang proporsional -->
                 <div class="flex items-center justify-center gap-4 md:gap-6 flex-wrap w-full px-2">
         `;
 
-        // Ukuran Dinamis tapi DIKUNCI biar gak menciut. Transparansi (opacity) DIHAPUS TOTAL.
         let imgClass = "object-contain drop-shadow-sm rounded transition-transform hover:scale-105";
         if (sponsors.length === 1) {
             imgClass += " h-14 md:h-16 max-w-[250px]";
         } else if (sponsors.length === 2) {
             imgClass += " h-12 md:h-14 max-w-[180px]";
         } else {
-            // Kalau > 2 sponsor (misal 3, 4, 5, dst)
             imgClass += " h-10 md:h-12 max-w-[120px] sm:max-w-[140px]";
         }
 
@@ -174,7 +170,6 @@ function renderResults(eventNumber) {
     heatsToShow.forEach(heat => {
         let lanesHtml = '';
 
-        // Header Tabel Heat (Kecil & Rapi)
         lanesHtml += `
             <div class="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-2 mb-2 px-1">
                 <div class="w-8 text-center">LN</div>
@@ -195,28 +190,20 @@ function renderResults(eventNumber) {
                 timeColorClass = "text-red-500"; 
             }
 
-            // ROW 1 BARIS: Lane | Nama - Klub | Waktu
             lanesHtml += `
             <div class="flex items-center py-2 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors px-1">
-                
-                <!-- Nomor Lintasan (Lane) -->
                 <div class="w-8 flex justify-center shrink-0">
                     <div class="w-5 h-5 rounded bg-slate-200 text-slate-600 text-[10px] font-black flex items-center justify-center">${atlet.lane}</div>
                 </div>
-                
-                <!-- Nama & Klub (Gabung 1 baris di layar lebar, numpuk rapi di HP) -->
                 <div class="flex-1 pl-2 flex flex-col sm:flex-row sm:items-center min-w-0">
                     <p class="text-xs font-black text-slate-800 uppercase truncate mr-2">${atlet.nama}</p>
                     <p class="text-[9px] font-bold text-slate-400 uppercase truncate sm:border-l sm:border-slate-300 sm:pl-2 mt-0.5 sm:mt-0">${atlet.klub}</p>
                 </div>
-                
-                <!-- Waktu -->
                 <div class="w-20 shrink-0 text-right pr-1">
                     <span class="font-mono text-xs font-black tracking-wider ${timeColorClass}">
                         ${timeDisplay}
                     </span>
                 </div>
-
             </div>`;
         });
 
@@ -224,9 +211,29 @@ function renderResults(eventNumber) {
             lanesHtml += `<p class="text-[10px] text-slate-400 italic text-center py-3">Tidak ada data atlet di Heat ini.</p>`;
         }
 
+        // ==========================================
+        // NEW: INJEKSI HEADER SPONSOR KHUSUS (ROUND ROBIN)
+        // ==========================================
+        let eventSponsorHeader = '';
+        if (activeSponsors.length > 0) {
+            // Rumus Giliran: (Event Ke - 1) dibagi sisa jumlah sponsor
+            const spIndex = (heat.event_number - 1) % activeSponsors.length;
+            const sp = activeSponsors[spIndex];
+            
+            eventSponsorHeader = `
+                <a href="${sp.link_url || '#'}" target="_blank" class="flex items-center justify-between bg-slate-50 hover:bg-amber-50/80 transition-colors border-b border-slate-200 px-4 py-2.5 -mx-3 -mt-3 md:-mx-4 md:-mt-4 mb-3 rounded-t-xl group">
+                    <span class="text-[9px] md:text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase tracking-widest transition-colors flex items-center gap-1">
+                        Supported By
+                    </span>
+                    <img src="${sp.logo_url || '/images/logo.png'}" class="h-5 md:h-6 object-contain opacity-80 group-hover:opacity-100 transition-opacity">
+                </a>
+            `;
+        }
+
         htmlContent += `
         <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 mb-4 overflow-hidden relative">
-            <div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-300"></div>
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-300 z-10"></div>
+            ${eventSponsorHeader}
             <div class="pl-2 mb-3">
                 <h3 class="text-xs font-black text-slate-800 uppercase leading-tight">Event #${heat.event_number}: ${heat.nomor_lomba} - ${heat.gender}</h3>
                 <p class="text-[9px] text-slate-400 font-bold mt-0.5 uppercase tracking-wider">HEAT ${heat.heat_number} <span class="text-slate-300 mx-1">|</span> Dari ${heat.total_heats}</p>

@@ -39,6 +39,7 @@ export default defineConfig({
         // --- 5. SUPER ADMIN PUSAT ---
         admin: resolve(__dirname, 'admin.html'), // Panel Kontrol Super Admin SCS
         adminAds: resolve(__dirname, 'admin-ads.html'),
+        sponsorPreview: resolve(__dirname, 'sponsor-preview.html'),
       }
     }
   },

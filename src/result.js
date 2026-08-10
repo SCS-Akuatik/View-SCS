@@ -29,28 +29,47 @@ async function fetchEventName() {
             .single();
             
         if (data) {
-            document.getElementById('headerEventName').innerText = data.event_name;
+            // ==========================================
+            // KAMERA PENGINTAI 1: CEK APAKAH JS BARU JALAN
+            // ==========================================
+            // Kalau di layar HP lu judulnya TETAP "JR TIME TRIAL VOL. 1" tanpa tulisan V3, 
+            // berarti fix 100% server hosting lu belum update file-nya!
+            document.getElementById('headerEventName').innerText = data.event_name + " (✅ V3)";
             
             // ==========================================
-            // INJEKSI IKLAN (BRUTE FORCE KE WADAH KOSONG)
+            // KAMERA PENGINTAI 2: INJEKSI IKLAN BRUTAL
             // ==========================================
             let configObj = data.config;
             if (typeof configObj === 'string') {
                 try { configObj = JSON.parse(configObj); } catch(e) {}
             }
 
+            const resultContainer = document.getElementById('resultContainer');
+
             if (configObj && configObj.ads_sponsor_name) {
                 const partnerLogo = configObj.ads_sponsor_logo || '/images/logo.png';
                 const partnerLink = configObj.ads_link_url || '#';
                 
-                const wrapper = document.getElementById('partnerWrapper');
-                if(wrapper) {
-                    wrapper.innerHTML = `
-                        <a href="${partnerLink}" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-900 border border-amber-500/50 rounded-xl p-3 mb-6 shadow-md hover:bg-slate-800 transition-colors flex justify-center items-center gap-4">
-                            <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">Official Partner</span>
-                            <img src="${partnerLogo}" alt="Partner" class="h-10 md:h-12 object-contain drop-shadow-md">
-                        </a>
+                // Tembak paksa di atas hasil lomba, tanpa butuh div khusus dari HTML
+                if (resultContainer && !document.getElementById('scs-box-utama')) {
+                    const infoHtml = `
+                        <div id="scs-box-utama" class="w-full bg-slate-900 rounded-2xl border-2 border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)] mb-6 py-3 px-4 flex justify-center items-center">
+                            <a href="${partnerLink}" target="_blank" class="flex items-center gap-4">
+                                <span class="text-xs font-black text-amber-500 tracking-widest uppercase">Official Partner</span>
+                                <img src="${partnerLogo}" class="h-10 md:h-12 object-contain bg-white p-1 rounded-lg">
+                            </a>
+                        </div>
                     `;
+                    resultContainer.insertAdjacentHTML('beforebegin', infoHtml);
+                }
+            } else {
+                // Kalau ternyata config-nya kosong dari Supabase, munculkan peringatan MERAH!
+                if (resultContainer && !document.getElementById('error-ads')) {
+                    resultContainer.insertAdjacentHTML('beforebegin', `
+                        <div id="error-ads" class="w-full bg-red-900/80 text-red-100 text-xs font-bold rounded-xl p-4 mb-6 text-center border-2 border-red-500 shadow-md">
+                            ❌ DATABASE CONFIG KOSONG.<br>Sponsor belum ter-injeksi di event ini lewat Admin Panel.
+                        </div>
+                    `);
                 }
             }
         }

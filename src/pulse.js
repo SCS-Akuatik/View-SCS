@@ -14,10 +14,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const channel = supabaseClient.channel('realtime-f1-id')
             .on(
                 'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'profiles' }, 
+                // UBAH KE TABEL 'athletes' BIAR SINKRON SAMA DATABASE LU
+                { event: 'INSERT', schema: 'public', table: 'athletes' }, 
                 (payload) => {
                     const namaAtlet = payload.new.full_name || 'Atlet Baru';
-                    const namaKlub = payload.new.club_name || 'Klub Renang Indonesia';
+                    // Kalau di tabel athletes nggak ada kolom club_name, dia bakal nampilin teks default
+                    const namaKlub = payload.new.club_name || 'Jaringan F1 ID'; 
                     
                     triggerNewRegistration(namaAtlet, namaKlub);
                 }
@@ -34,9 +36,9 @@ async function fetchRealCounts() {
     try {
         addLiveFeed("Menghubungkan ke pusat data SCS...");
 
-        // A. Hitung total Profil (Total Athlete Registered)
+        // A. Hitung total Profil (UBAH TARGET KE TABEL 'athletes')
         const { count: f1Count, error: errF1 } = await supabaseClient
-            .from('profiles')
+            .from('athletes')
             .select('*', { count: 'exact', head: true });
         if (!errF1 && f1Count !== null) currentF1Count = f1Count;
 
@@ -104,14 +106,13 @@ function addLiveFeed(message) {
     }
 }
 
-// COPYWRITING UDAH DISINKRONKAN JADI "REGISTRASI"
 function triggerNewRegistration(namaAtlet, namaKlub) {
     currentF1Count += 1;
     updateCounterDisplay();
 
     const msgs = [
         `Realtime: Atlet baru teregistrasi atas nama <span class="text-white font-bold uppercase">${namaAtlet}</span>`,
-        `<span class="text-white font-bold uppercase">${namaAtlet}</span> berhasil registrasi ke dalam jaringan dari klub ${namaKlub}`,
+        `<span class="text-white font-bold uppercase">${namaAtlet}</span> berhasil registrasi ke dalam ${namaKlub}`,
     ];
     const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
     addLiveFeed(randomMsg);

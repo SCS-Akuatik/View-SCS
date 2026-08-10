@@ -1,11 +1,34 @@
 import { supabaseClient } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    
+    // ==========================================
+    // 1. SECURITY LOCK: HANYA SUPER ADMIN
+    // ==========================================
+    try {
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+        
+        if (sessionError || !session) {
+            window.location.replace('/auth.html');
+            return;
+        }
+
+        if (session.user.email !== 'radityaraja@gmail.com') {
+            alert('Akses Ditolak! Halaman ini adalah area VIP khusus Super Admin SCS.');
+            window.location.replace('/dashboard.html');
+            return;
+        }
+    } catch (authErr) {
+        console.error("Auth Check Error:", authErr);
+        window.location.replace('/auth.html');
+        return;
+    }
+
     const grid = document.getElementById('sponsorGrid');
     const loading = document.getElementById('loadingState');
 
     try {
-        // 1. Tarik murni dari database master_sponsors
+        // 2. Tarik murni dari database master_sponsors (Diurutkan dari yang terbaru)
         const { data, error } = await supabaseClient
             .from('master_sponsors')
             .select('*')
@@ -13,11 +36,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (error) throw error;
 
-        // 2. Matikan loading, tampilkan Grid
+        // 3. Matikan loading, tampilkan Grid
         loading.classList.add('hidden');
         grid.classList.remove('hidden');
 
-        // 3. Jika Database Kosong
+        // 4. Jika Database Kosong
         if (!data || data.length === 0) {
             grid.innerHTML = `
                 <div class="col-span-full text-center py-10">
@@ -27,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // 4. Rakit Kartu HTML
+        // 5. Rakit Kartu HTML
         let htmlContent = '';
         data.forEach(sponsor => {
             const logo = sponsor.logo_url || '/images/logo.png';
@@ -59,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <!-- Footer Card -->
                     <div class="flex justify-between items-center border-t border-slate-700/50 pt-3 mt-auto">
                         ${coverBadge}
-                        <span class="text-[9px] text-slate-500 font-bold">ID: ${sponsor.id}</span>
+                        <span class="text-[9px] text-slate-500 font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-700">ID: ${sponsor.id}</span>
                     </div>
 
                 </div>

@@ -6,9 +6,20 @@ let selectedEventConfig = {};
 let currentSelectedEventId = null;
 let masterSponsors = [];
 
-// State buat nampung URL gambar kalau admin milih dari Master Bank
 let reusedLogoUrl = null;
 let reusedCoverUrl = null;
+
+// ==========================================
+// HELPER: PARSE JSON AMAN (ANTI DATA CORRUPT)
+// ==========================================
+function safeParseConfig(configRaw) {
+    if (!configRaw) return {};
+    if (typeof configRaw === 'object') return configRaw;
+    if (typeof configRaw === 'string') {
+        try { return JSON.parse(configRaw); } catch (e) { return {}; }
+    }
+    return {};
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -63,12 +74,15 @@ function renderEventTable() {
     }
 
     filteredEvents.forEach((ev, index) => {
-        const hasAds = ev.config && ev.config.ads_sponsor_name;
+        // Terapkan Parse Aman di Tabel
+        const configObj = safeParseConfig(ev.config);
+        const hasAds = configObj && configObj.ads_sponsor_name;
+        
         const statusBadge = hasAds 
             ? `<span class="bg-emerald-900/40 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest">Active</span>`
             : `<span class="bg-slate-800 text-slate-500 border border-slate-700 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest">Kosong</span>`;
         
-        const sponsorName = hasAds ? `<p class="text-[9px] text-emerald-500/70 font-bold mt-1 truncate max-w-[200px]">Ads: ${ev.config.ads_sponsor_name}</p>` : '';
+        const sponsorName = hasAds ? `<p class="text-[9px] text-emerald-500/70 font-bold mt-1 truncate max-w-[200px]">Ads: ${configObj.ads_sponsor_name}</p>` : '';
 
         const isSelected = currentSelectedEventId == ev.id;
         const rowClass = isSelected 
@@ -120,12 +134,12 @@ window.pilihEventLomba = function(eventId) {
     document.getElementById('uploadCover').value = '';
     document.getElementById('statusMsg').classList.add('hidden');
 
-    selectedEventConfig = event.config || {};
+    // Terapkan Parse Aman pas event dipilih
+    selectedEventConfig = safeParseConfig(event.config);
 
     document.getElementById('inputSponsorName').value = selectedEventConfig.ads_sponsor_name || '';
     document.getElementById('inputSponsorUrl').value = selectedEventConfig.ads_link_url || '';
 
-    // FIX VISUAL: Hide preview kalau kosong
     const previewLogo = document.getElementById('previewLogo');
     if (selectedEventConfig.ads_sponsor_logo) {
         previewLogo.src = selectedEventConfig.ads_sponsor_logo;
@@ -220,7 +234,6 @@ window.useMasterSponsor = function(encodedData) {
     reusedLogoUrl = sponsor.logo_url || '';
     reusedCoverUrl = sponsor.cover_url || '';
     
-    // FIX VISUAL: Sembunyikan jika kosong
     const previewLogo = document.getElementById('previewLogo');
     if (reusedLogoUrl) {
         previewLogo.src = reusedLogoUrl;
@@ -300,6 +313,22 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
     statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-amber-900/30 text-amber-400 block mt-4 border border-amber-500/30";
 
     try {
+        // ==========================================
+        // 1. FRESH FETCH: Anti-Tabrakan dgn Settings Lomba!
+        // ==========================================
+        const { data: freshEvent, error: fetchErr } = await supabaseClient
+            .from('events')
+            .select('config')
+            .eq('id', currentSelectedEventId)
+            .single();
+
+        if (fetchErr) throw fetchErr;
+
+        let freshConfig = safeParseConfig(freshEvent.config);
+
+        // ==========================================
+        // 2. UPLOAD GAMBAR BARU (JIKA ADA)
+        // ==========================================
         let finalLogoUrl = reusedLogoUrl || '';
         let finalCoverUrl = reusedCoverUrl || '';
         let isNewUpload = false;
@@ -315,8 +344,11 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
             isNewUpload = true;
         }
 
+        // ==========================================
+        // 3. MERGE DATA FRESH DENGAN DATA IKLAN
+        // ==========================================
         const newConfig = {
-            ...selectedEventConfig,
+            ...freshConfig, // Isi koper dari DB tidak dihancurkan
             ads_sponsor_name: valName,
             ads_sponsor_logo: finalLogoUrl,
             ads_cover_a4: finalCoverUrl,
@@ -325,6 +357,7 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
 
         statusMsg.innerText = "Menyuntikkan Iklan ke Event...";
 
+        // 4. SAVE KE DATABASE
         const { error: updateError } = await supabaseClient
             .from('events')
             .update({ config: newConfig })
@@ -332,6 +365,7 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
 
         if (updateError) throw updateError;
 
+        // 5. UPDATE MASTER BANK SPONSOR
         if (valName && (isNewUpload || !masterSponsors.some(s => s.sponsor_name === valName))) {
             const existing = masterSponsors.find(s => s.sponsor_name.toLowerCase() === valName.toLowerCase());
             if (existing) {
@@ -346,6 +380,7 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
             loadMasterBank(); 
         }
 
+        // 6. RE-RENDER TABEL LOKAL
         selectedEventConfig = newConfig;
         reusedLogoUrl = finalLogoUrl;
         reusedCoverUrl = finalCoverUrl;
@@ -356,7 +391,7 @@ document.getElementById('btnSaveAds').addEventListener('click', async () => {
         filteredEvents = [...eventsData]; 
         renderEventTable();
 
-        statusMsg.innerText = "✅ BOOM! Iklan berhasil disuntikkan ke Event!";
+        statusMsg.innerText = "✅ BOOM! Iklan berhasil disuntikkan permanen ke Event!";
         statusMsg.className = "text-sm font-bold text-center rounded-lg p-3 bg-emerald-900/30 text-emerald-400 block mt-4 border border-emerald-500/30";
 
     } catch (err) {

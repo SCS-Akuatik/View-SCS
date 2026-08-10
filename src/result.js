@@ -212,7 +212,6 @@ function renderResults(eventNumber) {
         }
 
         // ==========================================
-        // ==========================================
         // NEW: INJEKSI HEADER SPONSOR KHUSUS (ROUND ROBIN)
         // ==========================================
         let eventSponsorHeader = '';
@@ -222,20 +221,28 @@ function renderResults(eventNumber) {
             const sp = activeSponsors[spIndex];
             
             eventSponsorHeader = `
-                <a href="${sp.link_url || '#'}" target="_blank" class="flex items-center justify-between bg-slate-50 hover:bg-amber-50/80 transition-colors border-b border-slate-200 px-4 py-2.5 -mx-3 -mt-3 md:-mx-4 md:-mt-4 mb-3 rounded-t-xl group">
-                    <div class="flex items-center gap-1.5 flex-1 min-w-0 pr-3">
+                <a href="${sp.link_url || '#'}" target="_blank" class="flex items-center justify-between bg-slate-50 hover:bg-amber-50/80 transition-colors border-b border-slate-200 px-4 py-3 -mx-3 -mt-3 md:-mx-4 md:-mt-4 mb-3 rounded-t-xl group">
+                    
+                    <!-- Kiri: Teks & Tagline -->
+                    <div class="flex flex-col md:flex-row md:items-center gap-0.5 md:gap-2 flex-1 min-w-0 pr-4">
                         <span class="text-[9px] md:text-[10px] font-black text-slate-400 group-hover:text-amber-500 uppercase tracking-widest transition-colors shrink-0">
                             Supported By:
                         </span>
-                        <!-- NAMA SPONSOR / TAGLINE DISUNTIK DI SINI -->
-                        <span class="text-[10px] md:text-xs font-bold text-slate-600 group-hover:text-amber-700 truncate transition-colors">
+                        <span class="text-xs md:text-sm font-bold text-slate-700 group-hover:text-amber-700 truncate transition-colors leading-tight">
                             ${sp.sponsor_name}
                         </span>
                     </div>
-                    <img src="${sp.logo_url || '/images/logo.png'}" class="h-5 md:h-6 object-contain opacity-80 group-hover:opacity-100 transition-opacity shrink-0">
+                    
+                    <!-- Kanan: Logo Sponsor (DI GEDEIN) -->
+                    <!-- Hapus shrink-0 dan naikin nilai 'h' (tinggi) & 'max-w' (lebar maksimal) -->
+                    <div class="flex justify-end w-[80px] md:w-[120px]">
+                        <img src="${sp.logo_url || '/images/logo.png'}" class="h-8 md:h-10 max-w-full object-contain drop-shadow-sm opacity-90 group-hover:opacity-100 transition-all group-hover:scale-105">
+                    </div>
+                    
                 </a>
             `;
         }
+
 
         htmlContent += `
         <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-slate-200 mb-4 overflow-hidden relative">

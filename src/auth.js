@@ -88,28 +88,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // LOGIKA LOGIN GOOGLE (VERSI CUSTOM DOMAIN)
     // ==========================================
     if (btnGoogleLogin) {
-        // Kita timpa tombol lama dengan tombol resmi Google yang anti-redirect
-        btnGoogleLogin.innerHTML = ''; 
-        btnGoogleLogin.className = 'flex justify-center w-full'; // Merapikan posisi
+        btnGoogleLogin.innerHTML = ''; // Kosongkan text lama
+        btnGoogleLogin.className = 'flex justify-center w-full mt-2'; // Pastikan rata tengah
 
-        window.onload = () => {
+        const renderGoogleButton = () => {
+            // Cek apakah script Google dari HTML sudah selesai dimuat, kalau belum, tunggu 100ms
+            if (typeof google === 'undefined' || !google.accounts) {
+                setTimeout(renderGoogleButton, 100); 
+                return;
+            }
+
             // 1. Inisialisasi Google Auth
             google.accounts.id.initialize({
-                client_id: '1047924463495-3virdj082194chl013ia1js0ls8c99rv.apps.googleusercontent.com', // Client ID milikmu
+                client_id: '1047924463495-3virdj082194chl013ia1js0ls8c99rv.apps.googleusercontent.com',
                 callback: async (response) => {
-                    // response.credential berisi token JWT langsung dari Google
-                    console.log("Token dari Google didapat, memproses ke Supabase...");
-                    
                     try {
-                        // 2. Kirim token ke Supabase (Tanpa perlu redirect halaman!)
                         const { data, error } = await supabaseClient.auth.signInWithIdToken({
                             provider: 'google',
                             token: response.credential,
                         });
 
                         if (error) throw error;
-                        
-                        // 3. Login berhasil! Langsung lempar ke dashboard
                         window.location.replace('/dashboard.html');
                     } catch (err) {
                         alert("Gagal login Google: " + translateAuthError(err));
@@ -117,12 +116,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            // 4. Munculkan tombol Google yang profesional di frontend
+            // 2. Gambar tombol Google yang rapi
             google.accounts.id.renderButton(
                 btnGoogleLogin, 
-                { theme: "outline", size: "large", type: "standard", width: "100%", text: "continue_with" } 
+                { 
+                    theme: "outline", 
+                    size: "large", 
+                    text: "continue_with",
+                    shape: "rectangular"
+                } 
             );
         };
+
+        // Eksekusi fungsinya
+        renderGoogleButton();
     }
 
 

@@ -32,7 +32,7 @@ async function fetchEventName() {
             document.getElementById('headerEventName').innerText = data.event_name;
             
             // ==========================================
-            // INJEKSI BANNER (POSISI STATIS DI BAWAH FILTER)
+            // INJEKSI IKLAN (BRUTE FORCE KE WADAH KOSONG)
             // ==========================================
             let configObj = data.config;
             if (typeof configObj === 'string') {
@@ -43,21 +43,14 @@ async function fetchEventName() {
                 const partnerLogo = configObj.ads_sponsor_logo || '/images/logo.png';
                 const partnerLink = configObj.ads_link_url || '#';
                 
-                if(!document.getElementById('scs-global-info')) {
-                    const infoHtml = `
-                        <div id="scs-global-info" class="w-full bg-slate-900 rounded-2xl border border-amber-500/50 shadow-md mb-6 py-3 px-4 overflow-hidden">
-                            <a href="${partnerLink}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-4 cursor-pointer group">
-                                <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Partner</span>
-                                <img src="${partnerLogo}" alt="Official" class="h-8 md:h-10 object-contain drop-shadow-lg">
-                            </a>
-                        </div>
+                const wrapper = document.getElementById('partnerWrapper');
+                if(wrapper) {
+                    wrapper.innerHTML = `
+                        <a href="${partnerLink}" target="_blank" rel="noopener noreferrer" class="block w-full bg-slate-900 border border-amber-500/50 rounded-xl p-3 mb-6 shadow-md hover:bg-slate-800 transition-colors flex justify-center items-center gap-4">
+                            <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">Official Partner</span>
+                            <img src="${partnerLogo}" alt="Partner" class="h-10 md:h-12 object-contain drop-shadow-md">
+                        </a>
                     `;
-                    
-                    // Menyisipkan tepat di atas container hasil lomba (sesuai garis hijau)
-                    const resultContainer = document.getElementById('resultContainer');
-                    if (resultContainer) {
-                        resultContainer.insertAdjacentHTML('beforebegin', infoHtml);
-                    }
                 }
             }
         }

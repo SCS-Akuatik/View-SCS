@@ -35,6 +35,9 @@ async function fetchEventName() {
     } catch (err) { console.error(err); }
 }
 
+// ==========================================
+// NEW: SISTEM PENARIKAN MULTI-SPONSOR (FIXED GRID SIZE)
+// ==========================================
 async function fetchSponsors() {
     const wrapper = document.getElementById('partnerWrapper');
     if (!wrapper) return;
@@ -55,24 +58,26 @@ async function fetchSponsors() {
 
         if (spErr || !sponsors || sponsors.length === 0) return;
 
-        // UI Sponsor: Comfort View, No Border, Floating Look
         let html = `
             <div class="w-full mb-5 flex flex-col items-center justify-center">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">This event supported by:</span>
-                <div class="flex items-center justify-center gap-4 md:gap-6 flex-wrap w-full max-w-sm mx-auto">
+                
+                <!-- GRID FIXED: Biar semua logo dipaksa sejajar proporsional -->
+                <div class="flex items-center justify-center gap-3 md:gap-5 flex-wrap w-full">
         `;
 
-        // Atur dimensi beda kalau cuma 1 sponsor (biar agak manjang/besar) atau >1 sponsor
-        const imgClass = sponsors.length === 1 
-            ? "h-10 md:h-12 w-auto max-w-[200px] object-contain opacity-90 hover:opacity-100 transition-opacity" 
-            : "h-8 md:h-9 w-auto max-w-[120px] object-contain opacity-80 hover:opacity-100 transition-opacity";
+        // Logika: Kalo cuma 1 dibikin agak gede (tinggi 40px), kalo >1 dikecilin (tinggi 32px)
+        const containerClass = sponsors.length === 1 
+            ? "h-10 md:h-12 w-auto max-w-[200px]" 
+            : "h-8 md:h-10 w-auto max-w-[140px]";
 
         sponsors.forEach(sp => {
             const logo = sp.logo_url || '/images/logo.png';
             const link = sp.link_url || '#';
             html += `
-                <a href="${link}" target="_blank" rel="noopener noreferrer" class="block">
-                    <img src="${logo}" alt="${sp.sponsor_name}" title="${sp.sponsor_name}" class="${imgClass}">
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="block transition-transform hover:scale-110">
+                    <!-- img dibungkus dan di set object-contain biar dimensinya gak meleber -->
+                    <img src="${logo}" alt="${sp.sponsor_name}" title="${sp.sponsor_name}" class="${containerClass} object-contain opacity-90 hover:opacity-100 transition-opacity drop-shadow-sm bg-white/5 p-1 rounded">
                 </a>
             `;
         });
@@ -88,6 +93,7 @@ async function fetchSponsors() {
         console.error("Gagal menarik data sponsor:", err);
     }
 }
+
 
 async function fetchHeatsData(isFirstLoad = false) {
     const icon = document.getElementById('iconRefresh');

@@ -217,3 +217,4 @@ function triggerManualRefresh() {
     document.getElementById('countdownText').innerText = `${timeLeft}s`;
     document.getElementById('refreshProgressBar').style.width = `100%`;
 }
+

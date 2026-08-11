@@ -2,6 +2,15 @@ import { supabaseClient } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
+    if (sessionStorage.getItem('aztec_key') !== 'buka_sesame') {
+        document.body.innerHTML = `
+            <div style="height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#0f172a;color:#f87171;font-family:sans-serif;text-align:center;position:fixed;top:0;left:0;z-index:999999;">
+                <span style="font-size:6rem;margin-bottom:20px;">🗿</span>
+                <h1 style="font-size:3rem;font-weight:900;text-transform:uppercase;">Boss Pintunya ga disini 🤣</h1>
+            </div>`;
+        setTimeout(() => window.location.replace('/dashboard.html'), 2500);
+        return;
+    }
     if (error || !session) {
         window.location.replace('/auth.html');
         return;

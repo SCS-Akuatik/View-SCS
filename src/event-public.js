@@ -50,17 +50,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('pageTitle').innerText = `${eventData.event_name} | Pendaftaran Resmi`;
         document.getElementById('publicEventName').innerText = eventData.event_name;
 
-        // 📍 INJEK LOKASI LOMBA DI SINI
+        // =========================================================
+        // 📅 INJEK TANGGAL LOMBA
+        // =========================================================
+        let formattedDate = 'Tanggal belum ditentukan';
+        const rawDate = eventData.start_date || eventData.event_date || eventData.tanggal;
+        if (rawDate) {
+            try {
+                const dateObj = new Date(rawDate);
+                if (!isNaN(dateObj.getTime())) {
+                    formattedDate = dateObj.toLocaleDateString('id-ID', {
+                        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                    });
+                }
+            } catch (e) { console.error("Gagal memformat tanggal:", e); }
+        }
+        
+        const elTextTanggal = document.getElementById('textTanggal');
+        if (elTextTanggal) elTextTanggal.innerText = formattedDate;
+
+        // =========================================================
+        // 📍 INJEK LOKASI LOMBA
+        // =========================================================
         const namaKota = eventData.kota || '';
         const namaProvinsi = eventData.provinsi || '';
         const namaKolam = config.nama_kolam || '';
         
         let teksLokasiLengkap = '';
         if (namaKolam) teksLokasiLengkap += `${namaKolam} - `;
-        teksLokasiLengkap += (namaKota && namaProvinsi) ? `${namaKota}, ${namaProvinsi}` : 'Lokasi belum ditentukan';
+        if (namaKota && namaProvinsi) {
+            teksLokasiLengkap += `${namaKota}, ${namaProvinsi}`;
+        } else if (namaKota || namaProvinsi) {
+            teksLokasiLengkap += `${namaKota}${namaProvinsi}`;
+        } else {
+            teksLokasiLengkap = 'Lokasi belum ditentukan';
+        }
         
-        document.getElementById('textLokasi').innerText = teksLokasiLengkap;
+        const elTextLokasi = document.getElementById('textLokasi');
+        if (elTextLokasi) elTextLokasi.innerText = teksLokasiLengkap;
 
+        // =========================================================
+        // RENDER BACKGROUND & BIAYA
+        // =========================================================
         if (config.header_url) {
             document.getElementById('headerBannerContainer').style.backgroundImage = `url('${config.header_url}')`;
         }

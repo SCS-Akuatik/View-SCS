@@ -56,10 +56,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             document.getElementById('coverDate').innerText = formattedDate;
             
-            // 3. DYNAMIC BINDING: Lokasi Event dengan Fallback
-            // Antisipasi nama kolom di DB (location / venue_name / venue)
-            const venue = eventData.location || eventData.venue_name || eventData.venue;
-            document.getElementById('coverLocation').innerText = venue || 'Lokasi belum dikonfirmasi';
+            // 3. FIX DYNAMIC BINDING: Lokasi Event dengan Fallback (Nyontek dari event-public)
+            const config = eventData.config || {};
+            const namaKota = eventData.kota || '';
+            const namaProvinsi = eventData.provinsi || '';
+            const namaKolam = config.nama_kolam || '';
+            
+            let teksLokasiLengkap = '';
+            if (namaKolam) teksLokasiLengkap += `${namaKolam} - `;
+            if (namaKota && namaProvinsi) {
+                teksLokasiLengkap += `${namaKota}, ${namaProvinsi}`;
+            } else if (namaKota || namaProvinsi) {
+                teksLokasiLengkap += `${namaKota}${namaProvinsi}`;
+            }
+
+            document.getElementById('coverLocation').innerText = teksLokasiLengkap || 'Lokasi belum dikonfirmasi';
+
             
             // 4. Render Sponsor VIP di Cover
             await renderCoverSponsors();

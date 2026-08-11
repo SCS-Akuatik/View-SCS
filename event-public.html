@@ -12,13 +12,18 @@
 
     <div id="bgOverlay" class="fixed inset-0 z-[-1] bg-cover bg-center opacity-10 hidden"></div>
 
-    <!-- HEADER STICKY -->
-    <div id="headerBannerContainer" class="w-full bg-blue-900 bg-cover bg-center shadow-lg sticky top-0 z-50 h-32 md:h-40 transition-all border-b-4 border-yellow-400">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-slate-900/20 flex flex-col justify-end p-4 md:p-6">
+    <!-- HEADER STICKY (Tingginya udah disesuaikan biar muat Tanggal & Lokasi) -->
+    <div id="headerBannerContainer" class="w-full bg-blue-900 bg-cover bg-center shadow-lg sticky top-0 z-50 h-40 md:h-48 transition-all border-b-4 border-amber-400">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/50 to-transparent flex flex-col justify-end p-4 md:p-6">
             <h1 id="publicEventName" class="text-xl md:text-3xl font-black text-white tracking-tight drop-shadow-md truncate">Memuat Event...</h1>
             
-            <!-- 📍 LOKASI LOMBA DITAMBAHKAN DI SINI -->
-            <p id="publicEventLocation" class="text-slate-200 text-xs md:text-sm font-medium mt-1 flex items-center gap-1 drop-shadow-md">
+            <!-- 📅 TANGGAL LOMBA -->
+            <p id="publicEventDate" class="text-slate-200 text-xs md:text-sm font-medium mt-2 flex items-center gap-1.5 drop-shadow-md">
+                <span class="text-amber-400 text-base">📅</span> <span id="textTanggal">Memuat tanggal...</span>
+            </p>
+
+            <!-- 📍 LOKASI LOMBA -->
+            <p id="publicEventLocation" class="text-slate-200 text-xs md:text-sm font-medium mt-1 flex items-center gap-1.5 drop-shadow-md">
                 <span class="text-red-400 text-base">📍</span> <span id="textLokasi">Memuat lokasi...</span>
             </p>
 
@@ -26,7 +31,7 @@
                 <div class="flex items-center gap-1.5 text-slate-100 text-[10px] md:text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-sm">
                     <span>🏊‍♂️</span> <span id="statPesertaPublik">0 Terdaftar</span>
                 </div>
-                <div class="flex items-center gap-1.5 text-yellow-300 text-[10px] md:text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-sm">
+                <div class="flex items-center gap-1.5 text-amber-300 text-[10px] md:text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-sm">
                     <span>🔥</span> <span id="statHeatPublik">0 Heat Est.</span>
                 </div>
             </div>
@@ -38,7 +43,7 @@
         <!-- Kotak Informasi Biaya -->
         <div class="bg-blue-900 border border-blue-800 rounded-2xl p-5 shadow-lg text-sm relative overflow-hidden">
             <div class="absolute -right-4 -top-4 text-6xl opacity-10">💸</div>
-            <h3 class="font-bold text-yellow-400 mb-1 relative z-10">Informasi Biaya Pendaftaran</h3>
+            <h3 class="font-bold text-amber-400 mb-1 relative z-10">Informasi Biaya Pendaftaran</h3>
             <p id="infoBiayaNormal" class="text-blue-100 relative z-10">Biaya per nomor: Memuat...</p>
             <p id="infoDiskon" class="text-blue-200 text-xs mt-1 font-bold relative z-10"></p>
         </div>
@@ -194,7 +199,7 @@
 
     </div>
 
-    <!-- FLOATING WHATSAPP MENU (Pojok Kanan Bawah) -->
+    <!-- FLOATING WHATSAPP MENU -->
     <div class="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3">
         <div id="waMenuOptions" class="hidden flex-col gap-2 items-end mb-2 transition-all">
             <a id="btnWA_Admin1" href="#" target="_blank" class="hidden bg-white hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-2xl shadow-lg border border-slate-200 flex items-center gap-3 transition-transform hover:-translate-x-1">
@@ -212,7 +217,7 @@
         </button>
     </div>
 
-    <!-- MODAL WARNING REGION (SCS FOMO EFFECT) -->
+    <!-- MODAL WARNING REGION -->
     <div id="modalRegionWarning" class="fixed inset-0 bg-slate-900/80 z-[200] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 border-2 border-red-100 text-center p-6 md:p-8">
             <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100 text-4xl shadow-inner">

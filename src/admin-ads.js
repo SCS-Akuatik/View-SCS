@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
         if (sessionError || !session) return window.location.replace('/auth.html');
-        if (session.user.email !== 'radityaraja@gmail.com') return window.location.replace('/dashboard.html');
+
 
         // 1. Tarik Events
         const { data: events, error: errEvents } = await supabaseClient

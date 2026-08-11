@@ -11,10 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
         if (sessionError || !session) return window.location.replace('/auth.html');
-        if (session.user.email !== 'radityaraja@gmail.com') {
-            alert('Akses Ditolak! Halaman ini adalah area VIP khusus Super Admin SCS.');
-            return window.location.replace('/dashboard.html');
-        }
+
     } catch (authErr) {
         return window.location.replace('/auth.html');
     }

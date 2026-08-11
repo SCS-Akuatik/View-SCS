@@ -7,11 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    if (session.user.email !== 'radityaraja@gmail.com') {
-        alert("Akses Ditolak! Anda bukan Super Admin.");
-        window.location.replace('/dashboard.html');
-        return;
-    }
+
 
     document.getElementById('btnAdminLogout').addEventListener('click', async () => {
         await supabaseClient.auth.signOut();

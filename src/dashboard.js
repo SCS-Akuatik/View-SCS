@@ -1041,3 +1041,38 @@ if (btnSaveEvent) {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    let clickCount = 0;
+    let clickTimer;
+
+    const secretBtn = document.getElementById('secretAdminTrigger');
+    
+    if(secretBtn) {
+        secretBtn.addEventListener('click', () => {
+            clickCount++;
+            
+            // Hapus timer sebelumnya biar nggak ke-reset otomatis kalau masih nge-klik
+            clearTimeout(clickTimer);
+            
+            // Kalau sukses tap 3 kali
+            if (clickCount === 3) {
+                // Beri efek visual sedikit biar keren (opsional)
+                secretBtn.style.color = "#f59e0b"; // Berubah warna jadi amber
+                secretBtn.style.textShadow = "0 0 10px rgba(245,158,11,0.8)";
+                
+                // Teleportasi ke ruang rahasia
+                setTimeout(() => {
+                    window.location.href = '/admin.html';
+                }, 300);
+                
+                clickCount = 0; // Reset
+            }
+
+            // Kalau dalam 1.5 detik nggak nge-klik 3 kali, reset angkanya
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 1500);
+        });
+    }
+});

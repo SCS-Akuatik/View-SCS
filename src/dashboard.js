@@ -1041,9 +1041,7 @@ if (btnSaveEvent) {
         }
     });
 }
-// ==========================================
-// 🗿 THE AZTEC SECRET v2.0 (PELAN-PELAN) 🗿
-// ==========================================
+
 document.addEventListener('DOMContentLoaded', () => {
     let clickCount = 0;
     let clickTimer;
@@ -1055,13 +1053,12 @@ document.addEventListener('DOMContentLoaded', () => {
             clickCount++;
             clearTimeout(clickTimer);
             
-            // Reaksi pelan-pelan 1... 2... 3...
             if (clickCount === 1) {
-                secretBtn.style.color = "#3b82f6"; // Biru terang
+                secretBtn.style.color = "#3b82f6"; 
                 secretBtn.style.transform = "scale(1.05)";
             } 
             else if (clickCount === 2) {
-                secretBtn.style.color = "#f59e0b"; // Kuning/Amber
+                secretBtn.style.color = "#f59e0b"; 
                 secretBtn.style.transform = "scale(1.1)";
             } 
             else if (clickCount === 3) {
@@ -1069,10 +1066,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 secretBtn.style.textShadow = "0 0 15px rgba(239,68,68,0.8)";
                 secretBtn.style.transform = "scale(1.2)";
                 
-                // 🔑 INI KUNCI GAIBNYA! CUMA DIDAPET KALAU TAP 3 KALI
+
                 sessionStorage.setItem('aztec_key', 'buka_sesame');
 
-                // Teleportasi setelah 0.5 detik
+
                 setTimeout(() => {
                     window.location.href = '/admin.html';
                 }, 500);
@@ -1081,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Kalau berhenti ngetap selama 2 detik, reset lagi ke awal
+
             clickTimer = setTimeout(() => {
                 clickCount = 0;
                 secretBtn.style.color = ""; 

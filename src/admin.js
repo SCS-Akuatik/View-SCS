@@ -1,7 +1,9 @@
 import { supabaseClient } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    // ==========================================
+    // 🪤 1. THE AZTEC SECRET (JEBAKAN BATMAN)
+    // ==========================================
     if (sessionStorage.getItem('aztec_key') !== 'buka_sesame') {
         document.body.innerHTML = `
             <div style="height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#0f172a;color:#f87171;font-family:sans-serif;text-align:center;position:fixed;top:0;left:0;z-index:999999;">
@@ -11,13 +13,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => window.location.replace('/dashboard.html'), 2500);
         return;
     }
+
+    // ==========================================
+    // 2. CEK SESI LOGIN SUPABASE
+    // ==========================================
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
     if (error || !session) {
         window.location.replace('/auth.html');
         return;
     }
 
-
-
+    // Logout
     document.getElementById('btnAdminLogout').addEventListener('click', async () => {
         await supabaseClient.auth.signOut();
         window.location.replace('/auth.html');
@@ -138,6 +144,7 @@ function renderEditQueues(edits) {
     tbody.innerHTML = html;
 }
 
+// Render Clubs
 function renderClubs(clubs) {
     const tbody = document.getElementById('clubTableBody');
     if (clubs.length === 0) {
@@ -178,34 +185,52 @@ window.approveAthlete = async (f1_id) => {
     }
 }
 
-// Fungsi ACC Usulan Edit (Nge-replace data Master)
+// =========================================================
+// Fungsi ACC Usulan Edit (Auto-Fix F1 ID & Suntik Crown 👑)
+// =========================================================
 window.approveEdit = async (id, f1_id, new_name, new_dob, new_gender, new_foto_url, new_akta_url) => {
-    if (!confirm(`Yakin ACC perubahan data untuk F1 ID: ${f1_id}? Data master akan DITIMPA!`)) return;
+    if (!confirm(`Yakin ACC revisi untuk ${f1_id}? Sistem akan DITIMPA & F1 ID akan di-update otomatis!`)) return;
 
     try {
-        // 1. Timpa Data Master
+        // 1. ALGORITMA BEDAH F1 ID (AUTO-FIX TAHUN)
+        let updated_f1_id = f1_id; 
+        const newYearStr = new_dob.split('-')[0]; // Misal: "2021"
+        
+        if (newYearStr && newYearStr.length === 4) {
+            const newYearCode = newYearStr.substring(2, 4); // Ambil "21"
+            const uniqueSuffix = f1_id.substring(5); // Ambil buntutnya, misal "12345"
+            updated_f1_id = `F1-${newYearCode}${uniqueSuffix}`; // Jahit jadi "F1-2112345"
+        }
+
+        // 2. SUNTIK EMAS CROWN 👑
+        const namaSultan = `${new_name} 👑`;
+
+        // 3. SHOOT TO DATABASE (GOD MODE)
         const { error: errUpdate } = await supabaseClient
             .from('athletes')
             .update({
-                full_name: new_name,
+                f1_id: updated_f1_id,  // Update F1 ID baru
+                full_name: namaSultan, // Update nama + crown
                 dob: new_dob,
                 gender: new_gender,
                 foto_url: new_foto_url,
                 akta_url: new_akta_url,
-                is_verified: true // Karena udah dicek admin, langsung verified
+                is_verified: true
             })
-            .eq('f1_id', f1_id);
+            .eq('f1_id', f1_id); // Target baris pakai f1_id yang lama
+
         if (errUpdate) throw errUpdate;
 
-        // 2. Ganti Status Queue Jadi APPROVED
+        // 4. Ganti Status Queue Jadi APPROVED
         const { error: errQueue } = await supabaseClient
             .from('f1_edit_requests')
             .update({ status: 'APPROVED' })
             .eq('id', id);
+
         if (errQueue) throw errQueue;
 
-        alert("Data berhasil diubah dan diverifikasi ulang!");
-        loadAdminData();
+        alert(`BAM! Data berhasil diubah!\nF1 ID otomatis di-update menjadi: ${updated_f1_id} 👑`);
+        loadAdminData(); // Refresh UI
     } catch (err) {
         console.error(err);
         alert("Gagal ACC Edit: " + err.message);

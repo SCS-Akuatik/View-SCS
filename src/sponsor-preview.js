@@ -4,10 +4,7 @@ let reusedLogoUrl = null;
 let reusedCoverUrl = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    
-    // ==========================================
-    // 1. SECURITY LOCK: HANYA SUPER ADMIN
-    // ==========================================
+
     try {
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
         if (sessionError || !session) return window.location.replace('/auth.html');

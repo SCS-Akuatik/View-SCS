@@ -18,31 +18,73 @@
             flex-shrink: 0; 
         }
 
+        /* ==========================================
+           BLUEPRINT: DYNAMIC SPONSOR GRID
+           ========================================== */
+        .sponsor-section {
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        .sponsor-label {
+            display: block;
+            font-size: 0.70rem;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+        .sponsor-item {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f1f5f9;
+        }
+        .sponsor-item img {
+            width: auto;
+            object-fit: contain;
+            transition: transform 0.2s;
+        }
+
+        /* 1 Sponsor: Full Width */
+        .layout-1 { display: flex; justify-content: center; }
+        .layout-1 .sponsor-item img { max-height: 100px; }
+
+        /* 2 Sponsors: Equal Split */
+        .layout-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
+        .layout-2 .sponsor-item img { max-height: 60px; }
+
+        /* 3 Sponsors: Pyramid (1 Top, 2 Bottom) */
+        .layout-3 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
+        .layout-3 .sponsor-item:first-child { grid-column: span 2; }
+        .layout-3 .sponsor-item:first-child img { max-height: 80px; }
+        .layout-3 .sponsor-item:not(:first-child) img { max-height: 50px; }
+
+        /* 4+ Sponsors: Uniform Grid */
+        .layout-4plus { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; max-width: 600px; margin: 0 auto; }
+        @media (min-width: 768px) { .layout-4plus { grid-template-columns: repeat(4, 1fr); } }
+        .layout-4plus .sponsor-item img { max-height: 50px; }
+
         /* Presisi Mutlak Saat di-Print ke Kertas A4 / PDF */
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
-            
             body, html { height: auto !important; overflow: visible !important; background: white !important; margin: 0; padding: 0; }
             .print-flex-reset { display: block !important; height: auto !important; overflow: visible !important; }
-            
             nav, .sidebar-builder, #btnSimpanBuku, .print-hidden { display: none !important; }
-            
-            .a4-container { 
-                box-shadow: none !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                width: 100% !important; 
-                min-width: 100% !important;
-            }
-            
+            .a4-container { box-shadow: none !important; margin: 0 !important; padding: 0 !important; width: 100% !important; min-width: 100% !important; }
             .avoid-break { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 6mm; }
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+            .sponsor-item { border: 1px solid #e2e8f0 !important; } /* Pastikan border kotak sponsor ikut ke-print */
         }
     </style>
 </head>
 <body class="bg-slate-200 font-sans text-slate-800 min-h-screen flex flex-col print-flex-reset">
 
-    <!-- Top Action Bar (Tinggi diset fix 56px biar sticky sidebar ga meleset) -->
+    <!-- Top Action Bar -->
     <nav class="bg-slate-900 text-white shadow-md z-50 shrink-0 sticky top-0 h-[56px] print-hidden">
         <div class="px-4 h-full flex flex-wrap justify-between items-center gap-3">
             <div class="flex items-center gap-4">
@@ -64,10 +106,10 @@
         </div>
     </nav>
 
-    <!-- MAIN WORKSPACE: DIKUNCI MATI MODE DESKTOP -->
+    <!-- MAIN WORKSPACE -->
     <div class="flex flex-1 items-start w-full relative print-flex-reset">
         
-        <!-- SIDEBAR: DILOCK LEBARNYA DI 250PX, GAK BISA MELAR GAK BISA MENGKERUT -->
+        <!-- SIDEBAR BUILDER -->
         <div class="sidebar-builder w-[250px] min-w-[250px] max-w-[250px] shrink-0 bg-white border-r border-slate-200 flex flex-col z-40 sticky top-[56px] h-[calc(100vh-56px)] overflow-y-auto pb-4">
             <div class="p-4 border-b border-slate-100 bg-slate-50 shrink-0">
                 <h2 class="font-extrabold text-slate-800 text-sm mb-1">Susunan Acara</h2>
@@ -75,7 +117,6 @@
             </div>
             
             <div class="p-4 flex flex-col gap-4 shrink-0">
-                <!-- TOMBOL ACTION -->
                 <div class="flex flex-col gap-2">
                     <button id="btnAutoLoad" onclick="autoGenerateSemua()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-2.5 rounded-lg text-xs transition-colors shadow-md flex items-center justify-center gap-2">
                         <span>✨</span> Auto-Load Semua Lomba
@@ -134,22 +175,21 @@
         </div>
 
         <!-- RIGHT AREA: KERTAS A4 PREVIEW -->
-        <!-- min-w-0 adalah kunci rahasia Tailwind biar Kertas A4 gak nge-push Sidebar -->
         <div class="flex-1 min-w-0 overflow-x-auto bg-slate-300/50 p-4 md:p-8 print:p-0 print-flex-reset" id="printWrapper">
             <div class="a4-container relative" id="kertasA4">
                 
-                <!-- HEADER SPONSOR & EVENT -->
+                <!-- HEADER & EVENT NAME -->
                 <div class="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
                     <div class="text-left flex-1">
                         <h1 id="eventName" class="text-xl md:text-2xl font-black uppercase text-black tracking-tight">MEMUAT EVENT...</h1>
                         <p class="text-[10px] md:text-xs font-bold text-slate-700 mt-0.5 uppercase">Buku Acara (Start List) Resmi</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-[9px] font-mono text-slate-500">Generated by SCS (funswimming.my.id)</p>
+                        <p class="text-[9px] font-mono text-slate-500">Generated by SCS</p>
                     </div>
                 </div>
 
-                <!-- CONTAINER HEAT SHEET DI RENDER KE SINI -->
+                <!-- CONTAINER HEAT SHEET -->
                 <div id="heatContainer" class="space-y-6">
                     <div class="text-center p-10 text-slate-400 font-bold border-2 border-dashed border-slate-400 rounded-xl print-hidden">
                         👈 Susun Buku Acara.

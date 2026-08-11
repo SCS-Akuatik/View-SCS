@@ -23,33 +23,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: eventData } = await supabaseClient
             .from('events')
-            .select('event_name, config')
+            .select('event_name')
             .eq('id', currentEventId)
             .single();
 
         if (eventData) {
             document.getElementById('eventName').innerText = eventData.event_name;
-
-            // ==========================================
-            // INJEKSI SPONSOR DINAMIS VIA JS
-            // ==========================================
-            const config = eventData.config || {};
-            // Default ke logo SCS, nanti bisa diganti URL-nya dari settingan admin
-            const sponsorLogo = config.sponsor_logo || '/images/logo.png'; 
-            const sponsorNameText = config.sponsor_name || ''; 
             
-            const heatContainer = document.getElementById('heatContainer');
-            const oldBanner = document.getElementById('dynamicSponsorBanner');
-            if (oldBanner) oldBanner.remove();
-
-            const bannerHtml = `
-                <div id="dynamicSponsorBanner" class="w-full flex items-center justify-center gap-3 border-b-2 border-slate-200 pb-4 mb-6 mt-[-10px] print:mt-0">
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Official Sponsor:</span>
-                    <img src="${sponsorLogo}" alt="Sponsor" class="h-6 object-contain grayscale opacity-80">
-                    ${sponsorNameText ? `<span class="text-[10px] font-black text-slate-700 uppercase">${sponsorNameText}</span>` : ''}
-                </div>
-            `;
-            heatContainer.insertAdjacentHTML('beforebegin', bannerHtml);
+            // ==========================================
+            // RENDER DYNAMIC SPONSOR GRID (BLUEPRINT)
+            // ==========================================
+            await renderDynamicSponsorGrid();
         }
 
         // Tarik data atlet Lunas
@@ -69,6 +53,65 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// ==========================================
+// AUTO-DETECT & RENDER GRID LOGIC
+// ==========================================
+async function renderDynamicSponsorGrid() {
+    try {
+        const { data: linkData } = await supabaseClient
+            .from('event_sponsors')
+            .select('sponsor_ids')
+            .eq('event_id', currentEventId)
+            .single();
+
+        if (!linkData || !linkData.sponsor_ids || linkData.sponsor_ids.length === 0) return;
+
+        const { data: sponsors } = await supabaseClient
+            .from('master_sponsors')
+            .select('*')
+            .in('id', linkData.sponsor_ids);
+
+        if (!sponsors || sponsors.length === 0) return;
+
+        const count = sponsors.length;
+        let layoutClass = 'layout-4plus';
+        if (count === 1) layoutClass = 'layout-1';
+        else if (count === 2) layoutClass = 'layout-2';
+        else if (count === 3) layoutClass = 'layout-3';
+
+        let sponsorsHtml = '';
+        sponsors.forEach(sp => {
+            // Include Fallback text, Lazy load, dan White Box
+            sponsorsHtml += `
+                <div class="sponsor-item">
+                    <img src="${sp.logo_url}" alt="${sp.sponsor_name}" loading="lazy" 
+                         onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'font-size:10px; font-weight:900; color:#94a3b8; text-align:center; text-transform:uppercase;\\'>${sp.sponsor_name}</span>';">
+                </div>
+            `;
+        });
+
+        const bannerHtml = `
+            <div id="dynamicSponsorBanner" class="sponsor-section border-b-2 border-slate-200 pb-6 mb-8 mt-[-10px] print:mt-0">
+                <span class="sponsor-label">THIS EVENT SUPPORTED BY:</span>
+                <div class="dynamic-layout ${layoutClass}">
+                    ${sponsorsHtml}
+                </div>
+            </div>
+        `;
+
+        const heatContainer = document.getElementById('heatContainer');
+        const oldBanner = document.getElementById('dynamicSponsorBanner');
+        if (oldBanner) oldBanner.remove();
+        
+        heatContainer.insertAdjacentHTML('beforebegin', bannerHtml);
+    } catch (err) {
+        console.error("Gagal merender grid sponsor:", err);
+    }
+}
+
+// ==========================================
+// CORE FUNGSI (TIDAK ADA YANG DIUBAH)
+// ==========================================
 function prepareData(rawRegistrations) {
     let uniqueNomor = new Set();
     let uniqueKU = new Set();
@@ -315,9 +358,6 @@ function generateSpearheadPattern(lanes) {
     return pattern;
 }
 
-// ==========================================
-// RENDER KERTAS A4 DENGAN KUNCI MATI KOLOM
-// ==========================================
 function renderKertasA4() {
     const container = document.getElementById('heatContainer');
     container.innerHTML = '';
@@ -388,7 +428,6 @@ function renderKertasA4() {
                     assignedLanes[targetLane] = heatSwimmers[k];
                 }
 
-                // max-w-0 DAN truncate DI SINI ADALAH KUNCI UTAMANYA!
                 for (let lintasan = 1; lintasan <= LINTASAN_MAX; lintasan++) {
                     if (assignedLanes[lintasan]) {
                         const swimmer = assignedLanes[lintasan];
@@ -410,7 +449,6 @@ function renderKertasA4() {
                     }
                 }
 
-                // w-10, w-1/2, w-1/3 mengunci proporsi kolom dengan sempurna
                 heatHtml += `
                 <div class="avoid-break mb-6 mt-4">
                     <div class="flex justify-between items-end border-b-2 border-slate-700 pb-1 mb-1">

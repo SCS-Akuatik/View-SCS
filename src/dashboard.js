@@ -1041,7 +1041,9 @@ if (btnSaveEvent) {
         }
     });
 }
-
+// ==========================================
+// 🗿 THE AZTEC SECRET v2.0 (PELAN-PELAN) 🗿
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     let clickCount = 0;
     let clickTimer;
@@ -1051,28 +1053,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if(secretBtn) {
         secretBtn.addEventListener('click', () => {
             clickCount++;
-            
-            // Hapus timer sebelumnya biar nggak ke-reset otomatis kalau masih nge-klik
             clearTimeout(clickTimer);
             
-            // Kalau sukses tap 3 kali
-            if (clickCount === 3) {
-                // Beri efek visual sedikit biar keren (opsional)
-                secretBtn.style.color = "#f59e0b"; // Berubah warna jadi amber
-                secretBtn.style.textShadow = "0 0 10px rgba(245,158,11,0.8)";
+            // Reaksi pelan-pelan 1... 2... 3...
+            if (clickCount === 1) {
+                secretBtn.style.color = "#3b82f6"; // Biru terang
+                secretBtn.style.transform = "scale(1.05)";
+            } 
+            else if (clickCount === 2) {
+                secretBtn.style.color = "#f59e0b"; // Kuning/Amber
+                secretBtn.style.transform = "scale(1.1)";
+            } 
+            else if (clickCount === 3) {
+                secretBtn.style.color = "#ef4444"; // Merah
+                secretBtn.style.textShadow = "0 0 15px rgba(239,68,68,0.8)";
+                secretBtn.style.transform = "scale(1.2)";
                 
-                // Teleportasi ke ruang rahasia
+                // 🔑 INI KUNCI GAIBNYA! CUMA DIDAPET KALAU TAP 3 KALI
+                sessionStorage.setItem('aztec_key', 'buka_sesame');
+
+                // Teleportasi setelah 0.5 detik
                 setTimeout(() => {
                     window.location.href = '/admin.html';
-                }, 300);
+                }, 500);
                 
-                clickCount = 0; // Reset
+                clickCount = 0;
+                return;
             }
 
-            // Kalau dalam 1.5 detik nggak nge-klik 3 kali, reset angkanya
+            // Kalau berhenti ngetap selama 2 detik, reset lagi ke awal
             clickTimer = setTimeout(() => {
                 clickCount = 0;
-            }, 1500);
+                secretBtn.style.color = ""; 
+                secretBtn.style.transform = "scale(1)";
+                secretBtn.style.textShadow = "none";
+            }, 2000);
         });
     }
 });

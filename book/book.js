@@ -21,19 +21,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
+        // Ambil Data Event (Nama, Tanggal, Lokasi)
         const { data: eventData } = await supabaseClient
             .from('events')
-            .select('event_name')
+            .select('*')
             .eq('id', currentEventId)
             .single();
 
         if (eventData) {
-            document.getElementById('eventName').innerText = eventData.event_name;
+            // Update Judul di Cover & Header Halaman Konten
+            document.getElementById('coverTitle').innerText = eventData.event_name || 'EVENT TANPA NAMA';
+            document.getElementById('contentTitle').innerText = eventData.event_name || 'EVENT TANPA NAMA';
             
-            // ==========================================
-            // RENDER DYNAMIC SPONSOR GRID (BLUEPRINT)
-            // ==========================================
-            await renderDynamicSponsorGrid();
+            // Format Tanggal & Lokasi (Kalau fieldnya ada di DB, kalau gak fallback teks default)
+            document.getElementById('coverDate').innerText = eventData.start_date || 'Tanggal Segera Diumumkan';
+            document.getElementById('coverLocation').innerText = eventData.location || 'Kolam Renang Resmi';
+            
+            // Render Sponsor VIP di Cover
+            await renderCoverSponsors();
         }
 
         // Tarik data atlet Lunas
@@ -54,9 +59,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ==========================================
-// AUTO-DETECT & RENDER GRID LOGIC
+// RENDER SPONSOR VIP DI HALAMAN COVER (THE GRAND ENTRANCE)
 // ==========================================
-async function renderDynamicSponsorGrid() {
+async function renderCoverSponsors() {
     try {
         const { data: linkData } = await supabaseClient
             .from('event_sponsors')
@@ -64,48 +69,39 @@ async function renderDynamicSponsorGrid() {
             .eq('event_id', currentEventId)
             .single();
 
-        if (!linkData || !linkData.sponsor_ids || linkData.sponsor_ids.length === 0) return;
+        const coverSponsorDiv = document.getElementById('coverSponsors');
+
+        if (!linkData || !linkData.sponsor_ids || linkData.sponsor_ids.length === 0) {
+            coverSponsorDiv.innerHTML = `<span class="text-xs text-slate-300 font-bold italic">Tanpa Dukungan Sponsor</span>`;
+            return;
+        }
 
         const { data: sponsors } = await supabaseClient
             .from('master_sponsors')
             .select('*')
             .in('id', linkData.sponsor_ids);
 
-        if (!sponsors || sponsors.length === 0) return;
+        if (!sponsors || sponsors.length === 0) {
+            coverSponsorDiv.innerHTML = `<span class="text-xs text-slate-300 font-bold italic">Tanpa Dukungan Sponsor</span>`;
+            return;
+        }
 
-        const count = sponsors.length;
-        let layoutClass = 'layout-4plus';
-        if (count === 1) layoutClass = 'layout-1';
-        else if (count === 2) layoutClass = 'layout-2';
-        else if (count === 3) layoutClass = 'layout-3';
+        // AMBIL MAKSIMAL 3 SPONSOR UTAMA (Sesuai Arahan Bos)
+        const platinumSponsors = sponsors.slice(0, 3);
+        let spHtml = '';
 
-        let sponsorsHtml = '';
-        sponsors.forEach(sp => {
-            // Include Fallback text, Lazy load, dan White Box
-            sponsorsHtml += `
-                <div class="sponsor-item">
-                    <img src="${sp.logo_url}" alt="${sp.sponsor_name}" loading="lazy" 
-                         onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'font-size:10px; font-weight:900; color:#94a3b8; text-align:center; text-transform:uppercase;\\'>${sp.sponsor_name}</span>';">
-                </div>
+        platinumSponsors.forEach(sp => {
+            spHtml += `
+                <img src="${sp.logo_url}" 
+                     alt="${sp.sponsor_name}" 
+                     class="transition-transform hover:scale-105"
+                     onerror="this.onerror=null; this.outerHTML='<div class=\\'bg-white border border-slate-200 px-4 py-2 rounded shadow-sm text-sm font-black text-slate-400 uppercase\\'>${sp.sponsor_name}</div>';">
             `;
         });
 
-        const bannerHtml = `
-            <div id="dynamicSponsorBanner" class="sponsor-section border-b-2 border-slate-200 pb-6 mb-8 mt-[-10px] print:mt-0">
-                <span class="sponsor-label">THIS EVENT SUPPORTED BY:</span>
-                <div class="dynamic-layout ${layoutClass}">
-                    ${sponsorsHtml}
-                </div>
-            </div>
-        `;
-
-        const heatContainer = document.getElementById('heatContainer');
-        const oldBanner = document.getElementById('dynamicSponsorBanner');
-        if (oldBanner) oldBanner.remove();
-        
-        heatContainer.insertAdjacentHTML('beforebegin', bannerHtml);
+        coverSponsorDiv.innerHTML = spHtml;
     } catch (err) {
-        console.error("Gagal merender grid sponsor:", err);
+        console.error("Gagal merender sponsor cover:", err);
     }
 }
 

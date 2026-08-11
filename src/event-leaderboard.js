@@ -4,6 +4,7 @@ let eventData = null;
 let certTemplateUrl = null;
 let templateImage = new Image();
 let baseConfig = null;
+let activeSponsors = []; // Wadah sponsor untuk round-robin Ads
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -21,31 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('eventName').innerText = event.event_name;
             eventData = event;
 
-            // ==========================================
-            // INJEKSI IKLAN SPONSOR (STEALTH MODE)
-            // ==========================================
-            let configObj = event.config;
-            if (typeof configObj === 'string') {
-                try { configObj = JSON.parse(configObj); } catch(e) {}
-            }
-
-            if (configObj && configObj.ads_sponsor_name) {
-                const sponsorLogo = configObj.ads_sponsor_logo || '/images/logo.png';
-                const sponsorLink = configObj.ads_link_url || '#';
-                
-                if(!document.getElementById('scs-exclusive-partner')) {
-                    const partnerHtml = `
-                        <div id="scs-exclusive-partner" class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-amber-500/50 shadow-[0_-10px_20px_rgba(0,0,0,0.4)] z-[99999] py-2 md:py-3 px-4">
-                            <a href="${sponsorLink}" target="_blank" rel="noopener noreferrer" class="max-w-4xl mx-auto flex items-center justify-center gap-4 cursor-pointer group">
-                                <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Official Partner</span>
-                                <img src="${sponsorLogo}" alt="Brand" class="h-8 md:h-10 object-contain drop-shadow-lg">
-                            </a>
-                        </div>
-                    `;
-                    document.body.insertAdjacentHTML('beforeend', partnerHtml);
-                    document.body.style.paddingBottom = '70px';
-                }
-            }
+            // 1. TARIK & RENDER SPONSOR DARI DATABASE
+            await fetchAndRenderSponsors(eventId);
         }
 
         // Ambil Template Juara
@@ -67,6 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
+        // Ambil Data Leaderboard
         const { data: juara, error: errJuara } = await supabaseClient
             .from('event_leaderboard')
             .select('*')
@@ -83,6 +62,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// ==========================================
+// MESIN IKLAN: RENDER SPONSOR 3 LAPIS
+// ==========================================
+async function fetchAndRenderSponsors(eventId) {
+    try {
+        const { data: linkData } = await supabaseClient
+            .from('event_sponsors')
+            .select('sponsor_ids')
+            .eq('event_id', eventId)
+            .single();
+
+        if (!linkData || !linkData.sponsor_ids || linkData.sponsor_ids.length === 0) return;
+
+        const { data: sponsors } = await supabaseClient
+            .from('master_sponsors')
+            .select('*')
+            .in('id', linkData.sponsor_ids);
+
+        if (!sponsors || sponsors.length === 0) return;
+        
+        activeSponsors = sponsors;
+
+        // LAPIS 1: TOP BANNER AWARENESS
+        const wrapper = document.getElementById('partnerWrapper');
+        if (wrapper) {
+            let html = `
+                <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-200 text-center mb-6">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Official Event Partners:</span>
+                    <div class="flex items-center justify-center gap-4 md:gap-6 flex-wrap w-full">
+            `;
+            let boxWidth = sponsors.length === 1 ? '160px' : (sponsors.length === 2 ? '120px' : '90px');
+            
+            sponsors.forEach(sp => {
+                html += `
+                    <a href="${sp.link_url || '#'}" target="_blank" class="bg-white p-2 rounded-xl border border-slate-100 shadow-sm flex items-center justify-center shrink-0 transition-transform hover:scale-105" style="aspect-ratio: 16/9; width: ${boxWidth}; max-width: 100%;">
+                        <img src="${sp.logo_url}" alt="${sp.sponsor_name}" class="w-full h-full object-contain" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'text-[10px] font-black text-slate-400 text-center uppercase\\'>${sp.sponsor_name}</span>';">
+                    </a>
+                `;
+            });
+            html += `</div></div>`;
+            wrapper.innerHTML = html;
+        }
+
+        // LAPIS 3: STICKY EXCLUSIVE PARTNER (Ambil Sponsor Urutan Pertama sbg VIP)
+        const vipSponsor = sponsors[0]; 
+        if(!document.getElementById('scs-exclusive-partner')) {
+            const partnerHtml = `
+                <div id="scs-exclusive-partner" class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-amber-500/50 shadow-[0_-10px_20px_rgba(0,0,0,0.4)] z-[99999] py-2 md:py-3 px-4">
+                    <a href="${vipSponsor.link_url || '#'}" target="_blank" rel="noopener noreferrer" class="max-w-4xl mx-auto flex items-center justify-center gap-4 cursor-pointer group">
+                        <span class="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-400 transition-colors">Exclusive Partner</span>
+                        <div class="bg-white p-1 rounded-md border border-slate-700 flex items-center justify-center transition-transform group-hover:scale-105" style="aspect-ratio: 16/9; height: 36px;">
+                            <img src="${vipSponsor.logo_url}" alt="${vipSponsor.sponsor_name}" class="h-full w-full object-contain" onerror="this.style.display='none'">
+                        </div>
+                    </a>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', partnerHtml);
+            document.body.style.paddingBottom = '70px'; // Beri jarak scroll bawah
+        }
+
+    } catch (err) { console.error("Gagal menarik data sponsor:", err); }
+}
+
 function renderLeaderboard(data) {
     const listContainer = document.getElementById('leaderboardList');
     const loading = document.getElementById('loadingIndicator');
@@ -92,8 +134,8 @@ function renderLeaderboard(data) {
     if (!data || data.length === 0) {
         listContainer.classList.remove('hidden');
         listContainer.innerHTML = `
-            <div class="text-center py-10">
-                <span class="text-4xl block mb-2">🏁</span>
+            <div class="text-center py-10 border-2 border-dashed border-slate-200 rounded-2xl">
+                <span class="text-4xl block mb-2 opacity-50">🏁</span>
                 <p class="text-slate-500 font-bold text-sm">Belum ada hasil resmi yang dipublish wasit.</p>
             </div>`;
         return;
@@ -101,6 +143,7 @@ function renderLeaderboard(data) {
 
     listContainer.classList.remove('hidden');
     
+    // Grouping by Nomor Lomba, Gender, KU
     const grouped = data.reduce((acc, curr) => {
         const key = `${curr.nomor_lomba} ${curr.gender} ${curr.kelompok_umur}`;
         if (!acc[key]) acc[key] = [];
@@ -109,13 +152,34 @@ function renderLeaderboard(data) {
     }, {});
 
     let html = '';
+    let categoryIndex = 0; // Buat Index Round-Robin Sponsor
     
     for (const [kategori, listJuara] of Object.entries(grouped)) {
+        
+        // LAPIS 2: TARGETED CATEGORY SPONSOR (Round-Robin Injeksi per Kategori)
+        let categorySponsorHtml = '';
+        if (activeSponsors.length > 0) {
+            const spIndex = categoryIndex % activeSponsors.length;
+            const sp = activeSponsors[spIndex];
+            categorySponsorHtml = `
+                <div class="bg-slate-50 border-b border-slate-100 p-2 md:p-3 flex justify-between items-center">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                        Supported By: <span class="text-blue-900">${sp.sponsor_name}</span>
+                    </span>
+                    <a href="${sp.link_url || '#'}" target="_blank" class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center hover:scale-105 transition-transform" style="aspect-ratio: 16/9; width: 50px;">
+                        <img src="${sp.logo_url}" class="w-full h-full object-contain" onerror="this.style.display='none'">
+                    </a>
+                </div>
+            `;
+        }
+
         html += `
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-            <div class="bg-slate-900 px-5 py-3 border-b border-slate-200">
-                <h4 class="font-black text-amber-400 text-sm tracking-wide uppercase">🏊‍♂️ ${kategori}</h4>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6 relative hover:shadow-md transition-shadow">
+            <div class="bg-slate-900 px-5 py-3 border-b border-slate-200 flex items-center gap-2">
+                <span class="text-lg">🏊‍♂️</span>
+                <h4 class="font-black text-amber-400 text-[13px] md:text-sm tracking-wide uppercase">${kategori}</h4>
             </div>
+            ${categorySponsorHtml}
             <div class="divide-y divide-slate-100">
         `;
 
@@ -138,22 +202,27 @@ function renderLeaderboard(data) {
                     <div class="flex items-center gap-4">
                         ${rankBadge}
                         <div>
-                            <h5 class="font-black text-slate-800 text-base uppercase tracking-tight">${j.nama_peserta}</h5>
-                            <p class="text-xs text-slate-500 font-bold mb-1">🏠 ${j.klub_asal}</p>
+                            <h5 class="font-black text-slate-800 text-sm md:text-base uppercase tracking-tight leading-tight">${j.nama_peserta}</h5>
+                            <p class="text-[10px] md:text-xs text-slate-500 font-bold mb-1 mt-0.5">🏠 ${j.klub_asal}</p>
                             <span class="inline-block bg-sky-100 text-sky-800 text-[10px] px-2 py-0.5 rounded font-black tracking-wider">⏱️ ${j.catatan_waktu}</span>
                         </div>
                     </div>
-                    <button onclick="downloadSertifikatJuara('${dataJuaraObj}')" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2 shrink-0">
+                    <button onclick="downloadSertifikatJuara('${dataJuaraObj}')" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2 shrink-0 border border-emerald-400">
                         <span>⬇️</span> Cetak Piagam
                     </button>
                 </div>
             `;
         });
         html += `</div></div>`;
+        
+        categoryIndex++; // Naikkan index untuk sponsor card selanjutnya
     }
     listContainer.innerHTML = html;
 }
 
+// ==========================================
+// FUNGSI RENDER CETAK PIAGAM (TIDAK DIUBAH)
+// ==========================================
 window.downloadSertifikatJuara = function(encodedData) {
     if (!certTemplateUrl) {
         alert("❌ Template belum disetting! Pastikan EO sudah upload template Juara di Dapur Admin.");

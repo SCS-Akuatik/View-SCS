@@ -10,15 +10,18 @@
 <body class="bg-slate-50 min-h-screen font-sans text-slate-800 pb-20">
 
     <!-- NAVBAR -->
-    <nav class="bg-slate-900 text-white shadow-md px-4 py-4 sticky top-0 z-50">
+    <nav class="bg-slate-900 text-white shadow-md px-4 py-4 sticky top-0 z-50 border-b-2 border-amber-500">
         <div class="max-w-4xl mx-auto flex flex-col gap-1">
-            <h1 class="text-sm font-bold text-amber-400">🏆 Hasil Resmi Pertandingan</h1>
-            <h2 id="eventName" class="text-lg font-black tracking-tight">Memuat Nama Event...</h2>
+            <h1 class="text-sm font-bold text-amber-400">🏆 Hasil Resmi Pertandingan (Leaderboard)</h1>
+            <h2 id="eventName" class="text-lg font-black tracking-tight truncate">Memuat Nama Event...</h2>
         </div>
     </nav>
 
     <div class="max-w-4xl mx-auto px-4 py-6">
         
+        <!-- WADAH BANNER SPONSOR UTAMA (Top Banner) -->
+        <div id="partnerWrapper"></div>
+
         <div class="mb-6 flex justify-between items-end border-b border-slate-200 pb-4">
             <div>
                 <h3 class="font-black text-2xl text-slate-800">Daftar Juara</h3>

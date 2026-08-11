@@ -29,15 +29,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             .single();
 
         if (eventData) {
-            // Update Judul di Cover & Header Halaman Konten
+            // 1. DYNAMIC BINDING: Judul Event
             document.getElementById('coverTitle').innerText = eventData.event_name || 'EVENT TANPA NAMA';
             document.getElementById('contentTitle').innerText = eventData.event_name || 'EVENT TANPA NAMA';
             
-            // Format Tanggal & Lokasi (Kalau fieldnya ada di DB, kalau gak fallback teks default)
-            document.getElementById('coverDate').innerText = eventData.start_date || 'Tanggal Segera Diumumkan';
-            document.getElementById('coverLocation').innerText = eventData.location || 'Kolam Renang Resmi';
+            // 2. DYNAMIC BINDING & FORMATTER: Tanggal Event (Indonesian Locale)
+            let formattedDate = 'Jadwal belum dikonfirmasi';
+            // Antisipasi nama kolom di DB (start_date / event_date / tanggal)
+            const rawDate = eventData.start_date || eventData.event_date || eventData.tanggal; 
             
-            // Render Sponsor VIP di Cover
+            if (rawDate) {
+                try {
+                    const dateObj = new Date(rawDate);
+                    // Pastikan format tanggal valid
+                    if (!isNaN(dateObj.getTime())) {
+                        formattedDate = dateObj.toLocaleDateString('id-ID', {
+                            weekday: 'long', 
+                            day: 'numeric', 
+                            month: 'long', 
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) {
+                    console.error("Gagal memformat tanggal:", e);
+                }
+            }
+            document.getElementById('coverDate').innerText = formattedDate;
+            
+            // 3. DYNAMIC BINDING: Lokasi Event dengan Fallback
+            // Antisipasi nama kolom di DB (location / venue_name / venue)
+            const venue = eventData.location || eventData.venue_name || eventData.venue;
+            document.getElementById('coverLocation').innerText = venue || 'Lokasi belum dikonfirmasi';
+            
+            // 4. Render Sponsor VIP di Cover
             await renderCoverSponsors();
         }
 

@@ -4,7 +4,7 @@
     <script>
         (function() {
             const host = window.location.hostname;
-            if (host !== 'f1swimming.com' && host !== 'www.f1swimming.com' && host !== 'localhost' && !host.includes('vercel.app')) {
+            if (host !== 'funswimming.my.id' && host !== 'www.funswimming.my.id' && host !== 'localhost' && !host.includes('vercel.app')) {
                 window.location.replace('/event-public.html');
             }
         })();
@@ -12,21 +12,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCS - Swimming Competition System</title>
-    <meta name="description" content="Revolusi manajemen kejuaraan renang. Dari pendaftaran, drawing seri otomatis, hingga hasil lomba dalam satu Command Center.">
-    <meta property="og:title" content="SCS - Swimming Competition System">
-    <meta property="og:description" content="Revolusi manajemen kejuaraan renang di Indonesia. Dapatkan F1 ID Anda sekarang.">
-    <meta property="og:image" content="https://f1swimming.com/images/f1meta.jpg">
-    <meta property="og:url" content="https://f1swimming.com">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://f1swimming.com/images/f1meta.jpg">
     <link rel="stylesheet" href="/src/style.css">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e3a8a">
     <link rel="apple-touch-icon" href="/images/logo.png">
+
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         @keyframes marquee {
             0% { transform: translateX(100vw); }
             100% { transform: translateX(-100%); }
@@ -44,23 +38,27 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased relative">
-    
+
+    <!-- Tombol Auth Mengambang (Diubah oleh JS kalau sudah Login) -->
     <a href="/auth.html" id="floatingAuthBtn" class="fixed top-3 right-14 md:top-4 md:right-6 z-[100] bg-scsBlue text-white font-extrabold px-5 py-1.5 text-xs md:text-sm rounded-full shadow-md hover:bg-blue-900 transition-all border border-blue-900 flex items-center gap-1.5">
         <span id="floatingAuthText">Masuk</span>
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
     </a>
-    
-    <a href="https://wa.me/" target="_blank" class="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-[100] bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_10px_20px_rgba(37,211,102,0.4)] hover:bg-[#1ebd5a] hover:-translate-y-1 hover:scale-105 transition-all duration-300 group">
-        <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.384 0 12.03c0 2.122.553 4.195 1.603 6.012L.266 23.36l5.474-1.44c1.764.954 3.738 1.458 5.753 1.458h.005c6.645 0 12.029-5.385 12.029-12.03S18.676 0 12.031 0zm.005 21.411c-1.785 0-3.528-.481-5.06-1.388l-.363-.214-3.766.988.997-3.673-.235-.375a10.052 10.052 0 01-1.542-5.35c0-5.556 4.524-10.08 10.086-10.08 2.693 0 5.221 1.05 7.121 2.956a10.06 10.06 0 012.952 7.119c0 5.555-4.523 10.075-10.08 10.075zm5.525-7.55c-.303-.152-1.792-.885-2.071-.987-.278-.1-.481-.152-.684.151-.202.304-.784.987-.96 1.189-.177.203-.355.228-.658.076-.303-.152-1.28-.472-2.438-1.332-.904-.672-1.512-1.503-1.69-1.807-.176-.303-.018-.467.133-.618.134-.135.303-.354.455-.53.152-.178.203-.304.304-.507.101-.203.05-.38-.025-.531-.076-.152-.684-1.644-.937-2.25-.246-.593-.496-.512-.684-.521-.176-.01-.38-.012-.583-.012-.202 0-.53.076-.809.38-.278.303-1.062 1.038-1.062 2.532s1.088 2.937 1.24 3.139c.152.203 2.14 3.272 5.185 4.536.724.3 1.288.479 1.728.613.725.23 1.385.197 1.905.12.583-.086 1.792-.733 2.044-1.442.253-.709.253-1.317.177-1.442-.076-.127-.279-.203-.583-.355z"/></svg>
-        <span class="absolute top-0 right-0 flex h-3.5 w-3.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-white"></span>
-        </span>
+    <!-- Tombol F1 ID Menempel di Kiri Bawah (Ala Spiderman) -->
+    <a href="/f1-profile.html" class="fixed bottom-8 md:bottom-12 left-0 z-[100] bg-red-600 text-white px-4 py-3 rounded-r-2xl shadow-[6px_6px_20px_rgba(220,38,38,0.3)] hover:bg-red-700 transition-all duration-300 border-y border-r border-red-800 flex items-center gap-3 group hover:pl-6 hover:shadow-[8px_8px_25px_rgba(220,38,38,0.5)]">
+        <div class="bg-white/20 p-2 rounded-xl group-hover:scale-110 transition-transform">
+            🪪
+        </div>
+        <div class="flex flex-col text-left">
+            <span class="text-[10px] uppercase tracking-widest text-red-200 font-black mb-0.5">KTP Digital Atlet</span>
+            <span class="text-sm md:text-base font-black leading-none drop-shadow-sm">Cek F1 ID &raquo;</span>
+        </div>
     </a>
 
     <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full z-50 top-0 h-14 md:h-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
             <div class="flex justify-between items-center h-full">
+                <!-- LOGO -->
                 <div class="flex-shrink-0 flex items-center h-full py-1">
                     <a href="/" class="block">
                         <img class="max-h-12 md:max-h-14 w-auto object-contain hover:scale-105 transition-transform duration-200" src="/images/logo.png" alt="SCS Logo">
@@ -95,7 +93,7 @@
 
     <div class="fixed top-14 md:top-16 left-0 w-full bg-blue-950 shadow-md border-b border-blue-800 py-1.5 z-40 marquee-container">
         <div class="animate-marquee text-scsGold font-bold text-xs md:text-sm tracking-wide flex gap-12 items-center">
-            <span>📢 EKSKLUSIF: Daftarkan event Anda bulan ini, Nikmati semua fitur SCS seperti : Form pendaftaran, dashboard panitia lengkap hingga generate buku acara dan sertifikat auto GRATIS!</span>
+            <span>📢 EKSKLUSIF: Daftarkan event Anda bulan ini, Nikmati semua fitur SCS seperti : Form pendaftaran,dashboard panitia lengkap hingga generate buku acara dan sertifikat auto  GRATIS!</span>
             <span class="opacity-50 text-white">•</span>
             <span class="text-white">🔥 Kuota Terbatas untuk 5 Event Pertama!</span>
             <span class="opacity-50 text-white">•</span>
@@ -103,167 +101,130 @@
         </div>
     </div>
 
-    <section class="relative w-full h-[calc(100vh-3.5rem)] md:h-screen pt-14 md:pt-16 flex max-md:block overflow-hidden">
-        <div class="w-full md:w-1/2 h-full absolute md:relative inset-0 md:inset-auto bg-white z-20 flex flex-col max-md:justify-start max-md:items-start md:justify-center md:items-start p-8 md:p-16 lg:px-20 max-md:pt-[15vh] max-md:pl-6 max-md:pr-0 max-md:[clip-path:polygon(0_0,100%_0,0_100%)] md:border-r border-gray-200 transition-all duration-700 ease-in-out hover:md:w-[60%] group">
-            <div class="absolute inset-0 z-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+    <!-- HERO SECTION SLIDER (WHITE GOLD GRID THEME) -->
+    <section class="pt-32 md:pt-40 pb-12 lg:pb-16 bg-white relative overflow-hidden group">
+        
+        <div class="absolute inset-0 z-0" style="background-image: linear-gradient(to right, rgba(217, 119, 6, 0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(217, 119, 6, 0.15) 1px, transparent 1px); background-size: 40px 40px;"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white z-0 pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-white via-transparent to-transparent z-0 pointer-events-none"></div>
+        
+        <button id="heroPrev" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-full shadow-md transition opacity-0 group-hover:opacity-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button id="heroNext" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-full shadow-md transition opacity-0 group-hover:opacity-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+
+        <div id="heroTrack" class="flex w-[300%] transition-transform duration-700 ease-in-out relative z-10">
             
-            <div class="relative z-10 text-left flex flex-col items-start w-full max-md:max-w-full md:max-w-xl lg:max-w-2xl transition-transform duration-500 group-hover:scale-105">
-                <span class="inline-block bg-blue-50 border border-blue-200 text-blue-700 px-5 py-1.5 max-md:px-3 max-md:py-1 rounded-full text-xs max-md:text-[9px] font-black tracking-wide shadow-sm mb-6 max-md:mb-3 animate-pulse">
-                    🐊 Halo Arek-Arek Suroboyo!
-                </span>
-                
-                <h1 class="text-5xl md:text-6xl lg:text-7xl max-md:text-[45px] font-black text-blue-950 tracking-tight mb-2 max-md:mb-1 drop-shadow-sm">SCS</h1>
-                <h2 class="text-xl md:text-2xl max-md:text-[11px] font-bold text-slate-400 mb-6 max-md:mb-2 uppercase tracking-widest max-md:leading-tight">Swimming Competition<br class="hidden max-md:block">System</h2>
-                
-                <div class="hidden md:block mb-10 w-full pr-8">
-                    <h3 class="text-3xl font-extrabold text-blue-900 mb-4">Stop Ribet Urus <span class="text-scsGold">Lomba Renang</span></h3>
-                    <p class="text-base text-slate-500 mb-6 leading-relaxed font-medium">
-                        Dari proses pendaftaran online, konfirmasi pembayaran, drawing seri & lintasan otomatis, hingga rekap hasil lomba dalam satu dashboard. Tinggalkan cara manual, mulai otomatisasi event kejuaraan Anda hari ini.
-                    </p>
-                    <div class="flex flex-wrap gap-3 lg:gap-4 text-xs lg:text-sm text-slate-600 font-bold bg-slate-50 p-3 lg:p-4 rounded-xl border border-slate-100 w-max">
-                        <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg lg:text-xl">🏊‍♂️</span> 3.500+ Atlet</span>
-                        <span class="text-slate-300">|</span>
-                        <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg lg:text-xl">🏆</span> 40+ Event</span>
-                        <span class="text-slate-300">|</span>
-                        <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg lg:text-xl">🏟️</span> 25 Klub</span>
-                    </div>
+            <!-- SLIDE 1: Fokus Penyelenggara / EO -->
+            <div class="w-1/3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center shrink-0">
+                <div class="flex justify-center mb-6 md:mb-8">
+                    <span class="inline-block bg-amber-50 border border-amber-200 text-amber-700 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-wide shadow-sm">
+                        🚀 Lomba Profesional Tanpa Spreadsheet & Google Forms
+                    </span>
                 </div>
-                
-                <a href="/auth.html" class="bg-blue-900 text-white px-8 py-4 max-md:px-0 max-md:pl-8 max-md:py-3.5 rounded-full font-black text-sm max-md:text-[11px] md:text-base hover:bg-blue-800 transition shadow-[0_10px_20px_rgba(30,58,138,0.2)] hover:-translate-y-1 w-full md:w-max max-md:w-[320px] flex items-center justify-center max-md:justify-start gap-2">
-                    Masuk Club / EO <span>&raquo;</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="w-full md:w-1/2 h-full absolute md:relative inset-0 md:inset-auto bg-blue-950 z-10 flex flex-col max-md:justify-end max-md:items-end md:justify-center md:items-end p-8 md:p-16 lg:px-20 max-md:pb-[15vh] max-md:pl-0 max-md:pr-6 max-md:[clip-path:polygon(100%_0,100%_100%,0_100%)] transition-all duration-700 ease-in-out hover:md:w-[60%] group">
-            <div class="absolute inset-0 z-0 opacity-[0.05] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-red-900/40 to-transparent z-0"></div>
-            
-            <div class="relative z-10 text-right flex flex-col items-end w-full max-md:max-w-full md:max-w-xl lg:max-w-2xl transition-transform duration-500 group-hover:scale-105">
-                <span class="max-md:hidden inline-block bg-red-500/20 border border-red-500/50 text-red-300 px-5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-sm mb-6">
-                    🪪 KTP Digital Atlet
-                </span>
-                
-                <a href="/f1-profile.html" class="bg-red-600 text-white px-8 py-4 max-md:px-0 max-md:pr-8 max-md:py-3.5 rounded-full font-black text-sm max-md:text-[11px] md:text-base hover:bg-red-500 transition shadow-[0_10px_20px_rgba(220,38,38,0.3)] hover:-translate-y-1 w-full md:w-max max-md:w-[320px] flex items-center justify-center max-md:justify-end gap-2 max-md:order-1 max-md:mb-4">
-                    Cek F1 ID Saya <span>&raquo;</span>
-                </a>
-                
-                <h2 class="max-md:order-2 text-xl md:text-2xl max-md:text-[11px] font-bold text-red-400 mb-6 max-md:mb-1 uppercase tracking-widest drop-shadow-md max-md:leading-tight">Identitas Perenang<br class="hidden max-md:block">Indonesia</h2>
-                <h1 class="max-md:order-3 text-5xl md:text-6xl lg:text-7xl max-md:text-[45px] font-black text-white tracking-tight mb-2 max-md:mb-0 drop-shadow-lg">F1 ID</h1>
-                
-                <div class="hidden md:block mb-10 w-full pl-8 max-md:order-4 mt-3">
-                    <h3 class="text-3xl font-extrabold text-white mb-4">Apa itu <span class="text-red-400">F1 ID?</span></h3>
-                    <p class="text-base text-slate-300 leading-relaxed font-medium mb-2">
-                        Satu F1 ID resmi untuk identitas atlet seumur hidup. Selamat tinggal salah ketik nama atau pemalsuan umur. Koleksi e-certificate, simpan catatan waktu terbaik, dan pantau posisi Anda di Leaderboard Nasional SCS.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full z-30 items-center justify-center shadow-2xl border-4 border-gray-100 text-slate-400 font-black text-[10px] tracking-widest pointer-events-none mt-6">
-            ATAU
-        </div>
-    </section>
-
-    <section class="py-16 md:py-24 bg-white border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="space-y-20 md:hidden mb-20">
-                <div class="flex flex-col items-center gap-10">
-                    <div class="w-full text-center">
-                        <span class="inline-block bg-amber-50 border border-amber-200 text-amber-700 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-sm mb-6">
-                            🚀 Lomba Profesional
-                        </span>
-                        <h2 class="text-3xl font-extrabold tracking-tight mb-6 text-blue-950 leading-tight">
-                            Stop Ribet Urus <br><span class="text-scsGold">Lomba Renang</span>
-                        </h2>
-                        <p class="text-lg text-slate-500 mb-8 leading-relaxed font-medium">
-                            Dari proses pendaftaran online, konfirmasi pembayaran, drawing seri & lintasan otomatis, hingga rekap hasil lomba dalam satu dashboard.
-                        </p>
-                        <div class="flex flex-wrap justify-center gap-3 text-xs text-slate-600 font-bold bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏊‍♂️</span> 3.500+ Atlet</span> 
-                            <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏆</span> 40+ Event</span> 
-                            <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏟️</span> 25 Klub</span>
-                        </div>
-                    </div>
-                    <div class="w-full">
-                        <div class="bg-gradient-to-br from-blue-50 to-slate-100 rounded-3xl p-8 border border-blue-100 shadow-inner flex flex-col items-center justify-center min-h-[300px] relative overflow-hidden">
-                            <div class="text-7xl drop-shadow-xl z-10 transform hover:scale-110 transition-transform duration-500">📊💻</div>
-                            <div class="absolute -bottom-6 -right-6 text-[150px] opacity-5">⚙️</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-col items-center gap-10">
-                    <div class="w-full text-center">
-                        <span class="inline-block bg-blue-50 border border-blue-200 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-sm mb-6 flex items-center justify-center gap-2">
-                            🪪 Profil Digital Masa Depan
-                        </span>
-                        <h2 class="text-3xl font-extrabold tracking-tight mb-6 text-blue-950 leading-tight">
-                            Apa itu <span class="text-blue-600">F1 ID?</span>
-                        </h2>
-                        <p class="text-lg text-slate-500 mb-8 leading-relaxed font-medium">
-                            Satu F1 ID resmi untuk identitas atlet seumur hidup. Selamat tinggal salah ketik nama atau pemalsuan umur. Koleksi e-certificate dan catatan waktu terbaikmu!
-                        </p>
-                    </div>
-                    <div class="w-full">
-                        <div class="bg-gradient-to-br from-red-50 to-slate-100 rounded-3xl p-8 border border-red-100 shadow-inner flex items-center justify-center min-h-[300px] relative overflow-hidden">
-                            <div class="text-7xl drop-shadow-xl z-10 transform hover:scale-110 transition-transform duration-500">🪪📱</div>
-                            <div class="absolute -top-6 -left-6 text-[150px] opacity-5">🏆</div>
-                        </div>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-blue-950">
+                    Stop Ribet Urus <br class="hidden md:block">
+                    <span class="text-scsGold drop-shadow-sm">Lomba Renang</span>
+                </h1>
+                <p class="mt-4 text-lg md:text-xl font-medium text-slate-500 max-w-3xl mx-auto mb-8 leading-relaxed">
+                    Dari pendaftaran, pembayaran, drawing, hingga hasil lomba dalam satu dashboard. Tinggalkan cara manual, mulai otomatisasi event Anda hari ini.
+                </p>
+                <div class="flex flex-col items-center gap-6 pb-4">
+                    <a href="/auth.html" id="heroAuthBtn" class="bg-blue-900 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-800 transition shadow-[0_10px_20px_rgba(30,58,138,0.2)] inline-block hover:-translate-y-1">Buat Event Pertama (Gratis)</a>
+                    
+                    <div class="flex flex-wrap justify-center gap-3 md:gap-6 text-xs md:text-sm text-slate-600 font-bold">
+                        <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏊‍♂️</span> 3.500+ Atlet</span> 
+                        <span class="hidden md:inline opacity-30 text-slate-400">|</span>
+                        <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏆</span> 40+ Event</span> 
+                        <span class="hidden md:inline opacity-30 text-slate-400">|</span>
+                        <span class="flex items-center gap-1.5"><span class="text-scsGold text-lg">🏟️</span> 25 Klub</span>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 rounded-3xl p-10 md:p-16 text-center relative overflow-hidden shadow-2xl">
-                <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                <span class="text-5xl md:text-6xl mb-6 drop-shadow-sm block relative z-10">⭐⭐⭐⭐⭐</span>
-                <h3 class="text-xl md:text-3xl font-extrabold mb-8 leading-relaxed max-w-4xl mx-auto italic text-white relative z-10">
+            <!-- SLIDE 2: Fokus Atlet / Orang Tua -->
+            <div class="w-1/3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center shrink-0">
+                <div class="flex justify-center mb-6 md:mb-8">
+                    <span class="inline-block bg-blue-50 border border-blue-200 text-blue-700 px-4 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-wide shadow-sm flex items-center gap-2">
+                        🪪 Profil Digital Perenang Masa Depan
+                    </span>
+                </div>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-blue-950">
+                    Satu F1 ID Untuk <br class="hidden md:block">
+                    <span class="text-blue-600 drop-shadow-sm">Identitas Atlet</span>
+                </h1>
+                <p class="mt-4 text-lg md:text-xl font-medium text-slate-500 max-w-3xl mx-auto mb-8 leading-relaxed">
+                    Koleksi e-certificate, simpan catatan waktu terbaik, dan pantau posisi Anda di Leaderboard Nasional SCS langsung dari genggaman tangan.
+                </p>
+                <div class="flex flex-col items-center gap-6 pb-4">
+                    <a href="/f1-profile.html" class="bg-blue-600 text-white px-8 py-4 rounded-full font-black text-lg hover:bg-blue-700 transition shadow-[0_10px_20px_rgba(37,99,235,0.2)] inline-block hover:-translate-y-1">Apa itu F1 ID? &raquo;</a>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Testimoni / Kepercayaan -->
+            <div class="w-1/3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center shrink-0 flex flex-col items-center justify-center">
+                <span class="text-5xl md:text-6xl mb-6 drop-shadow-sm">⭐⭐⭐⭐⭐</span>
+                <h2 class="text-2xl md:text-4xl font-extrabold mb-8 leading-relaxed max-w-4xl mx-auto italic text-blue-950">
                     "Semenjak pakai ekosistem SCS, panitia udah nggak pernah lagi pusing ngurusin tumpukan kertas. F1 ID bener-bener ngerubah cara kita lomba!"
-                </h3>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 relative z-10">
-                    <div class="w-16 h-16 bg-white text-blue-900 rounded-full flex items-center justify-center text-2xl font-black shadow-[0_0_20px_rgba(255,255,255,0.3)]">A</div>
-                    <div class="text-center md:text-left">
-                        <p class="font-black text-xl text-scsGold tracking-wide">Coach Aditya</p>
-                        <p class="text-slate-300 text-sm font-medium mt-1 bg-white/10 px-3 py-1 rounded-full">Head Coach Jago Renang Academy</p>
+                </h2>
+                <div class="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="w-14 h-14 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center text-xl font-black border-2 border-blue-200">A</div>
+                    <div class="text-left">
+                        <p class="font-black text-lg text-slate-800">Coach Aditya</p>
+                        <p class="text-slate-500 text-sm font-medium">Head Coach Jago Renang Academy</p>
                     </div>
                 </div>
             </div>
+
+        </div>
+
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-30">
+            <button class="hero-dot w-3 h-3 rounded-full bg-blue-900 shadow-sm transition-all scale-125"></button>
+            <button class="hero-dot w-3 h-3 rounded-full bg-slate-300 shadow-sm transition-all"></button>
+            <button class="hero-dot w-3 h-3 rounded-full bg-slate-300 shadow-sm transition-all"></button>
         </div>
     </section>
 
-    <section class="py-16 md:py-20 bg-gray-50 border-b border-gray-200">
+    <!-- SECTION: CARA KERJA -->
+    <section class="py-16 md:py-20 bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">Bagaimana Cara Kerja SCS?</h2>
             <p class="text-slate-500 mb-12">Alur kerja otomatis yang menghemat waktu panitia hingga 80%.</p>
             
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-4 relative">
                 <div class="flex flex-col items-center group">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-lg transition-all border border-blue-100 text-scsBlue shadow-sm">1️⃣</div>
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">1️⃣</div>
                     <h4 class="font-bold text-slate-800 text-sm">Buat Event</h4>
                     <p class="text-xs text-slate-500 mt-1">Setup dalam 5 menit</p>
                 </div>
                 <div class="flex flex-col items-center group">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-lg transition-all border border-blue-100 text-scsBlue shadow-sm">📱</div>
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">📱</div>
                     <h4 class="font-bold text-slate-800 text-sm">Klub Mendaftar</h4>
                     <p class="text-xs text-slate-500 mt-1">1 klik pakai F1 ID</p>
                 </div>
+                
                 <div class="flex flex-col items-center group">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-lg transition-all border border-blue-100 text-scsBlue shadow-sm">💳</div>
-                    <h4 class="font-bold text-slate-800 text-sm">Bayar ke Panitia</h4>
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">💳</div>
+                    <h4 class="font-bold text-slate-800 text-sm">Bayar ke Rekening Panitia</h4>
                     <p class="text-xs text-slate-500 mt-1">Aman & verifikasi mudah</p>
                 </div>
+                
                 <div class="flex flex-col items-center group">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-lg transition-all border border-blue-100 text-scsBlue shadow-sm">📄</div>
-                    <h4 class="font-bold text-slate-800 text-sm">Seri Otomatis</h4>
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">📄</div>
+                    <h4 class="font-bold text-slate-800 text-sm">Seri Lomba Otomatis</h4>
                     <p class="text-xs text-slate-500 mt-1">Drawing tanpa pusing</p>
                 </div>
+                
                 <div class="flex flex-col items-center group">
-                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-lg transition-all border border-blue-100 text-scsBlue shadow-sm">⏱️</div>
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-blue-100 text-scsBlue">⏱️</div>
                     <h4 class="font-bold text-slate-800 text-sm">Live Result</h4>
                     <p class="text-xs text-slate-500 mt-1">Pantau dari tribun</p>
                 </div>
+                
                 <div class="flex flex-col items-center group">
-                    <div class="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-lg transition-all border border-yellow-300 shadow-sm">🏆</div>
+                    <div class="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:-translate-y-2 group-hover:shadow-md transition-all border border-yellow-200">🏆</div>
                     <h4 class="font-bold text-scsGold text-sm">Leaderboard</h4>
                     <p class="text-xs text-slate-500 mt-1">Ranking Nasional by SCS</p>
                 </div>
@@ -271,49 +232,129 @@
         </div>
     </section>
 
-    <section id="fitur" class="pt-16 pb-16 bg-white">
+    <section id="fitur" class="pt-16 pb-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-extrabold text-scsBlue mb-4">Fitur Unggulan SCS</h2>
-                <p class="text-lg text-gray-500 max-w-2xl mx-auto font-medium">Kami merancang SCS untuk menyelesaikan masalah fundamental di lapangan perlombaan renang Indonesia.</p>
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-extrabold text-scsBlue">Fitur Unggulan SCS</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">Kami merancang SCS untuk menyelesaikan masalah fundamental di lapangan perlombaan renang Indonesia.</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-                <div class="bg-gray-50 p-8 rounded-3xl shadow-sm border border-gray-100 border-t-4 border-t-scsGold hover:-translate-y-2 hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6 text-3xl shadow-inner border border-yellow-200">🪪</div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">F1 ID Terverifikasi</h3>
-                    <p class="text-gray-600 leading-relaxed font-medium">Satu atlet, satu F1 ID yang terkoneksi langsung ke database nasional SCS dengan verifikasi Akta Kelahiran resmi dari panitia pusat.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsGold hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mb-6 text-3xl">🪪</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">F1 ID (Identitas Digital)</h3>
+                    <p class="text-gray-600 leading-relaxed">Selamat tinggal salah ketik nama atau umur palsu. Satu atlet, satu F1 ID yang terkoneksi langsung ke database nasional SCS. Akurat & terverifikasi.</p>
                 </div>
-                <div class="bg-gray-50 p-8 rounded-3xl shadow-sm border border-gray-100 border-t-4 border-t-scsBlue hover:-translate-y-2 hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl shadow-inner border border-blue-200">🤝</div>
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-scsBlue hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-3xl">🤝</div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">Sponsor Dashboard</h3>
-                    <p class="text-gray-600 leading-relaxed font-medium">Beri ruang VVIP bagi sponsor event Anda. Mereka bisa memantau klik & tayangan promosi merek secara real-time dari panel khusus.</p>
+                    <p class="text-gray-600 leading-relaxed">Beri ruang VVIP bagi sponsor event Anda. Mereka bisa memantau klik, tayangan promosi mereka secara real-time dari panel khusus.</p>
                 </div>
-                <div class="bg-gray-50 p-8 rounded-3xl shadow-sm border border-gray-100 border-t-4 border-t-emerald-500 hover:-translate-y-2 hover:shadow-xl transition duration-300">
-                    <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-6 text-3xl shadow-inner border border-emerald-200">🚀</div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Otomatisasi Kilat</h3>
-                    <p class="text-gray-600 leading-relaxed font-medium">Dari setting harga tiket, penyusunan Heat/Seri otomatis, sampai cetak e-certificate presisi. Semua proses dipangkas menjadi hitungan menit.</p>
+                <div class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-emerald-500 hover:-translate-y-2 transition duration-300">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mb-6 text-3xl">🚀</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Setup Event Super Kilat</h3>
+                    <p class="text-gray-600 leading-relaxed">Dari setting harga tiket, buku acara otomatis, sampai cetak e-certificate presisi. Apa yang biasanya butuh waktu berminggu-minggu, kini hitungan menit.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="bg-gray-900 text-gray-400 py-12 border-t border-gray-800">
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <img src="/images/logo.png" alt="SCS Logo" class="h-14 mx-auto mb-6 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-            <p class="font-medium text-slate-300">&copy; 2026 F1 Swimming. All rights reserved.</p>
-            <p class="mt-2 text-sm text-slate-500 font-bold tracking-wide">DIDESAIN OLEH ORANG LAPANGAN, UNTUK ORANG LAPANGAN.</p>
+            <img src="/images/logo.png" alt="SCS Logo" class="h-16 mx-auto mb-6 opacity-80 grayscale">
+            <p>&copy; 2026 Swimming Competition System (SCS) Akuatik Nusantara.</p>
+            <p class="mt-2 text-sm">Didesain oleh orang lapangan, untuk orang lapangan.</p>
         </div>
     </footer>
 
+    <!-- ============================================== -->
+    <!-- MODAL CAMPAIGN SURABAYA (FREEMIUM)             -->
+    <!-- ============================================== -->
+    <div id="modalCampaignSby" class="fixed inset-0 bg-slate-900/80 z-[150] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 relative border-2 border-blue-100">
+            
+            <!-- Tombol Close (X) -->
+            <button id="closeCampaignBtn" class="absolute top-4 right-4 text-white/70 hover:text-white z-20 text-3xl font-black transition-colors drop-shadow-md">&times;</button>
+            
+            <!-- Header Edisi Spesial Suroboyo -->
+            <div class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 p-8 text-center relative overflow-hidden">
+                <!-- Ornamen Latar -->
+                <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                <div class="absolute -bottom-10 -right-10 text-9xl opacity-10 rotate-12">🐊</div>
+                
+                <span class="text-5xl block mb-2 relative z-10 drop-shadow-lg">🐊🦈</span>
+                <h2 class="text-2xl font-black text-white relative z-10 tracking-tight drop-shadow-md">Hai Arek-Arek Suroboyo!</h2>
+            </div>
+            
+            <!-- Content Campaign -->
+            <div class="p-6 md:p-8 text-center relative bg-white">
+                
+                <p class="text-sm text-slate-600 font-medium leading-relaxed mb-5">
+                    Setelah SCS sukses memutar roda kejuaraan di berbagai kota, kini saatnya kalian yang kebagian coba <strong>ALL FITUR</strong> kami secara <span class="text-emerald-600 font-black">GRATIS!</span><br>
+                    <span class="text-[10px] text-slate-400 block mt-1">(Kecuali modul cari sponsor ya ✌️)</span>
+                </p>
+                
+                <!-- Box Fitur -->
+                <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl mb-6 text-left inline-block w-full shadow-inner">
+                    <p class="text-xs text-blue-900 font-extrabold mb-2 flex items-center gap-2"><span>✅</span> Live Result Otomatis</p>
+                    <p class="text-xs text-blue-900 font-extrabold mb-2 flex items-center gap-2"><span>✅</span> Auto-Generate Sertifikat & Piagam</p>
+                    <p class="text-xs text-blue-900 font-extrabold flex items-center gap-2"><span>✅</span> Manajemen Heat, Seri & Lintasan</p>
+                </div>
+                
+                <!-- Badge Freemium -->
+                <div class="inline-block bg-gradient-to-r from-amber-200 to-yellow-400 px-5 py-2 rounded-full shadow-[0_0_20px_rgba(251,191,36,0.5)] border border-amber-300 mb-8 transform -rotate-3 hover:rotate-0 transition-transform cursor-default">
+                    <span class="text-sm font-black text-amber-900 uppercase tracking-widest drop-shadow-sm">✨ FREEMIUM ✨<br><span class="text-[9px] block text-center">(Free Tapi Premium)</span></span>
+                </div>
+                
+                <!-- Tombol CTA -->
+                <button onclick="window.location.href='/auth.html'" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-[0_10px_20px_rgba(37,99,235,0.3)] transition-all active:scale-95 flex items-center justify-center gap-2 text-lg">
+                    🚀 Buat Event Sekarang
+                </button>
+                
+                <button id="btnNantiSajaCampaign" class="mt-5 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">Nanti Saja, Masih Mau Liat-lihat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT GABUNGAN: UI, POP-UP & CEK LOGIN SUPABASE -->
     <script type="module">
         import { supabaseClient } from '/src/supabase.js';
 
         document.addEventListener('DOMContentLoaded', async () => {
+            
+            // 1. LOGIC MODAL CAMPAIGN SURABAYA (MUNCUL TIAP REFRESH)
+            const modalCampaign = document.getElementById('modalCampaignSby');
+            const closeBtn = document.getElementById('closeCampaignBtn');
+            const nantiSajaBtn = document.getElementById('btnNantiSajaCampaign');
+
+            if (modalCampaign) {
+                // Munculkan Pop-up otomatis setelah 1.5 detik
+                setTimeout(() => {
+                    modalCampaign.classList.remove('hidden');
+                    setTimeout(() => {
+                        modalCampaign.firstElementChild.classList.remove('scale-95');
+                    }, 50);
+                }, 1500);
+
+                const closeModal = () => {
+                    modalCampaign.firstElementChild.classList.add('scale-95');
+                    setTimeout(() => {
+                        modalCampaign.classList.add('hidden');
+                    }, 300);
+                };
+
+                if (closeBtn) closeBtn.addEventListener('click', closeModal);
+                if (nantiSajaBtn) nantiSajaBtn.addEventListener('click', closeModal);
+            }
+
+            // 2. CEK STATUS LOGIN
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
+                
                 const floatBtn = document.getElementById('floatingAuthBtn');
                 const floatText = document.getElementById('floatingAuthText');
+                const heroBtn = document.getElementById('heroAuthBtn');
                 
                 if (session) {
                     floatBtn.href = '/dashboard.html';
@@ -321,11 +362,19 @@
                     floatBtn.classList.replace('border-blue-900', 'border-emerald-700');
                     floatBtn.classList.replace('hover:bg-blue-900', 'hover:bg-emerald-700');
                     floatText.innerText = 'Ke Dashboard';
+
+                    if (heroBtn) {
+                        heroBtn.href = '/dashboard.html';
+                        heroBtn.innerText = 'Buka Command Center';
+                        heroBtn.classList.replace('bg-blue-900', 'bg-emerald-600');
+                        heroBtn.classList.replace('hover:bg-blue-800', 'hover:bg-emerald-700');
+                    }
                 }
             } catch (err) {
                 console.error("Gagal cek auth:", err);
             }
 
+            // 3. LOGIC BURGER MENU MOBILE
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const mobileMenu = document.getElementById('mobileMenu');
             const closeMobileBtn = document.getElementById('closeMobileBtn');
@@ -342,9 +391,49 @@
 
             if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMobile);
             if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobile);
+
+            // 4. LOGIC HERO SLIDER
+            const heroTrack = document.getElementById('heroTrack');
+            const heroPrev = document.getElementById('heroPrev');
+            const heroNext = document.getElementById('heroNext');
+            const heroDots = document.querySelectorAll('.hero-dot');
+            let currentHeroSlide = 0;
+            const totalSlides = 3; 
+
+            function updateHeroSlider() {
+                heroTrack.style.transform = `translateX(-${currentHeroSlide * 33.3333}%)`;
+                heroDots.forEach((dot, index) => {
+                    if(index === currentHeroSlide) {
+                        dot.classList.replace('bg-slate-300', 'bg-blue-900');
+                        dot.classList.add('scale-125');
+                    } else {
+                        dot.classList.replace('bg-blue-900', 'bg-slate-300');
+                        dot.classList.remove('scale-125');
+                    }
+                });
+            }
+
+            if(heroNext) {
+                heroNext.addEventListener('click', () => {
+                    currentHeroSlide = (currentHeroSlide + 1) % totalSlides;
+                    updateHeroSlider();
+                });
+            }
+
+            if(heroPrev) {
+                heroPrev.addEventListener('click', () => {
+                    currentHeroSlide = (currentHeroSlide - 1 + totalSlides) % totalSlides;
+                    updateHeroSlider();
+                });
+            }
+
+            setInterval(() => {
+                currentHeroSlide = (currentHeroSlide + 1) % totalSlides;
+                updateHeroSlider();
+            }, 6000); 
         });
     </script>
+ 
+
 </body>
 </html>
-
-

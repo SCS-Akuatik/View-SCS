@@ -200,17 +200,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // =========================================================
-        // RENDER KELOMPOK UMUR & GAYA
+        // RENDER KELOMPOK UMUR & GAYA (DENGAN LOGIKA BLACKLIST)
         // =========================================================
-        const kuList = eventData.config_ku || [];
-        document.getElementById('inputTglLahir').addEventListener('change', (e) => {
-            const tahunLahir = new Date(e.target.value).getFullYear();
-            if (isNaN(tahunLahir)) return;
-            
-            const matchedKU = kuList.find(ku => tahunLahir >= Number(ku.tahunMulai) && tahunLahir <= Number(ku.tahunAkhir));
-            document.getElementById('inputAutoKU').value = matchedKU ? matchedKU.nama : "Di Luar Rentang KU";
-        });
-
         const gayaList = eventData.config_gaya || [];
         const containerGaya = document.getElementById('containerNomorLomba');
         containerGaya.innerHTML = '';
@@ -219,10 +210,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             let jarakHTML = '';
             (gaya.jarak || []).forEach(jrk => {
                 if(jrk.aktif) {
+                    const blacklistStr = JSON.stringify(jrk.blacklist_ku || []);
                     jarakHTML += `
-                        <label class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-colors">
-                            <input type="checkbox" name="nomor_lomba" value="${gaya.nama} ${jrk.nama}" class="w-4 h-4 text-blue-600 rounded">
-                            ${jrk.nama}
+                        <label class="lbl-nomor flex items-center gap-2 text-xs font-bold text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-blue-50 transition-colors" data-blacklist='${blacklistStr}'>
+                            <input type="checkbox" name="nomor_lomba" value="${gaya.nama} ${jrk.nama}" class="chk-nomor w-4 h-4 text-blue-600 rounded">
+                            <span class="lbl-text">${jrk.nama}</span>
                         </label>
                     `;
                 }
@@ -235,6 +227,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 `;
             }
+        });
+
+        const kuList = eventData.config_ku || [];
+        document.getElementById('inputTglLahir').addEventListener('change', (e) => {
+            const tahunLahir = new Date(e.target.value).getFullYear();
+            if (isNaN(tahunLahir)) return;
+            
+            const matchedKU = kuList.find(ku => tahunLahir >= Number(ku.tahunMulai) && tahunLahir <= Number(ku.tahunAkhir));
+            const currentKUName = matchedKU ? matchedKU.nama : "Di Luar Rentang KU";
+            document.getElementById('inputAutoKU').value = currentKUName;
+
+            // Logika disable/enable checkbox jika KU di-blacklist di nomor lomba tertentu
+            document.querySelectorAll('.lbl-nomor').forEach(label => {
+                const blacklist = JSON.parse(label.getAttribute('data-blacklist'));
+                const checkbox = label.querySelector('.chk-nomor');
+                const textSpan = label.querySelector('.lbl-text');
+
+                if (blacklist.includes(currentKUName)) {
+                    checkbox.disabled = true;
+                    checkbox.checked = false;
+                    label.classList.add('opacity-50', 'bg-slate-200', 'cursor-not-allowed');
+                    label.classList.remove('hover:bg-blue-50');
+                    textSpan.innerText = `${checkbox.value.split(' ').pop()} (Dilarang)`;
+                } else {
+                    checkbox.disabled = false;
+                    label.classList.remove('opacity-50', 'bg-slate-200', 'cursor-not-allowed');
+                    label.classList.add('hover:bg-blue-50');
+                    textSpan.innerText = checkbox.value.split(' ').pop();
+                }
+            });
         });
 
         loadTagihan();

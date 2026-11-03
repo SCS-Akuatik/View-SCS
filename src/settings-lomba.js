@@ -182,6 +182,7 @@ window.renderGaya = function() {
                 <div class="flex flex-col">
                     <span class="font-bold text-slate-700 text-xs flex items-center gap-2">${jrk.nama} 
                         <button onclick="deleteJarak(${gaya.id}, ${jrk.id})" class="text-slate-400 hover:text-red-500 font-bold text-[10px] opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>
+                        <button onclick="openModalAturanLomba(${gaya.id}, ${jrk.id})" class="text-blue-400 hover:text-blue-600 font-bold text-[10px] opacity-0 group-hover/item:opacity-100 transition-opacity">Aturan</button>
                     </span>
                 </div>
                 <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" ${checked} onchange="toggleJarak(${gaya.id}, ${jrk.id})">
@@ -338,6 +339,50 @@ window.saveItemEstafet = () => {
 }
 window.deleteItemEstafet = (parentId, itemId) => { if(confirm('Hapus Nomor Estafet ini?')) { const index = dataEstafet.findIndex(e => e.id == parentId); dataEstafet[index].list = dataEstafet[index].list.filter(i => i.id !== itemId); window.renderEstafet(); } }
 window.toggleItemEstafet = (parentId, itemId) => { const parentIndex = dataEstafet.findIndex(e => e.id == parentId); const itemIndex = dataEstafet[parentIndex].list.findIndex(i => i.id == itemId); dataEstafet[parentIndex].list[itemIndex].aktif = !dataEstafet[parentIndex].list[itemIndex].aktif; }
+
+// ==========================================
+// MODAL ATURAN & KUOTA LOMBA
+// ==========================================
+window.openModalAturanLomba = (gayaId, jarakId) => {
+    document.getElementById('aturanGayaId').value = gayaId;
+    document.getElementById('aturanJarakId').value = jarakId;
+    
+    const gaya = dataGaya.find(g => g.id == gayaId);
+    const jarak = gaya.jarak.find(j => j.id == jarakId);
+    
+    document.getElementById('aturanKuota').value = jarak.kuota || 0;
+    
+    const containerKU = document.getElementById('containerAturanKU');
+    containerKU.innerHTML = '';
+    
+    dataKU.filter(k => k.aktif).forEach(ku => {
+        const isBlacklisted = (jarak.blacklist_ku || []).includes(ku.nama);
+        containerKU.innerHTML += `
+            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer p-1.5 hover:bg-slate-100 rounded transition-colors">
+                <input type="checkbox" value="${ku.nama}" class="chk-blacklist-ku w-4 h-4 text-red-500 rounded" ${isBlacklisted ? 'checked' : ''}>
+                Tolak ${ku.nama}
+            </label>
+        `;
+    });
+    
+    window.openModal('modalAturanLomba');
+}
+
+window.saveAturanLomba = () => {
+    const gayaId = document.getElementById('aturanGayaId').value;
+    const jarakId = document.getElementById('aturanJarakId').value;
+    const kuota = document.getElementById('aturanKuota').value;
+    
+    const blacklist = Array.from(document.querySelectorAll('.chk-blacklist-ku:checked')).map(cb => cb.value);
+    
+    const gayaIndex = dataGaya.findIndex(g => g.id == gayaId);
+    const jarakIndex = dataGaya[gayaIndex].jarak.findIndex(j => j.id == jarakId);
+    
+    dataGaya[gayaIndex].jarak[jarakIndex].kuota = Number(kuota);
+    dataGaya[gayaIndex].jarak[jarakIndex].blacklist_ku = blacklist;
+    
+    window.closeModal('modalAturanLomba');
+}
 
 // ==========================================
 // SIMPAN SEMUA KE DATABASE

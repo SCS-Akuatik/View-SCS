@@ -178,14 +178,15 @@ window.renderGaya = function() {
         gaya.jarak.forEach(jrk => { 
             const checked = jrk.aktif ? 'checked' : ''; 
             jarakHTML += `
-            <div class="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-white group/item hover:border-blue-200 transition-colors shadow-sm">
-                <div class="flex flex-col">
-                    <span class="font-bold text-slate-700 text-xs flex items-center gap-2">${jrk.nama} 
-                        <button onclick="deleteJarak(${gaya.id}, ${jrk.id})" class="text-slate-400 hover:text-red-500 font-bold text-[10px] opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>
-                        <button onclick="openModalAturanLomba(${gaya.id}, ${jrk.id})" class="text-blue-400 hover:text-blue-600 font-bold text-[10px] opacity-0 group-hover/item:opacity-100 transition-opacity">Aturan</button>
-                    </span>
+            <div class="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-white shadow-sm">
+                <div class="flex flex-col gap-1.5">
+                    <span class="font-extrabold text-slate-700 text-xs">${jrk.nama}</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openModalAturanLomba(${gaya.id}, ${jrk.id})" class="bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded text-[10px] font-bold active:scale-95 transition-transform">⚙️ Aturan</button>
+                        <button onclick="deleteJarak(${gaya.id}, ${jrk.id})" class="bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded text-[10px] font-bold active:scale-95 transition-transform">Hapus</button>
+                    </div>
                 </div>
-                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" ${checked} onchange="toggleJarak(${gaya.id}, ${jrk.id})">
+                <input type="checkbox" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 shrink-0" ${checked} onchange="toggleJarak(${gaya.id}, ${jrk.id})">
             </div>`; 
         }); 
         
@@ -194,11 +195,14 @@ window.renderGaya = function() {
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
                 <div class="flex items-center gap-3">
                     <h3 class="font-extrabold text-slate-800 text-sm tracking-wide uppercase">${gaya.nama}</h3>
-                    <button onclick="deleteGaya(${gaya.id})" class="text-[10px] font-bold text-slate-400 hover:text-red-600 opacity-0 group-hover/cat:opacity-100 transition-opacity">Hapus Kategori</button>
+                    <button onclick="deleteGaya(${gaya.id})" class="text-[10px] font-bold text-slate-400 hover:text-red-600 opacity-0 group-hover/cat:opacity-100 transition-opacity hidden md:block">Hapus Kategori</button>
                 </div>
-                <button onclick="openModalJarak(${gaya.id})" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-3 py-1.5 rounded-md hover:bg-blue-200 transition-colors">Tambah Jarak</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="deleteGaya(${gaya.id})" class="text-[10px] font-bold text-red-600 bg-red-100 px-3 py-1.5 rounded-md hover:bg-red-200 transition-colors active:scale-95 md:hidden">Hapus</button>
+                    <button onclick="openModalJarak(${gaya.id})" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-3 py-1.5 rounded-md hover:bg-blue-200 transition-colors active:scale-95">Tambah Jarak</button>
+                </div>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">${jarakHTML}</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">${jarakHTML}</div>
         </div>`; 
     }); 
 }
@@ -234,9 +238,12 @@ window.renderEstafet = function() {
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-purple-200/50">
                 <div class="flex items-center gap-3">
                     <h3 class="font-extrabold text-slate-800 text-sm tracking-wide uppercase">${estafet.nama}</h3>
-                    <button onclick="deleteEstafet(${estafet.id})" class="text-[10px] font-bold text-slate-400 hover:text-red-600 opacity-0 group-hover/cat:opacity-100 transition-opacity">Hapus Kategori</button>
+                    <button onclick="deleteEstafet(${estafet.id})" class="text-[10px] font-bold text-slate-400 hover:text-red-600 opacity-0 group-hover/cat:opacity-100 transition-opacity hidden md:block">Hapus Kategori</button>
                 </div>
-                <button onclick="openModalItemEstafet(${estafet.id})" class="text-[10px] font-bold text-purple-700 bg-purple-100 px-3 py-1.5 rounded-md hover:bg-purple-200 transition-colors">Tambah Nomor</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="deleteEstafet(${estafet.id})" class="text-[10px] font-bold text-red-600 bg-red-100 px-3 py-1.5 rounded-md hover:bg-red-200 transition-colors active:scale-95 md:hidden">Hapus</button>
+                    <button onclick="openModalItemEstafet(${estafet.id})" class="text-[10px] font-bold text-purple-700 bg-purple-100 px-3 py-1.5 rounded-md hover:bg-purple-200 transition-colors active:scale-95">Tambah Nomor</button>
+                </div>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${listHTML}</div>
         </div>`; 
